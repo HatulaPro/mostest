@@ -2,10 +2,10 @@
 	"name": "mostest",
 	"scripts": {
 		"dev": "solid-start dev",
-		"build": "solid-start build",
+		"build1": "solid-start build",
+		"build": "solid-start build && cp node_modules/@prisma/engines/*query* .vercel/output/functions/api.func/ && cp node_modules/@prisma/engines/*query* .vercel/output/functions/render.func/ && cp prisma/schema.prisma .vercel/output/functions/render.func/ && cp prisma/schema.prisma .vercel/output/functions/api.func/",
 		"start": "solid-start start",
-		"postinstall": "prisma generate",
-		"bluh": " && cp node_modules/@prisma/engines/*query* .vercel/output/functions/api.func/ && cp node_modules/@prisma/engines/*query* .vercel/output/functions/render.func/ && cp prisma/schema.prisma .vercel/output/functions/render.func/ && cp prisma/schema.prisma .vercel/output/functions/api.func/"
+		"postinstall": "prisma generate"
 	},
 	"type": "module",
 	"devDependencies": {
