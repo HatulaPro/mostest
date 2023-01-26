@@ -30,6 +30,7 @@
 		"prisma": "^4.9.0",
 		"solid-js": "^1.6.9",
 		"solid-start": "^0.2.15",
+		"solid-transition-group": "^0.0.12",
 		"undici": "^5.15.1",
 		"zod": "^3.20.2"
 	},

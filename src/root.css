@@ -63,3 +63,17 @@ html,
 body {
 	font-family: 'Inter';
 }
+
+.list-item {
+	transition: all 0.5s;
+	list-style-type: none;
+}
+
+.list-item-enter,
+.list-item-exit-to {
+	opacity: 0;
+	transform: translateY(100%);
+}
+.list-item-exit-active {
+	position: absolute;
+}
