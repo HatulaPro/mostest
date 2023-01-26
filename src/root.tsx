@@ -26,6 +26,7 @@ export default function Root() {
 								</li>
 							</ul>
 						</nav>
+						<div class="absolute inset-0 -z-10 h-2/3 w-full" style={{ 'background-size': '20px 20px', background: 'linear-gradient(to bottom,transparent,#111827 300px),radial-gradient(#777777 1px,transparent 0) 0 0/20px 20px fixed,radial-gradient(#777777 1px,transparent 0) 10px 10px/20px 20px fixed' }}></div>
 						<Routes>
 							<FileRoutes />
 						</Routes>

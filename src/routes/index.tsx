@@ -1,4 +1,4 @@
-import { Component, createSignal, For, createRoot, createMemo, onCleanup, untrack } from 'solid-js';
+import { Component, createSignal, For } from 'solid-js';
 import { TransitionGroup } from 'solid-transition-group';
 
 export default function Home() {
@@ -39,7 +39,7 @@ const Minigame: Component = () => {
 	}
 
 	return (
-		<div class="mx-auto w-1/2">
+		<div class="relative mx-auto w-1/2">
 			<h2 class="py-3 text-lg">Which one is better?</h2>
 			<div class="flex w-full justify-center gap-4">
 				<div class="flex flex-1 flex-col justify-center gap-3 text-lg">
@@ -51,11 +51,11 @@ const Minigame: Component = () => {
 						)}
 					</For>
 				</div>
-				<div class="flex-1 rounded-md border-2 border-gray-500  p-2">
+				<div class="flex-1 rounded-md border-2 border-gray-500 p-2">
 					<TransitionGroup name="list-item">
 						<For each={ordered()}>
 							{(k, i) => (
-								<div class="list-item border-b-2 border-gray-600 bg-slate-900 p-2 text-left last:border-b-0">
+								<div class="list-item border-b-2 border-gray-600 p-2 text-left last:border-b-0">
 									<strong>{i() + 1}</strong>. {k} <span class="text-xs text-gray-300">({leaderboard()[k]} votes)</span>
 								</div>
 							)}
