@@ -1,0 +1,62 @@
+Arguments: 
+  C:\Program Files\nodejs\node.exe C:\Users\shale\AppData\Roaming\npm\node_modules\yarn\bin\yarn.js install
+
+PATH: 
+  C:\Program Files\Eclipse Adoptium\jdk-17.0.5.8-hotspot\bin;C:\Python311\Scripts\;C:\Python311\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files\nodejs\;C:\Program Files\Git\cmd;C:\ProgramData\chocolatey\bin;C:\Users\shale\AppData\Roaming\npm;C:\Users\shale\AppData\Local\Programs\Microsoft VS Code\bin;C:\Program Files\GitHub CLI\;C:\Users\shale\AppData\Local\Microsoft\WindowsApps;;C:\Users\shale\AppData\Local\Programs\Microsoft VS Code\bin
+
+Yarn version: 
+  1.22.19
+
+Node version: 
+  18.13.0
+
+Platform: 
+  win32 x64
+
+Trace: 
+  Error: ENOENT: no such file or directory, copyfile 'C:\Users\shale\AppData\Local\Yarn\Cache\v6\npm-glob-parent-6.0.2-6d237d99083950c79290f24c7642a3de9a28f9e3-integrity\node_modules\glob-parent\index.js' -> 'C:\Users\shale\projects\mostest\node_modules\tailwindcss\node_modules\glob-parent\index.js'
+
+npm manifest: 
+  {
+  	"name": "mostest",
+  	"scripts": {
+  		"dev": "solid-start dev",
+  		"build1": "solid-start build",
+  		"build": "solid-start build && cp node_modules/@prisma/engines/*query* .vercel/output/functions/api.func/ && cp node_modules/@prisma/engines/*query* .vercel/output/functions/render.func/ && cp prisma/schema.prisma .vercel/output/functions/render.func/ && cp prisma/schema.prisma .vercel/output/functions/api.func/",
+  		"start": "solid-start start",
+  		"postinstall": "prisma generate"
+  	},
+  	"type": "module",
+  	"devDependencies": {
+  		"@types/node": "^18.11.18",
+  		"autoprefixer": "^10.4.13",
+  		"postcss": "^8.4.21",
+  		"solid-start-node": "^0.2.15",
+  		"solid-start-vercel": "^0.2.16",
+  		"tailwindcss": "^3.2.4",
+  		"typescript": "^4.9.4",
+  		"vite": "^3.2.5"
+  	},
+  	"dependencies": {
+  		"@auth/core": "^0.3.0",
+  		"@auth/solid-start": "^0.1.0",
+  		"@next-auth/prisma-adapter": "^1.0.5",
+  		"@prisma/client": "^4.9.0",
+  		"@solidjs/meta": "^0.28.2",
+  		"@solidjs/router": "^0.7.0",
+  		"prisma": "^4.9.0",
+  		"solid-js": "^1.6.9",
+  		"solid-start": "^0.2.15",
+  		"undici": "^5.15.1",
+  		"zod": "^3.20.2"
+  	},
+  	"engines": {
+  		"node": ">=16"
+  	}
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile
