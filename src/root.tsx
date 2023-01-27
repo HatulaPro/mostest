@@ -16,13 +16,10 @@ export default function Root() {
 			<Body class="min-h-screen bg-gray-900 text-white">
 				<Suspense>
 					<ErrorBoundary>
-						<nav class="fixed top-0 w-full bg-white">
-							<ul class="container flex items-center p-3 text-black">
+						<nav class="fixed top-0 z-50 w-full bg-gray-700 text-white">
+							<ul class="container flex items-center p-4">
 								<li class={`border-b-2 ${active('/')} mx-1.5 sm:mx-6`}>
 									<A href="/">Home</A>
-								</li>
-								<li class={`border-b-2 ${active('/about')} mx-1.5 sm:mx-6`}>
-									<A href="/about">About</A>
 								</li>
 							</ul>
 						</nav>

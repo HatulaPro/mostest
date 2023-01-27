@@ -12,7 +12,7 @@ export default function Home() {
 	return (
 		<>
 			<main class="text-center">
-				<div class="mx-auto flex h-screen max-w-5xl flex-col justify-evenly p-2 pt-10">
+				<div class="mx-auto flex h-screen max-w-5xl flex-col justify-evenly p-2 pt-14">
 					<div class="m-auto flex flex-col justify-center px-2">
 						<h1 class="mb-4 text-3xl sm:text-4xl md:mb-8 md:text-5xl">
 							Turn <span class="font-bold text-red-500">Ideas</span> into <span class="font-bold text-red-500">Leaderboards</span>!
@@ -89,13 +89,13 @@ const CreateLeaderboardForm: Component<{ name: string }> = (props) => {
 	const [currentlyEditing, setCurrentlyEditing] = createSignal(-1);
 
 	function addCandidate() {
-		setCandidates((p) => [{ id: 1 + Math.max(...p.map((c) => c.id)), name: 'Bulbasaur', image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png' }, ...p]);
+		setCandidates((p) => [...p, { id: 1 + Math.max(...p.map((c) => c.id)), name: 'Bulbasaur', image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png' }]);
 	}
 
 	return (
-		<div ref={selfRef} class="grid min-h-screen w-full place-items-center overflow-hidden pt-10">
+		<div ref={selfRef} class="grid min-h-screen w-full place-items-center overflow-hidden pt-14">
 			<div class="flex w-full max-w-5xl flex-col gap-3 rounded-md bg-black bg-opacity-30 p-2 text-left sm:p-8">
-				<h2 class="mb-2 text-4xl">
+				<h2 class="mb-2 text-2xl sm:text-4xl">
 					Create <span class="font-bold text-red-500">Leaderboard</span>
 				</h2>
 				<input class="w-1/3 rounded-md border-2 border-gray-500 bg-gray-800 p-2 text-white outline-none transition-colors focus:border-gray-200" type="text" value={props.name || formData().name} onChange={(e) => setFormData((p) => ({ ...p, name: e.currentTarget.value }))} placeholder="Roundest" />
@@ -118,7 +118,7 @@ const CreateLeaderboardForm: Component<{ name: string }> = (props) => {
 					<TransitionGroup name="animated-x-list-item">
 						<Index each={candidates()}>
 							{(item) => (
-								<div use:clickOutsideDirective={() => setCurrentlyEditing(-1)} onClick={() => setCurrentlyEditing(item().id)} class="animated-x-list-item relative flex flex-col gap-2 overflow-hidden rounded-md border-2 border-gray-500 bg-gray-800 p-4 sm:h-48 sm:flex-row">
+								<div use:clickOutsideDirective={() => setCurrentlyEditing(-1)} onClick={() => setCurrentlyEditing(item().id)} class="animated-x-list-item relative flex flex-col overflow-hidden rounded-md border-2 border-gray-500 bg-gray-800 py-4 px-2 sm:h-48 sm:flex-row">
 									<div class="mx-auto flex w-20 flex-col items-center justify-between sm:w-32">
 										<img src={item().image} class="h-full object-contain" />
 										<span>{item().name}</span>
