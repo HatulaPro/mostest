@@ -25,10 +25,9 @@ export default function Home() {
 
 const Minigame: Component = () => {
 	const [leaderboard, setLeaderboard] = createSignal<Record<string, number>>({ 'Pizza 🍕': 0, 'Cake 🍰': 0 });
-	const names = () => Object.keys(leaderboard());
 	const ordered = () => {
 		const leads = leaderboard();
-		return [...names()].sort((k1, k2) => leads[k2] - leads[k1]);
+		return [...Object.keys(leaderboard())].sort((k1, k2) => leads[k2] - leads[k1]);
 	};
 
 	function voteFor(name: string) {
