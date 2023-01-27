@@ -4,15 +4,15 @@ import { TransitionGroup } from 'solid-transition-group';
 export default function Home() {
 	return (
 		<>
-			<main class="relative mx-auto max-w-5xl p-2 text-center">
-				<div class="mx-auto flex h-[50vh] flex-col justify-center">
-					<h1 class="mb-8 text-5xl">
+			<main class="relative mx-auto flex h-screen max-w-5xl flex-col justify-evenly p-2 text-center">
+				<div class="m-auto flex flex-col justify-center px-2">
+					<h1 class="mb-4 text-3xl sm:text-4xl md:mb-8 md:text-5xl">
 						Turn <span class="font-bold text-red-500">Ideas</span> into <span class="font-bold text-red-500">Leaderboards</span>!
 					</h1>
-					<p class="text-xl font-bold">Let us turn your leaderboard game idea into reality</p>
-					<div class="mx-auto mt-8 flex w-1/2 justify-between rounded-full bg-gray-200 p-2 text-xl">
-						<input class="flex-1 rounded-full bg-gray-200 pl-3 text-xl text-black outline-none" type="text" placeholder="What interests you?" />
-						<button class="rounded-full bg-red-500 py-3 px-6 transition-colors hover:bg-red-600" type="button">
+					<p class="hidden text-xl font-bold md:block">Let us turn your leaderboard game idea into reality</p>
+					<div class="text-md mx-auto mt-8 flex w-full justify-between rounded-full bg-gray-200 p-2 md:w-2/3 md:text-xl">
+						<input class="text-md flex-1 rounded-full bg-gray-200 pl-3 text-black outline-none md:text-xl" type="text" placeholder="What interests you?" />
+						<button class="rounded-full bg-red-500 py-1.5 px-4 transition-colors hover:bg-red-600 md:py-3 md:px-6" type="button">
 							Create
 						</button>
 					</div>
@@ -39,24 +39,18 @@ const Minigame: Component = () => {
 	}
 
 	return (
-		<div class="relative mx-auto w-1/2">
+		<div class="relative mx-auto my-auto w-full md:w-1/2">
 			<h2 class="py-3 text-lg">Which one is better?</h2>
 			<div class="flex w-full justify-center gap-4">
-				<div class="flex flex-1 flex-col justify-center gap-3 text-lg">
-					<For each={names()}>
-						{(item) => (
-							<button onClick={[voteFor, item]} class="rounded-md border-2 border-gray-500 bg-gray-800 p-10 transition-all hover:shadow-md hover:shadow-slate-700">
-								{item}
-							</button>
-						)}
-					</For>
-				</div>
 				<div class="flex-1 rounded-md border-2 border-gray-500 p-2">
-					<TransitionGroup name="list-item">
+					<TransitionGroup name="animated-list-item">
 						<For each={ordered()}>
 							{(k, i) => (
-								<div class="list-item border-b-2 border-gray-600 p-2 text-left last:border-b-0">
+								<div class="animated-list-item flex items-center gap-1 border-b-2 border-gray-600 p-2 text-left last:border-b-0">
 									<strong>{i() + 1}</strong>. {k} <span class="text-xs text-gray-300">({leaderboard()[k]} votes)</span>
+									<button class="ml-auto rounded-md bg-red-500 px-4 py-1.5" onClick={[voteFor, k]}>
+										Vote
+									</button>
 								</div>
 							)}
 						</For>

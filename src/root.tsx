@@ -16,7 +16,7 @@ export default function Root() {
 			<Body class="min-h-screen bg-gray-900 text-white">
 				<Suspense>
 					<ErrorBoundary>
-						<nav class="bg-white">
+						<nav class="fixed top-0 w-full bg-white">
 							<ul class="container flex items-center p-3 text-black">
 								<li class={`border-b-2 ${active('/')} mx-1.5 sm:mx-6`}>
 									<A href="/">Home</A>

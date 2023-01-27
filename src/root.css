@@ -64,16 +64,16 @@ body {
 	font-family: 'Inter';
 }
 
-.list-item {
+.animated-list-item {
 	transition: all 0.5s;
 	list-style-type: none;
 }
 
-.list-item-enter,
-.list-item-exit-to {
+.animated-list-item-enter,
+.animated-list-item-exit-to {
 	opacity: 0;
 	transform: translateY(100%);
 }
-.list-item-exit-active {
+.animated-list-item-exit-active {
 	position: absolute;
 }
