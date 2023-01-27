@@ -64,16 +64,27 @@ body {
 	font-family: 'Inter';
 }
 
-.animated-list-item {
+.animated-y-list-item-enter,
+.animated-y-list-item-exit-to {
+	opacity: 0;
+	transform: translateY(100%);
+}
+
+.animated-x-list-item,
+.animated-y-list-item {
 	transition: all 0.5s;
 	list-style-type: none;
 }
 
-.animated-list-item-enter,
-.animated-list-item-exit-to {
+.animated-x-list-item-enter {
 	opacity: 0;
-	transform: translateY(100%);
+	transform: translateX(100%);
 }
-.animated-list-item-exit-active {
+.animated-x-list-item-exit-to {
+	opacity: 0;
+	transform: translateX(-100%);
+}
+.animated-x-list-item-exit-active,
+.animated-y-list-item-exit-active {
 	position: absolute;
 }
