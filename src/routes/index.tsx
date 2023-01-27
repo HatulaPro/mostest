@@ -4,7 +4,7 @@ import { TransitionGroup } from 'solid-transition-group';
 export default function Home() {
 	return (
 		<>
-			<main class="relative mx-auto flex h-screen max-w-5xl flex-col justify-evenly p-2 text-center">
+			<main class="relative mx-auto flex h-screen max-w-5xl flex-col justify-evenly p-2 pt-10 text-center">
 				<div class="m-auto flex flex-col justify-center px-2">
 					<h1 class="mb-4 text-3xl sm:text-4xl md:mb-8 md:text-5xl">
 						Turn <span class="font-bold text-red-500">Ideas</span> into <span class="font-bold text-red-500">Leaderboards</span>!
