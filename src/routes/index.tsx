@@ -1,13 +1,16 @@
-import { Index } from 'solid-js';
+import { createEffect, Index } from 'solid-js';
 import { Component, createSignal, For } from 'solid-js';
 import { TransitionGroup } from 'solid-transition-group';
-import { AiFillFileText, AiOutlineClose, AiOutlinePlus } from 'solid-icons/ai';
+import { AiOutlineClose, AiOutlinePlus } from 'solid-icons/ai';
 import clickOutside from '~/bindings/click-outside';
 import { ImportCSV } from '~/components/ImportCSV';
-import { createRouteAction } from 'solid-start';
 import { z } from 'zod';
-import server$, { createServerAction$ } from 'solid-start/server';
+import { createServerAction$ } from 'solid-start/server';
 import { prisma } from '~/db';
+import { slugify } from '~/utils/slugify';
+import { useForm } from '~/hooks/useForm';
+import { Leaderboard } from '@prisma/client';
+import { Loading } from '~/components/Loading';
 const clickOutsideDirective = clickOutside;
 
 let createLeaderboardFormRef: HTMLFormElement | undefined;
@@ -80,15 +83,20 @@ const Minigame: Component = () => {
 	);
 };
 
-const CreateLeaderboardSchema = z.object({ name: z.string(), slug: z.string(), description: z.string(), candidates: z.array(z.object({ id: z.number(), name: z.string(), image: z.string() })) });
+const CreateLeaderboardSchema = z.object({
+	name: z.string().min(2, 'Name must contain at least 2 characters').max(24, 'Name must contain at most 24 characters'),
+	slug: z
+		.string()
+		.min(2, 'Slug must contain at least 2 characters')
+		.max(24, 'Name must contain at most 24 characters')
+		.regex(/^[a-z0-9\-]*$/g, 'Only lowercase letters, digits and dashes (-) are allowed.'),
+	description: z.string().min(4, 'Question must contain at least 4 characters').max(64, 'Question must contain at most 64 characters'),
+	candidates: z.array(z.object({ id: z.number(), name: z.string(), image: z.string() })),
+});
 type CreateLeaderboardType = z.infer<typeof CreateLeaderboardSchema>;
 
 const CreateLeaderboardForm: Component<{ name: string }> = (props) => {
-	const [formData, setFormData] = createSignal({
-		name: '',
-		slug: '',
-		description: '',
-	});
+	const form = useForm({ name: CreateLeaderboardSchema.shape.name, slug: CreateLeaderboardSchema.shape.slug, description: CreateLeaderboardSchema.shape.description });
 
 	const [candidates, setCandidates] = createSignal([
 		{ id: 1, name: 'Zapdos', image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/145.png' },
@@ -101,17 +109,21 @@ const CreateLeaderboardForm: Component<{ name: string }> = (props) => {
 		setCandidates((p) => [...p, { id: 1 + Math.max(...p.map((c) => c.id)), name: 'Bulbasaur', image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png' }]);
 	}
 
-	const [enrolling, enroll] = createServerAction$(async (data: CreateLeaderboardType) => {
+	const [enrolling, enroll] = createServerAction$(async (data: CreateLeaderboardType): Promise<{ success: true; data: { leaderboard: Leaderboard; candidates: number } } | { success: false }> => {
 		const parsed = CreateLeaderboardSchema.safeParse(data);
 		if (!parsed.success) {
-			return { success: false, error: parsed.error.message };
+			return { success: false };
 		}
 
-		// // TODO: Add owner id
-		// const leaderboard = await prisma.leaderboard.create({ data: { name: parsed.data.name, question: parsed.data.description, slug: data.slug, ownerId: undefined } });
-		console.log(data);
-
-		return { success: true, data: parsed.data };
+		// TODO: Add owner id
+		try {
+			const leaderboard = await prisma.leaderboard.create({ data: { name: parsed.data.name, question: parsed.data.description, slug: data.slug, ownerId: undefined } });
+			const leaderboardId = leaderboard.id;
+			const candidates = (await prisma.option.createMany({ data: parsed.data.candidates.map((c) => ({ image: c.image.length ? c.image : undefined, content: c.name, leaderboardId })) })).count;
+			return { success: true, data: { leaderboard, candidates } };
+		} catch (e) {
+			return { success: false };
+		}
 	});
 
 	return (
@@ -119,11 +131,9 @@ const CreateLeaderboardForm: Component<{ name: string }> = (props) => {
 			onSubmit={(e) => {
 				e.preventDefault();
 				enroll({
-					name: formData().name,
-					slug: formData().slug,
-					description: formData().description,
+					...form.data(),
 					candidates: candidates(),
-				});
+				}).then(console.log);
 			}}
 			ref={createLeaderboardFormRef}
 			class="grid min-h-screen w-full place-items-center overflow-hidden pt-14"
@@ -132,20 +142,32 @@ const CreateLeaderboardForm: Component<{ name: string }> = (props) => {
 				<h2 class="mb-2 text-2xl sm:text-4xl">
 					Create <span class="font-bold text-red-500">Leaderboard</span>
 				</h2>
-				<div class="flex w-full gap-2">
-					<input required class="flex-1 rounded-md border-2 border-gray-500 bg-gray-800 p-2 text-white outline-none transition-colors focus:border-gray-200" type="text" value={props.name || formData().name} onChange={(e) => setFormData((p) => ({ ...p, name: e.currentTarget.value }))} placeholder="Roundest" />
-					<input
-						required
-						class="flex-[2] rounded-md border-2 border-gray-500 bg-gray-800 p-2 text-white outline-none transition-colors focus:border-gray-200"
-						type="text"
-						value={formData().slug}
-						onChange={(e) => {
-							setFormData((p) => ({ ...p, slug: e.currentTarget.value }));
-						}}
-						placeholder="roundest-pokemon"
-					/>
+				<div class="flex w-full items-start gap-2">
+					<div class="flex-1">
+						<input required class="w-full rounded-md border-2 border-gray-500 bg-gray-800 p-2 text-white outline-none transition-colors focus:border-gray-200" type="text" value={props.name || form.formState['name'].value} onInput={(e) => form.setValue('name', e.currentTarget.value)} placeholder="Roundest" />
+						<span class="text-sm text-red-400">{form.getError('name')}</span>
+					</div>
+					<div class="flex-[2]">
+						<input
+							required
+							class="w-full rounded-md border-2 border-gray-500 bg-gray-800 p-2 text-white outline-none transition-colors focus:border-gray-200"
+							type="text"
+							value={form.formState['slug'].value}
+							onInput={(e) => {
+								form.setValue('slug', e.currentTarget.value);
+							}}
+							placeholder="roundest-pokemon"
+						/>
+						<span class="text-sm text-red-400">
+							{enrolling.result?.success === false && form.getValue('slug') === enrolling.input?.slug && 'Slug is taken. '}
+							{form.getError('slug')}
+						</span>
+					</div>
 				</div>
-				<input required class="w-full rounded-md  border-2 border-gray-500 bg-gray-800 p-2 text-white outline-none transition-colors focus:border-gray-200" type="text" placeholder="Which Pokémon is Rounder?" value={formData().description} onChange={(e) => setFormData((p) => ({ ...p, description: e.currentTarget.value }))} />
+				<div class="w-full">
+					<input required class="w-full rounded-md  border-2 border-gray-500 bg-gray-800 p-2 text-white outline-none transition-colors focus:border-gray-200" type="text" placeholder="Which Pokémon is Rounder?" value={form.formState['description'].value} onInput={(e) => form.setValue('description', e.currentTarget.value)} />
+					<span class="text-sm text-red-400">{form.getError('description')}</span>
+				</div>
 				<div class="mt-4 flex items-center">
 					<h3 class="text-lg">Candidates:</h3>
 					<button onClick={() => setCandidates([])} class="ml-auto rounded-md bg-slate-700 py-2 px-4 text-sm text-white hover:bg-slate-700">
@@ -208,6 +230,7 @@ const CreateLeaderboardForm: Component<{ name: string }> = (props) => {
 						</Index>
 					</TransitionGroup>
 				</div>
+				<Loading isLoading={enrolling.pending} />
 				<div class="mx-auto flex gap-2">
 					<ImportCSV
 						onImport={(data) => {
@@ -217,12 +240,11 @@ const CreateLeaderboardForm: Component<{ name: string }> = (props) => {
 									p.push({ id, image, name });
 									++id;
 								}
-								console.log(p);
 								return [...p];
 							});
 						}}
 					/>
-					<button type="submit" class="mt-4 rounded-md bg-red-500 py-2 px-4 text-lg text-white hover:bg-red-600">
+					<button disabled={!form.isValid()} type="submit" class="mt-4 items-center rounded-md bg-red-500 py-2 px-4 text-lg text-white hover:enabled:bg-red-600 disabled:contrast-75">
 						Create
 					</button>
 				</div>

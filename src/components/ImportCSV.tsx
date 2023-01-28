@@ -1,5 +1,5 @@
 import { AiFillFileText } from 'solid-icons/ai';
-import { Component, createEffect } from 'solid-js';
+import { Component } from 'solid-js';
 import { createRouteAction } from 'solid-start';
 import server$ from 'solid-start/server';
 import Papa from 'papaparse';
@@ -41,10 +41,6 @@ export const ImportCSV: Component<{ onImport: (data: CsvSchemaType) => void }> =
 		if (enrolling.result.success) return null;
 		return enrolling.result.error;
 	};
-
-	createEffect(() => {
-		console.log('enrolling', enrolling, enrolling.error);
-	});
 
 	let inputFile: HTMLInputElement | undefined;
 	return (
