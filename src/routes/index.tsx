@@ -1,16 +1,16 @@
-import { createEffect, Index } from 'solid-js';
+import { Index } from 'solid-js';
 import { Component, createSignal, For } from 'solid-js';
 import { TransitionGroup } from 'solid-transition-group';
 import { AiOutlineClose, AiOutlinePlus } from 'solid-icons/ai';
 import clickOutside from '~/bindings/click-outside';
 import { ImportCSV } from '~/components/ImportCSV';
 import { z } from 'zod';
-import { createServerAction$ } from 'solid-start/server';
+import { createServerAction$, redirect } from 'solid-start/server';
 import { prisma } from '~/db';
-import { slugify } from '~/utils/slugify';
 import { useForm } from '~/hooks/useForm';
 import { Leaderboard } from '@prisma/client';
 import { Loading } from '~/components/Loading';
+import { useNavigate } from '@solidjs/router';
 const clickOutsideDirective = clickOutside;
 
 let createLeaderboardFormRef: HTMLFormElement | undefined;
@@ -105,8 +105,10 @@ const CreateLeaderboardForm: Component<{ name: string }> = (props) => {
 	]);
 	const [currentlyEditing, setCurrentlyEditing] = createSignal(-1);
 
+	const navigate = useNavigate();
 	function addCandidate() {
-		setCandidates((p) => [...p, { id: 1 + Math.max(...p.map((c) => c.id)), name: 'Bulbasaur', image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png' }]);
+		setCandidates((p) => [...p, { id: 1 + Math.max(0, ...p.map((c) => c.id)), name: 'Bulbasaur', image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png' }]);
+		console.log(candidates());
 	}
 
 	const [enrolling, enroll] = createServerAction$(async (data: CreateLeaderboardType): Promise<{ success: true; data: { leaderboard: Leaderboard; candidates: number } } | { success: false }> => {
@@ -133,7 +135,11 @@ const CreateLeaderboardForm: Component<{ name: string }> = (props) => {
 				enroll({
 					...form.data(),
 					candidates: candidates(),
-				}).then(console.log);
+				}).then((res) => {
+					if (res.success) {
+						navigate(`/${res.data.leaderboard.slug}`);
+					}
+				});
 			}}
 			ref={createLeaderboardFormRef}
 			class="grid min-h-screen w-full place-items-center overflow-hidden pt-14"
@@ -170,15 +176,15 @@ const CreateLeaderboardForm: Component<{ name: string }> = (props) => {
 				</div>
 				<div class="mt-4 flex items-center">
 					<h3 class="text-lg">Candidates:</h3>
-					<button onClick={() => setCandidates([])} class="ml-auto rounded-md bg-slate-700 py-2 px-4 text-sm text-white hover:bg-slate-700">
+					<button type="button" onClick={() => setCandidates([])} class="ml-auto rounded-md bg-slate-700 py-2 px-4 text-sm text-white hover:bg-slate-700">
 						Clear All
 					</button>
-					<button onClick={addCandidate} class="ml-2 block rounded-md bg-red-500 py-2 px-4 text-sm text-white hover:bg-red-600 sm:hidden">
+					<button type="button" onClick={addCandidate} class="ml-2 block rounded-md bg-red-500 py-2 px-4 text-sm text-white hover:bg-red-600 sm:hidden">
 						Add
 					</button>
 				</div>
 				<div class="flex flex-col flex-wrap items-center gap-2 sm:flex-row">
-					<button onClick={addCandidate} class="hidden h-48 w-36 place-items-center rounded-md border-2 border-gray-500 bg-gray-800 p-4 transition-colors hover:border-gray-200 sm:grid">
+					<button type="button" onClick={addCandidate} class="hidden h-48 w-36 place-items-center rounded-md border-2 border-gray-500 bg-gray-800 p-4 transition-colors hover:border-gray-200 sm:grid">
 						<div class="grid aspect-square h-16 w-16 place-items-center rounded-full bg-white bg-opacity-20 text-3xl text-white">
 							<AiOutlinePlus />
 						</div>
@@ -186,7 +192,7 @@ const CreateLeaderboardForm: Component<{ name: string }> = (props) => {
 					<TransitionGroup name="animated-x-list-item">
 						<Index each={candidates()}>
 							{(item) => (
-								<div use:clickOutsideDirective={() => setCurrentlyEditing(-1)} onClick={() => setCurrentlyEditing(item().id)} class="animated-x-list-item relative flex flex-col overflow-hidden rounded-md border-2 border-gray-500 bg-gray-800 py-4 px-2 sm:h-48 sm:flex-row">
+								<div use:clickOutsideDirective={() => setCurrentlyEditing(-1)} onClick={() => setCurrentlyEditing(item().id)} classList={{ 'gap-2': item().id === currentlyEditing() }} class="animated-x-list-item relative flex flex-col overflow-hidden rounded-md border-2 border-gray-500 bg-gray-800 py-4 px-2 sm:h-48 sm:flex-row">
 									<div class="mx-auto flex w-20 flex-col items-center justify-between sm:w-32">
 										<img src={item().image} class="h-full object-contain" />
 										<span>{item().name}</span>
