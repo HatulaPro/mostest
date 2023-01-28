@@ -98,8 +98,8 @@ const CreateLeaderboardForm: Component<{ name: string }> = (props) => {
 				<h2 class="mb-2 text-2xl sm:text-4xl">
 					Create <span class="font-bold text-red-500">Leaderboard</span>
 				</h2>
-				<input class="w-1/3 rounded-md border-2 border-gray-500 bg-gray-800 p-2 text-white outline-none transition-colors focus:border-gray-200" type="text" value={props.name || formData().name} onChange={(e) => setFormData((p) => ({ ...p, name: e.currentTarget.value }))} placeholder="Roundest" />
-				<input class="w-full rounded-md  border-2 border-gray-500 bg-gray-800 p-2 text-white outline-none transition-colors focus:border-gray-200" type="text" placeholder="Which Pokémon is Rounder?" value={formData().description} onChange={(e) => setFormData((p) => ({ ...p, description: e.currentTarget.value }))} />
+				<input required class="w-1/3 rounded-md border-2 border-gray-500 bg-gray-800 p-2 text-white outline-none transition-colors focus:border-gray-200" type="text" value={props.name || formData().name} onChange={(e) => setFormData((p) => ({ ...p, name: e.currentTarget.value }))} placeholder="Roundest" />
+				<input required class="w-full rounded-md  border-2 border-gray-500 bg-gray-800 p-2 text-white outline-none transition-colors focus:border-gray-200" type="text" placeholder="Which Pokémon is Rounder?" value={formData().description} onChange={(e) => setFormData((p) => ({ ...p, description: e.currentTarget.value }))} />
 				<div class="mt-4 flex items-center">
 					<h3 class="text-lg">Candidates:</h3>
 					<button onClick={() => setCandidates([])} class="ml-auto rounded-md bg-slate-700 py-2 px-4 text-sm text-white hover:bg-slate-700">

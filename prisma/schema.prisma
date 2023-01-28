@@ -69,5 +69,19 @@ model Option {
     leaderboard   Leaderboard @relation(fields: [leaderboardId], references: [id], onDelete: Cascade)
     content       String
     image         String?
-    votes         Int
+    voteFor       Vote[]      @relation("votesFor")
+    voteAgainst   Vote[]      @relation("votesAgainst")
+
+    @@index([leaderboardId])
+}
+
+model Vote {
+    id             String @id @default(cuid())
+    votedFor       Option @relation(name: "votesFor", fields: [votedForId], references: [id])
+    votedForId     String
+    votedAgainst   Option @relation(name: "votesAgainst", fields: [votedAgainstId], references: [id])
+    votedAgainstId String
+
+    @@index([votedForId])
+    @@index([votedAgainstId])
 }
