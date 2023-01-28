@@ -4,9 +4,13 @@ import { TransitionGroup } from 'solid-transition-group';
 import { AiFillFileText, AiOutlineClose, AiOutlinePlus } from 'solid-icons/ai';
 import clickOutside from '~/bindings/click-outside';
 import { ImportCSV } from '~/components/ImportCSV';
+import { createRouteAction } from 'solid-start';
+import { z } from 'zod';
+import server$, { createServerAction$ } from 'solid-start/server';
+import { prisma } from '~/db';
 const clickOutsideDirective = clickOutside;
 
-let selfRef: HTMLDivElement | undefined;
+let createLeaderboardFormRef: HTMLFormElement | undefined;
 export default function Home() {
 	const [newLeaderboardName, setNewLeaderboardName] = createSignal('');
 	return (
@@ -22,7 +26,7 @@ export default function Home() {
 							class="text-md mx-auto mt-8 flex w-full justify-between rounded-full bg-gray-200 p-2 md:w-2/3 md:text-xl"
 							onSubmit={(e) => {
 								e.preventDefault();
-								selfRef?.scrollIntoView({ behavior: 'smooth' });
+								createLeaderboardFormRef?.scrollIntoView({ behavior: 'smooth' });
 							}}
 						>
 							<input value={newLeaderboardName()} onChange={(e) => setNewLeaderboardName(e.currentTarget.value)} class="text-md flex-1 rounded-full bg-gray-200 pl-3 text-black outline-none md:text-xl" type="text" placeholder="What interests you?" />
@@ -76,11 +80,16 @@ const Minigame: Component = () => {
 	);
 };
 
+const CreateLeaderboardSchema = z.object({ name: z.string(), slug: z.string(), description: z.string(), candidates: z.array(z.object({ id: z.number(), name: z.string(), image: z.string() })) });
+type CreateLeaderboardType = z.infer<typeof CreateLeaderboardSchema>;
+
 const CreateLeaderboardForm: Component<{ name: string }> = (props) => {
 	const [formData, setFormData] = createSignal({
 		name: '',
+		slug: '',
 		description: '',
 	});
+
 	const [candidates, setCandidates] = createSignal([
 		{ id: 1, name: 'Zapdos', image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/145.png' },
 		{ id: 2, name: 'Castform', image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/351.png' },
@@ -92,13 +101,50 @@ const CreateLeaderboardForm: Component<{ name: string }> = (props) => {
 		setCandidates((p) => [...p, { id: 1 + Math.max(...p.map((c) => c.id)), name: 'Bulbasaur', image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png' }]);
 	}
 
+	const [enrolling, enroll] = createServerAction$(async (data: CreateLeaderboardType) => {
+		const parsed = CreateLeaderboardSchema.safeParse(data);
+		if (!parsed.success) {
+			return { success: false, error: parsed.error.message };
+		}
+
+		// // TODO: Add owner id
+		// const leaderboard = await prisma.leaderboard.create({ data: { name: parsed.data.name, question: parsed.data.description, slug: data.slug, ownerId: undefined } });
+		console.log(data);
+
+		return { success: true, data: parsed.data };
+	});
+
 	return (
-		<div ref={selfRef} class="grid min-h-screen w-full place-items-center overflow-hidden pt-14">
+		<form
+			onSubmit={(e) => {
+				e.preventDefault();
+				enroll({
+					name: formData().name,
+					slug: formData().slug,
+					description: formData().description,
+					candidates: candidates(),
+				});
+			}}
+			ref={createLeaderboardFormRef}
+			class="grid min-h-screen w-full place-items-center overflow-hidden pt-14"
+		>
 			<div class="flex w-full max-w-5xl flex-col gap-3 rounded-md bg-black bg-opacity-30 p-2 text-left sm:p-8">
 				<h2 class="mb-2 text-2xl sm:text-4xl">
 					Create <span class="font-bold text-red-500">Leaderboard</span>
 				</h2>
-				<input required class="w-1/3 rounded-md border-2 border-gray-500 bg-gray-800 p-2 text-white outline-none transition-colors focus:border-gray-200" type="text" value={props.name || formData().name} onChange={(e) => setFormData((p) => ({ ...p, name: e.currentTarget.value }))} placeholder="Roundest" />
+				<div class="flex w-full gap-2">
+					<input required class="flex-1 rounded-md border-2 border-gray-500 bg-gray-800 p-2 text-white outline-none transition-colors focus:border-gray-200" type="text" value={props.name || formData().name} onChange={(e) => setFormData((p) => ({ ...p, name: e.currentTarget.value }))} placeholder="Roundest" />
+					<input
+						required
+						class="flex-[2] rounded-md border-2 border-gray-500 bg-gray-800 p-2 text-white outline-none transition-colors focus:border-gray-200"
+						type="text"
+						value={formData().slug}
+						onChange={(e) => {
+							setFormData((p) => ({ ...p, slug: e.currentTarget.value }));
+						}}
+						placeholder="roundest-pokemon"
+					/>
+				</div>
 				<input required class="w-full rounded-md  border-2 border-gray-500 bg-gray-800 p-2 text-white outline-none transition-colors focus:border-gray-200" type="text" placeholder="Which Pokémon is Rounder?" value={formData().description} onChange={(e) => setFormData((p) => ({ ...p, description: e.currentTarget.value }))} />
 				<div class="mt-4 flex items-center">
 					<h3 class="text-lg">Candidates:</h3>
@@ -176,9 +222,11 @@ const CreateLeaderboardForm: Component<{ name: string }> = (props) => {
 							});
 						}}
 					/>
-					<button class="mt-4 rounded-md bg-red-500 py-2 px-4 text-lg text-white hover:bg-red-600">Create</button>
+					<button type="submit" class="mt-4 rounded-md bg-red-500 py-2 px-4 text-lg text-white hover:bg-red-600">
+						Create
+					</button>
 				</div>
 			</div>
-		</div>
+		</form>
 	);
 };

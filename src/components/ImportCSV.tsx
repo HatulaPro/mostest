@@ -69,7 +69,7 @@ export const ImportCSV: Component<{ onImport: (data: CsvSchemaType) => void }> =
 						.catch(console.log);
 				}}
 			/>
-			<button onClick={() => inputFile?.click()} disabled={enrolling.pending} class="mt-4 flex items-center rounded-md bg-slate-700 py-2 px-4 text-lg text-white hover:bg-slate-700 disabled:contrast-75">
+			<button type="button" onClick={() => inputFile?.click()} disabled={enrolling.pending} class="mt-4 flex items-center rounded-md bg-slate-700 py-2 px-4 text-lg text-white hover:bg-slate-700 disabled:contrast-75">
 				<AiFillFileText class="mx-1 text-xl" />
 				Import CSV
 			</button>
