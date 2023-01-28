@@ -38,7 +38,7 @@ export default function ViewLeaderboard() {
 								{(option, i) => (
 									<div class="flex h-24 w-full items-center gap-4 pr-3 hover:bg-black hover:bg-opacity-20">
 										<div class="grid h-full w-24 place-items-center bg-slate-700 text-3xl">{i() + 1}</div>
-										<img class="w-28" src={option.image ?? ''} />
+										<img class="max-h-full w-28 object-contain" alt={option.content} src={option.image ?? ''} />
 										<p class="text-lg">{option.content}</p>
 										<p class="ml-auto text-lg">{calcPercentage(option._count.voteFor, option._count.voteAgainst).toPrecision(3)}%</p>
 									</div>
