@@ -64,6 +64,14 @@ body {
 	font-family: 'Inter';
 }
 
+input,
+textarea,
+button,
+select,
+a,
+* {
+	-webkit-tap-highlight-color: transparent;
+}
 .animated-y-list-item-enter,
 .animated-y-list-item-exit-to {
 	opacity: 0;
