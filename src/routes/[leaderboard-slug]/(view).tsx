@@ -36,11 +36,13 @@ export default function ViewLeaderboard() {
 					<div class="mx-auto mt-6 flex w-full flex-col overflow-hidden rounded-md border-2 border-gray-500">
 						<For each={candidatesSorted()}>
 							{(option, i) => (
-								<div class="flex h-24 w-full items-center gap-4 pr-3 hover:bg-black hover:bg-opacity-20">
-									<div class="grid h-full w-24 place-items-center bg-slate-700 text-3xl">{i() + 1}</div>
-									<img class="max-h-full w-28 object-contain" alt={option.content} src={option.image ?? ''} />
-									<p class="text-lg">{option.content}</p>
-									<p class="ml-auto text-lg">{calcPercentage(option._count.voteFor, option._count.voteAgainst).toPrecision(3)}%</p>
+								<div class="grid h-24 w-full grid-cols-[1fr_2fr_2fr] items-center gap-2 pr-1 hover:bg-black hover:bg-opacity-20 sm:grid-cols-[1fr_3fr_3fr] sm:pr-3">
+									<div class="grid h-full place-items-center border-r-2 border-gray-500 text-xl">{i() + 1}</div>
+									<div class="flex items-center">
+										<img class="max-h-full w-28 object-contain" alt={option.content} src={option.image ?? ''} />
+										<p class="text-xs sm:text-lg">{option.content}</p>
+									</div>
+									<p class="ml-auto text-xs sm:text-lg">{calcPercentage(option._count.voteFor, option._count.voteAgainst).toPrecision(3)}%</p>
 								</div>
 							)}
 						</For>
