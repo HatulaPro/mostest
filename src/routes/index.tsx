@@ -11,6 +11,7 @@ import { useForm } from '~/hooks/useForm';
 import { Leaderboard } from '@prisma/client';
 import { Loading } from '~/components/Loading';
 import { useNavigate } from '@solidjs/router';
+import { createStore } from 'solid-js/store';
 const clickOutsideDirective = clickOutside;
 
 let createLeaderboardFormRef: HTMLFormElement | undefined;
@@ -98,7 +99,7 @@ type CreateLeaderboardType = z.infer<typeof CreateLeaderboardSchema>;
 const CreateLeaderboardForm: Component<{ name: string }> = (props) => {
 	const form = useForm({ name: CreateLeaderboardSchema.shape.name, slug: CreateLeaderboardSchema.shape.slug, description: CreateLeaderboardSchema.shape.description });
 
-	const [candidates, setCandidates] = createSignal([
+	const [candidates, setCandidates] = createStore([
 		{ id: 1, name: 'Zapdos', image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/145.png' },
 		{ id: 2, name: 'Castform', image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/351.png' },
 		{ id: 3, name: 'Bulbasaur', image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png' },
@@ -108,7 +109,6 @@ const CreateLeaderboardForm: Component<{ name: string }> = (props) => {
 	const navigate = useNavigate();
 	function addCandidate() {
 		setCandidates((p) => [...p, { id: 1 + Math.max(0, ...p.map((c) => c.id)), name: 'Bulbasaur', image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png' }]);
-		console.log(candidates());
 	}
 
 	const [enrolling, enroll] = createServerAction$(async (data: CreateLeaderboardType): Promise<{ success: true; data: { leaderboard: Leaderboard; candidates: number } } | { success: false }> => {
@@ -134,7 +134,7 @@ const CreateLeaderboardForm: Component<{ name: string }> = (props) => {
 				e.preventDefault();
 				enroll({
 					...form.data(),
-					candidates: candidates(),
+					candidates: candidates,
 				}).then((res) => {
 					if (res.success) {
 						navigate(`/${res.data.leaderboard.slug}`);
@@ -190,42 +190,24 @@ const CreateLeaderboardForm: Component<{ name: string }> = (props) => {
 						</div>
 					</button>
 					<TransitionGroup name="animated-x-list-item">
-						<Index each={candidates()}>
+						<For each={candidates}>
 							{(item) => (
-								<div use:clickOutsideDirective={() => setCurrentlyEditing(-1)} onClick={() => setCurrentlyEditing(item().id)} classList={{ 'gap-2': item().id === currentlyEditing() }} class="animated-x-list-item relative flex flex-col overflow-hidden rounded-md border-2 border-gray-500 bg-gray-800 py-4 px-2 sm:h-48 sm:flex-row">
+								<div use:clickOutsideDirective={() => setCurrentlyEditing(-1)} onClick={() => setCurrentlyEditing(item.id)} classList={{ 'gap-2': item.id === currentlyEditing() }} class="animated-x-list-item relative flex flex-col overflow-hidden rounded-md border-2 border-gray-500 bg-gray-800 py-4 px-2 sm:h-48 sm:flex-row">
 									<div class="mx-auto flex w-20 flex-col items-center justify-between sm:w-32">
-										<img src={item().image} class="h-full object-contain" />
-										<span>{item().name}</span>
+										<img src={item.image} class="h-full object-contain" />
+										<span>{item.name}</span>
 									</div>
-									<div classList={{ 'sm:w-64': item().id === currentlyEditing(), 'sm:w-0': item().id !== currentlyEditing() }} class="z-10 flex h-40 w-full flex-1 flex-col justify-evenly gap-2 overflow-hidden bg-gray-800 transition-all">
-										<input
-											class="rounded-full px-3 py-1.5 text-black outline-none"
-											type="text"
-											value={item().image}
-											onChange={(e) =>
-												setCandidates((p) => {
-													return p.map((c) => (c.id === currentlyEditing() ? { ...c, image: e.currentTarget.value } : c));
-												})
-											}
-										/>
-										<input
-											class="rounded-full px-3 py-1.5 text-black outline-none"
-											type="text"
-											value={item().name}
-											onChange={(e) =>
-												setCandidates((p) => {
-													return p.map((c) => (c.id === currentlyEditing() ? { ...c, name: e.currentTarget.value } : c));
-												})
-											}
-										/>
+									<div classList={{ 'sm:w-64': item.id === currentlyEditing(), 'sm:w-0': item.id !== currentlyEditing() }} class="z-10 flex h-40 w-full flex-1 flex-col justify-evenly gap-2 overflow-hidden bg-gray-800 transition-all">
+										<input class="rounded-full px-3 py-1.5 text-black outline-none" type="text" value={item.image} onChange={(e) => setCandidates((c) => c.id === currentlyEditing(), 'image', e.currentTarget.value)} />
+										<input class="rounded-full px-3 py-1.5 text-black outline-none" type="text" value={item.name} onChange={(e) => setCandidates((c) => c.id === currentlyEditing(), 'name', e.currentTarget.value)} />
 									</div>
 									<button
 										onClick={(e) => {
 											e.preventDefault();
-											setCurrentlyEditing(-1);
 											setCandidates((p) => {
-												return p.filter((c) => c !== item());
+												return p.filter((c) => c.id !== item.id);
 											});
+											setCurrentlyEditing(-1);
 										}}
 										class="absolute top-0 right-0 z-10 grid h-7 w-7 place-items-center bg-red-500"
 									>
@@ -233,7 +215,7 @@ const CreateLeaderboardForm: Component<{ name: string }> = (props) => {
 									</button>
 								</div>
 							)}
-						</Index>
+						</For>
 					</TransitionGroup>
 				</div>
 				<Loading isLoading={enrolling.pending} />
