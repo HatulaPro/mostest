@@ -1,5 +1,5 @@
 import { A } from '@solidjs/router';
-import { createEffect, For } from 'solid-js';
+import { For } from 'solid-js';
 import { RouteDataArgs, useRouteData } from 'solid-start';
 import { createServerData$ } from 'solid-start/server';
 import { Loading } from '~/components/Loading';

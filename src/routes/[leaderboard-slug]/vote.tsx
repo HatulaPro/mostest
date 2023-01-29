@@ -1,5 +1,5 @@
-import { createEffect, For } from 'solid-js';
-import { A, refetchRouteData, RouteDataArgs, useRouteData } from 'solid-start';
+import { For } from 'solid-js';
+import { A, RouteDataArgs, useRouteData } from 'solid-start';
 import { createServerAction$, createServerData$, ServerError } from 'solid-start/server';
 import { Loading } from '~/components/Loading';
 import { prisma } from '~/db';
@@ -35,7 +35,6 @@ export default function ViewLeaderboard() {
 
 	return (
 		<div>
-			<Loading isLoading={data.loading || enrolling.pending} />
 			{data.latest ? (
 				<>
 					<div class="mt-8 flex w-full justify-evenly gap-3">
@@ -49,6 +48,7 @@ export default function ViewLeaderboard() {
 							)}
 						</For>
 					</div>
+					<Loading isLoading={data.loading || enrolling.pending} />
 					<div class="mt-8">
 						<A href=".." class="rounded-md bg-red-500 py-2 px-4 hover:bg-red-600">
 							View Results
