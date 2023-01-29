@@ -1,6 +1,5 @@
 import { A } from '@solidjs/router';
 import { Component } from 'solid-js';
-import { useLocation } from 'solid-start';
 import { useSession } from '~/db/useSession';
 import { signIn, signOut } from '@auth/solid-start/client';
 

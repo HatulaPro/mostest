@@ -1,11 +1,10 @@
-import { Index } from 'solid-js';
 import { Component, createSignal, For } from 'solid-js';
 import { TransitionGroup } from 'solid-transition-group';
 import { AiOutlineClose, AiOutlinePlus } from 'solid-icons/ai';
 import clickOutside from '~/bindings/click-outside';
 import { ImportCSV } from '~/components/ImportCSV';
 import { z } from 'zod';
-import { createServerAction$, redirect } from 'solid-start/server';
+import { createServerAction$ } from 'solid-start/server';
 import { prisma } from '~/db';
 import { useForm } from '~/hooks/useForm';
 import { Leaderboard } from '@prisma/client';
