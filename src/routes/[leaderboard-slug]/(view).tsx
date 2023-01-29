@@ -19,15 +19,12 @@ export function routeData(input: RouteDataArgs<typeof ParentRouteData>) {
 
 function calcPercentage(voteFor: number, voteAgainst: number) {
 	if (voteAgainst === 0) return 0;
-	return (voteFor / voteAgainst) * 100;
+	return (voteFor / (voteAgainst + voteFor)) * 100;
 }
 
 export default function ViewLeaderboard() {
 	const data = useRouteData<typeof routeData>();
-	const candidatesSorted = () => data.latest?.sort((a, b) => calcPercentage(b._count.voteFor, b._count.voteAgainst) - calcPercentage(a._count.voteFor, a._count.voteAgainst)) ?? [];
-	createEffect(() => {
-		console.log('effect', data.latest, data.loading);
-	});
+	const candidatesSorted = () => (data.latest ? [...data.latest] : []).sort((a, b) => calcPercentage(b._count.voteFor, b._count.voteAgainst) - calcPercentage(a._count.voteFor, a._count.voteAgainst)) ?? [];
 
 	return (
 		<div>

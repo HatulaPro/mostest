@@ -1,6 +1,5 @@
 import { RouteDataArgs, Outlet, useRouteData } from 'solid-start';
 import { createServerData$ } from 'solid-start/server';
-import { Loading } from '~/components/Loading';
 import { prisma } from '~/db';
 
 export function routeData({ params }: RouteDataArgs) {
@@ -17,9 +16,7 @@ export default function LeaderboardLayout() {
 
 	return (
 		<main class="text-center">
-			{data.loading ? (
-				<Loading isLoading={true} />
-			) : data.latest ? (
+			{data.latest ? (
 				<>
 					<div class="mx-auto flex max-w-5xl flex-col p-2 pt-14">
 						<h1 class="mt-12 text-3xl font-bold text-red-500 sm:text-4xl md:text-5xl">{data.latest.name}</h1>
