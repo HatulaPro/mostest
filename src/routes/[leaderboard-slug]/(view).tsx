@@ -29,7 +29,6 @@ export default function ViewLeaderboard() {
 
 	return (
 		<div>
-			<HttpHeader name="Cache-Control" value="s-maxage=600" />
 			<Loading isLoading={data.loading} />
 			{data.latest ? (
 				<>
