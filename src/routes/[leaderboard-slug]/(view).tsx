@@ -1,7 +1,7 @@
 import { A } from '@solidjs/router';
 import { For } from 'solid-js';
 import { RouteDataArgs, useRouteData } from 'solid-start';
-import { createServerData$ } from 'solid-start/server';
+import { createServerData$, HttpHeader } from 'solid-start/server';
 import { Loading } from '~/components/Loading';
 import { prisma } from '~/db';
 import { type routeData as ParentRouteData } from '../[leaderboard-slug]';
@@ -28,6 +28,7 @@ export default function ViewLeaderboard() {
 
 	return (
 		<div>
+			<HttpHeader name="Cache-Control" value="s-maxage=600" />
 			<Loading isLoading={data.loading} />
 			{data.latest ? (
 				<>
