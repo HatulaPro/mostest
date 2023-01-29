@@ -3,17 +3,18 @@ import { For } from 'solid-js';
 import { RouteDataArgs, useRouteData } from 'solid-start';
 import { createServerData$, HttpHeader } from 'solid-start/server';
 import { Loading } from '~/components/Loading';
+import { ShareButton } from '~/components/ShareButton';
 import { prisma } from '~/db';
 import { type routeData as ParentRouteData } from '../[leaderboard-slug]';
 
 export function routeData(input: RouteDataArgs<typeof ParentRouteData>) {
 	return createServerData$(
-		async ([, id]) => {
+		async ([, id, latest]) => {
 			if (!id) return null;
 
-			return await prisma.option.findMany({ where: { leaderboardId: id }, include: { _count: { select: { voteAgainst: true, voteFor: true } } } });
+			return { leaderboard: latest, options: await prisma.option.findMany({ where: { leaderboardId: id }, include: { _count: { select: { voteAgainst: true, voteFor: true } } } }) };
 		},
-		{ key: () => ['leaderboard-options', input.data.latest?.id] }
+		{ key: () => ['leaderboard-options', input.data.latest?.id, input.data.latest] as const }
 	);
 }
 
@@ -24,7 +25,7 @@ function calcPercentage(voteFor: number, voteAgainst: number) {
 
 export default function ViewLeaderboard() {
 	const data = useRouteData<typeof routeData>();
-	const candidatesSorted = () => (data.latest ? [...data.latest] : []).sort((a, b) => calcPercentage(b._count.voteFor, b._count.voteAgainst) - calcPercentage(a._count.voteFor, a._count.voteAgainst)) ?? [];
+	const candidatesSorted = () => (data.latest ? [...data.latest.options] : []).sort((a, b) => calcPercentage(b._count.voteFor, b._count.voteAgainst) - calcPercentage(a._count.voteFor, a._count.voteAgainst)) ?? [];
 
 	return (
 		<div>
@@ -44,10 +45,11 @@ export default function ViewLeaderboard() {
 							)}
 						</For>
 					</div>
-					<div class="mt-8">
+					<div class="mt-8 flex justify-center gap-2">
 						<A href="./vote" class="rounded-md bg-red-500 py-2 px-4 hover:bg-red-600">
 							Vote
 						</A>
+						{data.latest.leaderboard && <ShareButton text={`Vote on ${data.latest.leaderboard.name}: ${data.latest.leaderboard.question}`} title={data.latest.leaderboard.name} url={document.location.href} />}
 					</div>
 				</>
 			) : (

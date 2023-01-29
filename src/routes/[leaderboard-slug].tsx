@@ -1,5 +1,7 @@
+import { A } from '@solidjs/router';
 import { RouteDataArgs, Outlet, useRouteData, Head, Meta, Title } from 'solid-start';
 import { createServerData$ } from 'solid-start/server';
+import { ShareButton } from '~/components/ShareButton';
 import { prisma } from '~/db';
 
 export function routeData({ params }: RouteDataArgs) {
