@@ -1,14 +1,19 @@
 import { createSignal, createMemo } from 'solid-js';
 import { z } from 'zod';
 
-function createFormState<TField extends string>(fields: Record<TField, z.ZodString>) {
-	const entries = Object.entries(fields) as [TField, z.ZodString][];
-	const mapped = entries.map(([fieldName, parser]) => [fieldName, { parser, touched: false, value: '', error: null }]);
+function createFormState<TField extends string>(fields: Record<TField, Field>) {
+	const entries = Object.entries(fields) as [TField, Field][];
+	const mapped = entries.map(([fieldName, field]) => [fieldName, { parser: field.parser, touched: false, value: field.defaultValue ?? '', error: null }]);
 	const result = Object.fromEntries(mapped);
 	return result as Record<TField, { parser: z.ZodString; touched: boolean; value: string; error: string | null }>;
 }
 
-export function useForm<TField extends string>(fields: Record<TField, z.ZodString>) {
+type Field = {
+	parser: z.ZodString;
+	defaultValue?: string;
+};
+
+export function useForm<TField extends string>(fields: Record<TField, Field>) {
 	const [formState, setFormState] = createSignal(createFormState(fields));
 
 	const getError = (field: TField) => {

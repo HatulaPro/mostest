@@ -39,7 +39,7 @@ export default function ViewLeaderboard() {
 									<div class="grid h-full place-items-center border-r-2 border-gray-500 text-xl">{i() + 1}</div>
 									<div class="flex h-[inherit] items-center gap-2">
 										<img class="h-full object-contain py-1" alt={option.content} src={option.image ?? ''} />
-										<p class="text-xs sm:text-lg">{option.content}</p>
+										<p class="text-center text-xs sm:text-lg">{option.content}</p>
 									</div>
 									<p class="ml-auto text-xs sm:text-lg">{calcPercentage(option._count.voteFor, option._count.voteAgainst).toPrecision(3)}%</p>
 								</div>

@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { createServerAction$ } from 'solid-start/server';
 import { prisma } from '~/db';
 import { useForm } from '~/hooks/useForm';
-import { Leaderboard } from '@prisma/client';
+import type { Leaderboard, Option } from '@prisma/client';
 import { Loading } from '~/components/Loading';
 import { useNavigate } from '@solidjs/router';
 import { createStore } from 'solid-js/store';
@@ -26,16 +26,26 @@ const CreateLeaderboardSchema = z.object({
 });
 type CreateLeaderboardType = z.infer<typeof CreateLeaderboardSchema>;
 
-export const CreateLeaderboardForm: Component<{ name: string; ref: HTMLFormElement | undefined; title: 'Create' | 'Edit' }> = (props) => {
-	const form = useForm({ name: CreateLeaderboardSchema.shape.name, slug: CreateLeaderboardSchema.shape.slug, description: CreateLeaderboardSchema.shape.description });
+export const CreateLeaderboardForm: Component<{
+	name: string;
+	ref: HTMLFormElement | undefined;
+	leaderboardData?: {
+		leaderboard: Leaderboard;
+		options: Option[];
+	};
+}> = (props) => {
+	const form = useForm({ name: { parser: CreateLeaderboardSchema.shape.name, defaultValue: props.leaderboardData?.leaderboard.name }, slug: { parser: CreateLeaderboardSchema.shape.slug, defaultValue: props.leaderboardData?.leaderboard.slug }, description: { parser: CreateLeaderboardSchema.shape.description, defaultValue: props.leaderboardData?.leaderboard.question } });
 
 	// ID is number: new candidate
 	// ID is string: existing candidate
-	const [candidates, setCandidates] = createStore<{ id: string | number; name: string; image: string }[]>([
-		{ id: 1, name: 'Zapdos', image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/145.png' },
-		{ id: 2, name: 'Castform', image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/351.png' },
-		{ id: 3, name: 'Bulbasaur', image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png' },
-	]);
+	const [candidates, setCandidates] = createStore<{ id: string | number; name: string; image: string }[]>(
+		props.leaderboardData?.options.map((option) => ({ id: option.id, image: option.image ?? '', name: option.content })) ?? [
+			{ id: 1, name: 'Zapdos', image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/145.png' },
+			{ id: 2, name: 'Castform', image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/351.png' },
+			{ id: 3, name: 'Bulbasaur', image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png' },
+		]
+	);
+	const isEditing = () => Boolean(props.leaderboardData);
 	const [currentlyEditing, setCurrentlyEditing] = createSignal<string | number>(-1);
 
 	const navigate = useNavigate();
@@ -78,7 +88,7 @@ export const CreateLeaderboardForm: Component<{ name: string; ref: HTMLFormEleme
 		>
 			<div class="flex w-full max-w-5xl flex-col gap-3 rounded-md bg-black bg-opacity-30 p-2 text-left sm:p-8">
 				<h2 class="mb-2 text-2xl sm:text-4xl">
-					{props.title} <span class="font-bold text-red-500">Leaderboard</span>
+					{isEditing() ? 'Edit' : 'Create'} <span class="font-bold text-red-500">Leaderboard</span>
 				</h2>
 				<div class="flex w-full items-start gap-2">
 					<div class="flex-1">
@@ -165,7 +175,7 @@ export const CreateLeaderboardForm: Component<{ name: string; ref: HTMLFormEleme
 						}}
 					/>
 					<button disabled={!form.isValid()} type="submit" class="mt-4 items-center rounded-md bg-red-500 py-2 px-4 text-lg text-white hover:enabled:bg-red-600 disabled:contrast-75">
-						Create
+						{isEditing() ? 'Save' : 'Create'}
 					</button>
 				</div>
 			</div>

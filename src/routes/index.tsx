@@ -29,7 +29,7 @@ export default function Home() {
 					</div>
 					<Minigame />
 				</div>
-				<CreateLeaderboardForm name={newLeaderboardName()} ref={createLeaderboardFormRef} title="Create" />
+				<CreateLeaderboardForm name={newLeaderboardName()} ref={createLeaderboardFormRef} />
 			</main>
 		</>
 	);
