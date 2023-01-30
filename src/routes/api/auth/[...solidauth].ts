@@ -41,7 +41,7 @@ export const getSession = (request: Request) => {
 		unsafeRequest.sessionPromise = getAuthSession(request, authOpts);
 	}
 
-	return unsafeRequest.sessionPromise;
+	return unsafeRequest.sessionPromise as ReturnType<typeof getAuthSession>;
 };
 
 export const getUser = async (request: Request) => {

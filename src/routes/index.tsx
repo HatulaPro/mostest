@@ -11,7 +11,7 @@ import { Leaderboard } from '@prisma/client';
 import { Loading } from '~/components/Loading';
 import { useNavigate } from '@solidjs/router';
 import { createStore } from 'solid-js/store';
-import { useSession } from '~/db/useSession';
+import { getSession } from './api/auth/[...solidauth]';
 const clickOutsideDirective = clickOutside;
 
 let createLeaderboardFormRef: HTMLFormElement | undefined;
@@ -110,16 +110,16 @@ const CreateLeaderboardForm: Component<{ name: string }> = (props) => {
 	function addCandidate() {
 		setCandidates((p) => [...p, { id: 1 + Math.max(0, ...p.map((c) => c.id)), name: 'Bulbasaur', image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png' }]);
 	}
-	const user = useSession();
 
-	const [enrolling, enroll] = createServerAction$(async (data: CreateLeaderboardType): Promise<{ success: true; data: { leaderboard: Leaderboard; candidates: number } } | { success: false }> => {
+	const [enrolling, enroll] = createServerAction$(async (data: CreateLeaderboardType, { request }): Promise<{ success: true; data: { leaderboard: Leaderboard; candidates: number } } | { success: false }> => {
 		const parsed = CreateLeaderboardSchema.safeParse(data);
 		if (!parsed.success) {
 			return { success: false };
 		}
 
 		try {
-			const leaderboard = await prisma.leaderboard.create({ data: { name: parsed.data.name, question: parsed.data.description, slug: data.slug, ownerId: user.latest?.user?.id } });
+			const user = await getSession(request);
+			const leaderboard = await prisma.leaderboard.create({ data: { name: parsed.data.name, question: parsed.data.description, slug: data.slug, ownerId: user?.user?.id } });
 			const leaderboardId = leaderboard.id;
 			const candidates = (await prisma.option.createMany({ data: parsed.data.candidates.map((c) => ({ image: c.image.length ? c.image : undefined, content: c.name, leaderboardId })) })).count;
 			return { success: true, data: { leaderboard, candidates } };
