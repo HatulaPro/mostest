@@ -45,7 +45,7 @@ export default function ViewLeaderboard() {
 								<button disabled={data.loading || enrolling.pending} onClick={[voteFor, i()]} type="button" class="group relative flex flex-col items-center rounded-md border-2 border-gray-500 bg-transparent transition-all disabled:scale-0 disabled:opacity-0">
 									<img classList={{ 'opacity-0': enrolling.pending, 'opacity-40': !enrolling.pending }} class="absolute w-64 scale-0 blur-2xl transition-transform group-hover:scale-100 sm:w-80" src={option.image ?? ''} alt={option.content} />
 									<img class="w-48 sm:w-64" src={option.image ?? ''} alt={option.content} />
-									<p>{option.content}</p>
+									<p class="mt-auto">{option.content}</p>
 								</button>
 							)}
 						</For>
