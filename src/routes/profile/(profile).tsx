@@ -2,7 +2,8 @@ import { signIn } from '@auth/solid-start/client';
 import { A } from '@solidjs/router';
 import { For } from 'solid-js';
 import { Head, Title, useRouteData } from 'solid-start';
-import { createServerData$, redirect } from 'solid-start/server';
+import { createServerData$ } from 'solid-start/server';
+import { ExportCSV } from '~/components/ExportCSV';
 import { prisma } from '~/db';
 import { getUser } from '../api/auth/[...solidauth]';
 
@@ -37,14 +38,15 @@ export default function ProfilePage() {
 						<div class="mx-auto mt-12 flex w-full flex-col overflow-hidden rounded-md border-2 border-gray-500 text-left">
 							<For each={data.latest.leaderboards}>
 								{(leaderboard) => (
-									<A href={`/${leaderboard.slug}`} class="flex items-center gap-2 p-3 hover:bg-black hover:bg-opacity-20">
-										<span class="text-lg font-bold">
+									<div class="flex items-center gap-2 p-3 hover:bg-black hover:bg-opacity-20">
+										<A href={`/${leaderboard.slug}`} class="text-lg font-bold hover:underline">
 											{leaderboard.name} <span class="text-base font-normal text-gray-300">{leaderboard.question}</span>
-										</span>
+										</A>
 										<div class="ml-auto flex h-8 gap-2">
 											<For each={leaderboard.options.filter((x) => typeof x.image === 'string')}>{(option) => <img class="h-full object-contain" src={option.image!} />}</For>
+											<ExportCSV leaderboardId={leaderboard.id} />
 										</div>
-									</A>
+									</div>
 								)}
 							</For>
 						</div>
