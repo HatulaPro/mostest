@@ -1,7 +1,7 @@
 import { A } from '@solidjs/router';
 import { For } from 'solid-js';
 import { RouteDataArgs, useRouteData } from 'solid-start';
-import { createServerData$, HttpHeader } from 'solid-start/server';
+import { createServerData$ } from 'solid-start/server';
 import { Loading } from '~/components/Loading';
 import { ShareButton } from '~/components/ShareButton';
 import { prisma } from '~/db';
@@ -37,8 +37,8 @@ export default function ViewLeaderboard() {
 							{(option, i) => (
 								<div class="grid h-24 w-full grid-cols-[1fr_2fr_2fr] items-center gap-2 pr-1 hover:bg-black hover:bg-opacity-20 sm:grid-cols-[6rem_3fr_3fr] sm:pr-3">
 									<div class="grid h-full place-items-center border-r-2 border-gray-500 text-xl">{i() + 1}</div>
-									<div class="flex items-center gap-2">
-										<img class="max-h-[5rem]" alt={option.content} src={option.image ?? ''} />
+									<div class="flex h-[inherit] items-center gap-2">
+										<img class="h-full object-contain py-1" alt={option.content} src={option.image ?? ''} />
 										<p class="text-xs sm:text-lg">{option.content}</p>
 									</div>
 									<p class="ml-auto text-xs sm:text-lg">{calcPercentage(option._count.voteFor, option._count.voteAgainst).toPrecision(3)}%</p>
