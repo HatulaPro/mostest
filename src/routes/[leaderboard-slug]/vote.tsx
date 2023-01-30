@@ -1,6 +1,7 @@
 import { For } from 'solid-js';
 import { A, RouteDataArgs, useRouteData } from 'solid-start';
 import { createServerAction$, createServerData$, ServerError } from 'solid-start/server';
+import { z } from 'zod';
 import { Loading } from '~/components/Loading';
 import { prisma } from '~/db';
 import { type routeData as ParentRouteData } from '../[leaderboard-slug]';
@@ -9,10 +10,11 @@ export function routeData(input: RouteDataArgs<typeof ParentRouteData>) {
 	return createServerData$(
 		async ([, id]) => {
 			if (!id) return null;
-
-			const res = (await prisma.option.findMany({ where: { leaderboardId: id } })).sort(() => Math.random() - 0.5);
-			if (res.length < 2) return null;
-			return [res[0], res[1]] as const;
+			const twoOptionsSchema = z.array(z.object({ id: z.string(), leaderboardId: z.string(), content: z.string(), image: z.string().optional() })).length(2);
+			const res = await prisma.$queryRaw`SELECT "public"."Option"."id", "public"."Option"."leaderboardId", "public"."Option"."content", "public"."Option"."image" FROM "public"."Option" WHERE "public"."Option"."leaderboardId" = ${id} ORDER BY RANDOM() ASC LIMIT 2`;
+			const parsed = twoOptionsSchema.safeParse(res);
+			if (parsed.success) return parsed.data;
+			return null;
 		},
 		{ key: () => ['leaderboard-options', input.data.latest?.id] }
 	);
