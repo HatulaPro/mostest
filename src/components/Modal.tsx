@@ -15,7 +15,7 @@ export const Modal: Component<{ children: JSX.Element; close: () => void; isOpen
 					}
 				}}
 			>
-				<div ref={mainRef} class="w-full max-w-2xl rounded-md bg-[#060606] p-3 shadow-md shadow-black">
+				<div ref={mainRef} class="[#070b15] w-full max-w-2xl rounded-md bg-slate-900 p-3 shadow-md shadow-black">
 					{c}
 				</div>
 			</div>
