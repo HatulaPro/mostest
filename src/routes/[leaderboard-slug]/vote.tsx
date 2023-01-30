@@ -35,7 +35,7 @@ export default function ViewLeaderboard() {
 
 	return (
 		<div>
-			{data.latest ? (
+			{data.latest && (
 				<>
 					<div class="mt-8 flex w-full justify-evenly gap-3">
 						<For each={data.latest}>
@@ -55,8 +55,6 @@ export default function ViewLeaderboard() {
 						</A>
 					</div>
 				</>
-			) : (
-				'NOT FOUND'
 			)}
 		</div>
 	);

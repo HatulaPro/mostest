@@ -33,7 +33,7 @@ export default function LeaderboardLayout() {
 					</div>
 				</>
 			) : (
-				'NOT FOUND'
+				!data.loading && 'NOT FOUND'
 			)}
 		</main>
 	);

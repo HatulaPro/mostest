@@ -30,7 +30,7 @@ export default function ViewLeaderboard() {
 	return (
 		<div>
 			<Loading isLoading={data.loading} />
-			{data.latest ? (
+			{data.latest && (
 				<>
 					<div class="mx-auto mt-6 flex w-full flex-col overflow-hidden rounded-md border-2 border-gray-500">
 						<For each={candidatesSorted()}>
@@ -53,8 +53,6 @@ export default function ViewLeaderboard() {
 						{data.latest.leaderboard && <ShareButton text={`Vote on ${data.latest.leaderboard.name}: ${data.latest.leaderboard.question}`} title={data.latest.leaderboard.name} url={document.location.href} />}
 					</div>
 				</>
-			) : (
-				'NOT FOUND'
 			)}
 		</div>
 	);
