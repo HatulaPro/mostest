@@ -15,6 +15,7 @@ import clickOutside from '~/bindings/click-outside';
 const clickOutsideDirective = clickOutside;
 
 const CreateLeaderboardSchema = z.object({
+	id: z.string().optional(),
 	name: z.string().min(2, 'Name must contain at least 2 characters').max(24, 'Name must contain at most 24 characters'),
 	slug: z
 		.string()
@@ -61,10 +62,28 @@ export const CreateLeaderboardForm: Component<{
 
 		try {
 			const user = await getSession(request);
-			const leaderboard = await prisma.leaderboard.create({ data: { name: parsed.data.name, question: parsed.data.description, slug: data.slug, ownerId: user?.user?.id } });
-			const leaderboardId = leaderboard.id;
-			const candidates = (await prisma.option.createMany({ data: parsed.data.candidates.map((c) => ({ image: c.image.length ? c.image : undefined, content: c.name, leaderboardId })) })).count;
-			return { success: true, data: { leaderboard, candidates } };
+			// If no ID givem create a new leaderboard
+			if (!parsed.data.id) {
+				const leaderboard = await prisma.leaderboard.create({ data: { name: parsed.data.name, question: parsed.data.description, slug: data.slug, ownerId: user?.user?.id } });
+				const leaderboardId = leaderboard.id;
+				const candidates = (await prisma.option.createMany({ data: parsed.data.candidates.map((c) => ({ image: c.image.length ? c.image : undefined, content: c.name, leaderboardId })) })).count;
+				return { success: true, data: { leaderboard, candidates } };
+			} else {
+				const leaderboard = await prisma.leaderboard.findUnique({ where: { id: parsed.data.id }, select: { ownerId: true, options: { select: { id: true } } } });
+				if (!leaderboard || !leaderboard.ownerId) throw new Error('UNAUTHORIZED');
+				const updatedLeaderboard = await prisma.leaderboard.update({ where: { id: parsed.data.id }, data: { name: parsed.data.name, question: parsed.data.description, slug: parsed.data.slug } });
+				const validOptionIds = new Set(leaderboard.options.map((o) => o.id));
+				const transaction = await prisma.$transaction(
+					parsed.data.candidates.map((value) => {
+						if (value.id && validOptionIds.has(value.id)) {
+							return prisma.option.update({ select: { id: true }, where: { id: value.id }, data: { image: value.image || undefined, id: value.id } });
+						} else {
+							return prisma.option.create({ select: { id: true }, data: { image: value.image || undefined, id: value.id, content: value.name, leaderboardId: parsed.data.id! } });
+						}
+					})
+				);
+				return { success: true, data: { leaderboard: updatedLeaderboard, candidates: transaction.length } };
+			}
 		} catch (e) {
 			return { success: false };
 		}
@@ -76,6 +95,7 @@ export const CreateLeaderboardForm: Component<{
 				e.preventDefault();
 				enroll({
 					...form.data(),
+					id: props.leaderboardData?.leaderboard.id,
 					candidates: candidates.map((c) => ({ ...c, id: typeof c.id === 'string' ? c.id : undefined })),
 				}).then((res) => {
 					if (res.success) {
@@ -165,12 +185,13 @@ export const CreateLeaderboardForm: Component<{
 					<ImportCSV
 						onImport={(data) => {
 							setCandidates((p) => {
-								let id = 1 + Math.max(0, ...p.map((c) => (typeof c.id === 'number' ? c.id : 0)));
+								const copy = [...p];
+								let id = 1 + Math.max(0, ...copy.map((c) => (typeof c.id === 'number' ? c.id : 0)));
 								for (const [name, image] of data) {
-									p.push({ id, image, name });
+									copy.push({ id, image, name });
 									++id;
 								}
-								return [...p];
+								return copy;
 							});
 						}}
 					/>

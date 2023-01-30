@@ -23,6 +23,7 @@ export type CsvSchemaType = z.infer<typeof CsvSchema>;
 export const ImportCSV: Component<{ onImport: (data: CsvSchemaType) => void }> = (props) => {
 	const parseCSV = server$(async (file: string): Promise<{ success: true; data: CsvSchemaType } | { success: false; error: string }> => {
 		const { data } = Papa.parse(file);
+		console.log(data);
 		const parsed = CsvSchema.safeParse(data);
 		if (parsed.success) {
 			return { success: true, data: parsed.data };
