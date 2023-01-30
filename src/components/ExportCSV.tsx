@@ -1,5 +1,5 @@
 import { AiFillCopy, AiOutlineDownload } from 'solid-icons/ai';
-import { Component, createSignal } from 'solid-js';
+import { batch, Component, createSignal } from 'solid-js';
 import server$ from 'solid-start/server';
 import Papa from 'papaparse';
 import { prisma } from '~/db';
@@ -26,10 +26,12 @@ export const ExportCSV: Component<{ leaderboardId: string }> = (props) => {
 	const [enrolling, enroll] = createRouteAction(async (file: string) => {
 		// if (enrolling.result) return enrolling.result;
 		const res = exportCSV(file);
-		setOpen(true);
-		setCopied(false);
-		unsetTimeout();
-		setCopiedTimeout(null);
+		batch(() => {
+			setOpen(true);
+			setCopied(false);
+			unsetTimeout();
+			setCopiedTimeout(null);
+		});
 		return res;
 	});
 
@@ -40,8 +42,10 @@ export const ExportCSV: Component<{ leaderboardId: string }> = (props) => {
 				class="text-xl text-gray-300 hover:text-white active:text-white"
 				onClick={() => {
 					if (enrolling.result) {
-						setOpen(true);
-						setCopied(false);
+						batch(() => {
+							setOpen(true);
+							setCopied(false);
+						});
 					} else {
 						enroll(props.leaderboardId);
 					}
@@ -51,30 +55,32 @@ export const ExportCSV: Component<{ leaderboardId: string }> = (props) => {
 			</button>
 			<Modal
 				close={() => {
-					setOpen(false);
-					setCopied(false);
-					unsetTimeout();
-					setCopiedTimeout(null);
+					batch(() => {
+						setOpen(false);
+						setCopied(false);
+						unsetTimeout();
+						setCopiedTimeout(null);
+					});
 				}}
 				isOpen={isOpen()}
 			>
 				<Loading isLoading={enrolling.pending} />
-				{enrolling.result && (
-					<p class="relative w-full overflow-hidden text-ellipsis border-2 border-gray-500 p-3 pr-10">
-						{enrolling.result}
-						<button
-							class="absolute right-1 top-1 rounded-md bg-slate-800 p-2 text-xs text-white"
-							onClick={() => {
+				<p class="relative w-full overflow-hidden text-ellipsis border-2 border-gray-500 p-3 pr-10">
+					{enrolling.result}
+					<button
+						class="absolute right-1 top-1 rounded-md bg-slate-800 p-2 text-xs text-white"
+						onClick={() => {
+							navigator.clipboard.writeText(enrolling.result!);
+							batch(() => {
 								setCopied(true);
-								navigator.clipboard.writeText(enrolling.result!);
 								unsetTimeout();
 								setCopiedTimeout(setTimeout(() => setCopied(false), 3000));
-							}}
-						>
-							{copied() ? 'copied!' : <AiFillCopy class="text-sm" />}
-						</button>
-					</p>
-				)}
+							});
+						}}
+					>
+						{copied() ? 'copied!' : <AiFillCopy class="text-sm" />}
+					</button>
+				</p>
 			</Modal>
 		</>
 	);

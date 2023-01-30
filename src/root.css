@@ -96,3 +96,12 @@ a,
 .animated-y-list-item-exit-active {
 	position: absolute;
 }
+
+.animated-modal-exit-to,
+.animated-modal-enter {
+	opacity: 0;
+}
+
+.animated-modal {
+	transition: 0.2s opacity;
+}
