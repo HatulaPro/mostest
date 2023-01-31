@@ -75,15 +75,26 @@ export const CreateLeaderboardForm: Component<{
 				if (!leaderboard || !leaderboard.ownerId) throw new Error('UNAUTHORIZED');
 				const updatedLeaderboard = await prisma.leaderboard.update({ where: { id: leaderboardId }, data: { name: parsed.data.name, question: parsed.data.description, slug: parsed.data.slug } });
 				const validOptionIds = new Set(leaderboard.options.map((o) => o.id));
-				const transaction = await prisma.$transaction(
-					parsed.data.candidates.map((value) => {
-						if (value.id && validOptionIds.has(value.id)) {
-							return prisma.option.update({ select: { id: true }, where: { id: value.id }, data: { image: value.image || undefined, id: value.id } });
-						} else {
-							return prisma.option.create({ select: { id: true }, data: { image: value.image || undefined, id: value.id, content: value.name, leaderboardId: leaderboardId } });
-						}
-					})
-				);
+				const existingOptionIds = new Set<string>();
+				const existingOptions = parsed.data.candidates.filter((c) => {
+					if (c.id && validOptionIds.has(c.id)) {
+						existingOptionIds.add(c.id);
+						return true;
+					}
+					return false;
+				});
+				const nonExistingOptions = parsed.data.candidates.filter((c) => !c.id || !validOptionIds.has(c.id));
+
+				const removedOptions = [...validOptionIds].filter((someId) => !existingOptionIds.has(someId));
+
+				const transaction = await prisma.$transaction([
+					// Updating existing
+					...existingOptions.map((value) => prisma.option.update({ select: null, where: { id: value.id }, data: { image: value.image || undefined, id: value.id } })),
+					// Adding new ones
+					...(nonExistingOptions.length ? [prisma.option.createMany({ data: nonExistingOptions.map((value) => ({ image: value.image || undefined, id: value.id, content: value.name, leaderboardId: leaderboardId })) })] : []),
+					// Removing the removed
+					...(removedOptions.length ? [prisma.option.deleteMany({ where: { id: { in: removedOptions } } })] : []),
+				]);
 				return { success: true, data: { leaderboard: updatedLeaderboard, candidates: transaction.length } };
 			}
 		} catch (e) {
