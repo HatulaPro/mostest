@@ -1,5 +1,5 @@
 import { For } from 'solid-js';
-import { type RouteDataArgs, A, useRouteData } from 'solid-start';
+import { type RouteDataArgs, A, useRouteData, refetchRouteData } from 'solid-start';
 import { createServerAction$, createServerData$, ServerError } from 'solid-start/server';
 import { z } from 'zod';
 import { Loading } from '~/components/Loading';
@@ -23,16 +23,23 @@ export function routeData(input: RouteDataArgs<typeof ParentRouteData>) {
 export default function ViewLeaderboard() {
 	const data = useRouteData<typeof routeData>();
 
-	const [enrolling, enroll] = createServerAction$(async (ids: { votedFor: string; votedAgainst: string }) => {
-		if (ids.votedFor === ids.votedAgainst) throw new ServerError('Invalid option pair.');
-		const [votedFor, votedAgainst] = await Promise.all([prisma.option.findUnique({ where: { id: ids.votedFor } }), prisma.option.findUnique({ where: { id: ids.votedAgainst } })]);
-		if (!votedFor || !votedAgainst) throw new ServerError('Option not found.');
-		if (votedFor.leaderboardId !== votedAgainst.leaderboardId) throw new ServerError('Invalid option pair.');
+	const [enrolling, enroll] = createServerAction$(
+		async (ids: { votedFor: string; votedAgainst: string }) => {
+			if (ids.votedFor === ids.votedAgainst) throw new ServerError('Invalid option pair.');
+			const [votedFor, votedAgainst] = await Promise.all([prisma.option.findUnique({ where: { id: ids.votedFor } }), prisma.option.findUnique({ where: { id: ids.votedAgainst } })]);
+			if (!votedFor || !votedAgainst) throw new ServerError('Option not found.');
+			if (votedFor.leaderboardId !== votedAgainst.leaderboardId) throw new ServerError('Invalid option pair.');
 
-		return await prisma.vote.create({ data: { votedAgainstId: votedAgainst.id, votedForId: votedFor.id } });
-	});
+			return await prisma.vote.create({ data: { votedAgainstId: votedAgainst.id, votedForId: votedFor.id } });
+		},
+		{
+			invalidate: () => [],
+		}
+	);
+
 	function voteFor(chosenOption: number) {
 		if (!data.latest) return;
+		refetchRouteData(['leaderboard-options', data.latest[chosenOption].leaderboardId]);
 		enroll({ votedFor: data.latest[chosenOption].id, votedAgainst: data.latest[chosenOption === 0 ? 1 : 0].id });
 	}
 
