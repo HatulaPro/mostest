@@ -6,15 +6,16 @@ import { createServerData$ } from 'solid-start/server';
 import { Loading } from '~/components/Loading';
 import { ShareButton } from '~/components/ShareButton';
 import { prisma } from '~/db';
-import { useSession } from '~/db/useSession';
+import { getSession } from '../api/auth/[...solidauth]';
 import { type routeData as ParentRouteData } from '../[leaderboard-slug]';
 
 export function routeData(input: RouteDataArgs<typeof ParentRouteData>) {
 	return createServerData$(
-		async ([, id, latest]) => {
+		async ([, id, latest], { request }) => {
 			if (!id) return null;
+			const [session, options] = await Promise.all([getSession(request), prisma.option.findMany({ where: { leaderboardId: id }, include: { _count: { select: { voteAgainst: true, voteFor: true } } } })]);
 
-			return { leaderboard: latest, options: await prisma.option.findMany({ where: { leaderboardId: id }, include: { _count: { select: { voteAgainst: true, voteFor: true } } } }) };
+			return { leaderboard: latest, user: session?.user, options };
 		},
 		{ key: () => ['leaderboard-options', input.data.latest?.id, input.data.latest] as const }
 	);
@@ -28,7 +29,6 @@ function calcPercentage(voteFor: number, voteAgainst: number) {
 export default function ViewLeaderboard() {
 	const data = useRouteData<typeof routeData>();
 	const candidatesSorted = () => (data.latest ? [...data.latest.options] : []).sort((a, b) => calcPercentage(b._count.voteFor, b._count.voteAgainst) - calcPercentage(a._count.voteFor, a._count.voteAgainst)) ?? [];
-	const user = useSession();
 
 	return (
 		<div>
@@ -54,7 +54,7 @@ export default function ViewLeaderboard() {
 							Vote
 						</A>
 						{data.latest.leaderboard && <ShareButton text={`Vote on ${data.latest.leaderboard.name}: ${data.latest.leaderboard.question}`} title={data.latest.leaderboard.name} url={document.location.href} />}
-						{data.latest.leaderboard?.ownerId && data.latest.leaderboard?.ownerId === user.latest?.user?.id && (
+						{data.latest.leaderboard?.ownerId && data.latest.leaderboard.ownerId === data.latest.user?.id && (
 							<A href="./edit" class="flex items-center rounded-md bg-slate-700 py-2 px-3 text-white hover:bg-slate-700 disabled:contrast-75">
 								<AiOutlineEdit class="mr-2 text-xl" />
 								Edit
