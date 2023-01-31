@@ -1,6 +1,5 @@
 import { RouteDataArgs, useRouteData } from 'solid-start';
 import { createServerData$, redirect } from 'solid-start/server';
-import { z } from 'zod';
 import { CreateLeaderboardForm } from '~/components/CreateLeaderboardForm';
 import { prisma } from '~/db';
 import { getSession } from '../api/auth/[...solidauth]';

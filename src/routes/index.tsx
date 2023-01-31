@@ -1,4 +1,5 @@
 import { Component, createSignal, For } from 'solid-js';
+import { Head, Meta, Title } from 'solid-start';
 import { TransitionGroup } from 'solid-transition-group';
 import { CreateLeaderboardForm } from '~/components/CreateLeaderboardForm';
 
@@ -7,6 +8,10 @@ export default function Home() {
 	let createLeaderboardFormRef: HTMLFormElement | undefined;
 	return (
 		<>
+			<Head>
+				<Title>Mostest | Build your leaderboard</Title>
+				<Meta name="description" content="Build your community driven leaderboard on Mostest. " />
+			</Head>
 			<main class="text-center">
 				<div class="mx-auto flex h-screen max-w-5xl flex-col justify-evenly p-2 pt-14">
 					<div class="m-auto flex flex-col justify-center px-2">
