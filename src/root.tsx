@@ -1,6 +1,6 @@
 // @refresh reload
 import { Suspense } from 'solid-js';
-import { useLocation, A, Body, ErrorBoundary, FileRoutes, Head, Html, Meta, Routes, Scripts, Title } from 'solid-start';
+import { useLocation, A, Body, ErrorBoundary, FileRoutes, Head, Html, Meta, Routes, Scripts, Title, Link } from 'solid-start';
 import { NavBar } from './components/NavBar';
 import './root.css';
 
@@ -11,6 +11,7 @@ export default function Root() {
 				<Title>SolidStart - With TailwindCSS</Title>
 				<Meta charset="utf-8" />
 				<Meta name="viewport" content="width=device-width, initial-scale=1" />
+				<Link rel="icon" href="/logo.svg" />
 			</Head>
 			<Body class="min-h-screen bg-gray-900 text-white">
 				<Suspense>
