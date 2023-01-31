@@ -170,7 +170,7 @@ export const CreateLeaderboardForm: Component<{
 								<div use:clickOutsideDirective={() => setCurrentlyEditing(-1)} onClick={() => setCurrentlyEditing(item.id)} classList={{ 'gap-2': item.id === currentlyEditing() }} class="animated-x-list-item relative flex flex-col overflow-hidden rounded-md border-2 border-gray-500 bg-gray-800 py-4 px-2 sm:h-48 sm:flex-row">
 									<div class="mx-auto flex w-20 flex-col items-center justify-between sm:w-32">
 										<img src={item.image} class="h-full object-contain" />
-										<span>{item.name}</span>
+										<span class="text-center">{item.name}</span>
 									</div>
 									<div classList={{ 'sm:w-64': item.id === currentlyEditing(), 'sm:w-0': item.id !== currentlyEditing() }} class="z-10 flex h-40 w-full flex-1 flex-col justify-evenly gap-2 overflow-hidden bg-gray-800 transition-all">
 										<input class="rounded-full px-3 py-1.5 text-black outline-none" type="text" value={item.image} onChange={(e) => setCandidates((c) => c.id === currentlyEditing(), 'image', e.currentTarget.value)} />
