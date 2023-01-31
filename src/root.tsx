@@ -1,6 +1,6 @@
 // @refresh reload
 import { Suspense } from 'solid-js';
-import { useLocation, A, Body, ErrorBoundary, FileRoutes, Head, Html, Meta, Routes, Scripts, Title, Link } from 'solid-start';
+import { Body, ErrorBoundary, FileRoutes, Head, Html, Meta, Routes, Scripts, Title, Link } from 'solid-start';
 import { NavBar } from './components/NavBar';
 import './root.css';
 

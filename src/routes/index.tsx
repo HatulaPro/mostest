@@ -1,4 +1,4 @@
-import { Component, createSignal, For } from 'solid-js';
+import { type Component, createSignal, For } from 'solid-js';
 import { Head, Meta, Title } from 'solid-start';
 import { TransitionGroup } from 'solid-transition-group';
 import { CreateLeaderboardForm } from '~/components/CreateLeaderboardForm';

@@ -1,5 +1,5 @@
 import { AiOutlineShareAlt } from 'solid-icons/ai';
-import { Component } from 'solid-js';
+import type { Component } from 'solid-js';
 
 export const ShareButton: Component<{ text: string; title: string; url: string }> = (props) => {
 	return (

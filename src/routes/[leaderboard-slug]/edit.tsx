@@ -1,4 +1,4 @@
-import { RouteDataArgs, useRouteData } from 'solid-start';
+import { type RouteDataArgs, useRouteData } from 'solid-start';
 import { createServerData$, redirect } from 'solid-start/server';
 import { CreateLeaderboardForm } from '~/components/CreateLeaderboardForm';
 import { prisma } from '~/db';

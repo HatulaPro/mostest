@@ -1,5 +1,5 @@
 import { createSignal, createMemo } from 'solid-js';
-import { z } from 'zod';
+import type { z } from 'zod';
 
 function createFormState<TField extends string>(fields: Record<TField, Field>) {
 	const entries = Object.entries(fields) as [TField, Field][];

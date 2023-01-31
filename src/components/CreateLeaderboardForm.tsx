@@ -1,5 +1,5 @@
 import { TransitionGroup } from 'solid-transition-group';
-import { Component, createSignal, For } from 'solid-js';
+import { type Component, createSignal, For } from 'solid-js';
 import { AiOutlineClose, AiOutlinePlus } from 'solid-icons/ai';
 import { ImportCSV } from '~/components/ImportCSV';
 import { z } from 'zod';
@@ -12,6 +12,7 @@ import { useNavigate } from '@solidjs/router';
 import { createStore } from 'solid-js/store';
 import { getSession } from '~/routes/api/auth/[...solidauth]';
 import clickOutside from '~/bindings/click-outside';
+// eslint-disable-next-line
 const clickOutsideDirective = clickOutside;
 
 const CreateLeaderboardSchema = z.object({
@@ -69,16 +70,17 @@ export const CreateLeaderboardForm: Component<{
 				const candidates = (await prisma.option.createMany({ data: parsed.data.candidates.map((c) => ({ image: c.image.length ? c.image : undefined, content: c.name, leaderboardId })) })).count;
 				return { success: true, data: { leaderboard, candidates } };
 			} else {
-				const leaderboard = await prisma.leaderboard.findUnique({ where: { id: parsed.data.id }, select: { ownerId: true, options: { select: { id: true } } } });
+				const leaderboardId = parsed.data.id;
+				const leaderboard = await prisma.leaderboard.findUnique({ where: { id: leaderboardId }, select: { ownerId: true, options: { select: { id: true } } } });
 				if (!leaderboard || !leaderboard.ownerId) throw new Error('UNAUTHORIZED');
-				const updatedLeaderboard = await prisma.leaderboard.update({ where: { id: parsed.data.id }, data: { name: parsed.data.name, question: parsed.data.description, slug: parsed.data.slug } });
+				const updatedLeaderboard = await prisma.leaderboard.update({ where: { id: leaderboardId }, data: { name: parsed.data.name, question: parsed.data.description, slug: parsed.data.slug } });
 				const validOptionIds = new Set(leaderboard.options.map((o) => o.id));
 				const transaction = await prisma.$transaction(
 					parsed.data.candidates.map((value) => {
 						if (value.id && validOptionIds.has(value.id)) {
 							return prisma.option.update({ select: { id: true }, where: { id: value.id }, data: { image: value.image || undefined, id: value.id } });
 						} else {
-							return prisma.option.create({ select: { id: true }, data: { image: value.image || undefined, id: value.id, content: value.name, leaderboardId: parsed.data.id! } });
+							return prisma.option.create({ select: { id: true }, data: { image: value.image || undefined, id: value.id, content: value.name, leaderboardId: leaderboardId } });
 						}
 					})
 				);

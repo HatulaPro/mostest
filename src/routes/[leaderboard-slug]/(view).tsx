@@ -1,7 +1,7 @@
 import { A } from '@solidjs/router';
 import { AiOutlineEdit } from 'solid-icons/ai';
 import { For } from 'solid-js';
-import { RouteDataArgs, useRouteData } from 'solid-start';
+import { type RouteDataArgs, useRouteData } from 'solid-start';
 import { createServerData$ } from 'solid-start/server';
 import { Loading } from '~/components/Loading';
 import { ShareButton } from '~/components/ShareButton';

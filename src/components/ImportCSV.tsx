@@ -1,5 +1,5 @@
 import { AiFillFileText } from 'solid-icons/ai';
-import { Component } from 'solid-js';
+import type { Component } from 'solid-js';
 import { createRouteAction } from 'solid-start';
 import server$ from 'solid-start/server';
 import Papa from 'papaparse';

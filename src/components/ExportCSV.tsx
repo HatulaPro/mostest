@@ -1,5 +1,5 @@
 import { AiFillCopy, AiOutlineDownload } from 'solid-icons/ai';
-import { batch, Component, createSignal } from 'solid-js';
+import { type Component, batch, createSignal } from 'solid-js';
 import server$ from 'solid-start/server';
 import Papa from 'papaparse';
 import { prisma } from '~/db';
@@ -70,12 +70,14 @@ export const ExportCSV: Component<{ leaderboardId: string }> = (props) => {
 					<button
 						class="absolute right-1 top-1 rounded-md bg-slate-800 p-2 text-xs text-white"
 						onClick={() => {
-							navigator.clipboard.writeText(enrolling.result!);
-							batch(() => {
-								setCopied(true);
-								unsetTimeout();
-								setCopiedTimeout(setTimeout(() => setCopied(false), 3000));
-							});
+							if (enrolling.result) {
+								navigator.clipboard.writeText(enrolling.result);
+								batch(() => {
+									setCopied(true);
+									unsetTimeout();
+									setCopiedTimeout(setTimeout(() => setCopied(false), 3000));
+								});
+							}
 						}}
 					>
 						{copied() ? 'copied!' : <AiFillCopy class="text-sm" />}

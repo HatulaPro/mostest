@@ -43,7 +43,7 @@ export default function ProfilePage() {
 											{leaderboard.name} <span class="text-base font-normal text-gray-300">{leaderboard.question}</span>
 										</A>
 										<div class="ml-auto flex h-8 gap-2">
-											<For each={leaderboard.options.filter((x) => typeof x.image === 'string')}>{(option) => <img class="h-full object-contain" src={option.image!} />}</For>
+											<For each={leaderboard.options.filter((x) => typeof x.image === 'string')}>{(option) => <img class="h-full object-contain" src={option.image ?? ''} />}</For>
 											<ExportCSV leaderboardId={leaderboard.id} />
 										</div>
 									</div>

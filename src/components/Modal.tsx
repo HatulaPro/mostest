@@ -1,4 +1,4 @@
-import { children, Component, JSX, Show } from 'solid-js';
+import { children, type Component, type JSX } from 'solid-js';
 import { Portal } from 'solid-js/web';
 import { Transition } from 'solid-transition-group';
 

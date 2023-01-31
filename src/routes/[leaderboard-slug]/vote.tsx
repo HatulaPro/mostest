@@ -1,5 +1,5 @@
 import { For } from 'solid-js';
-import { A, RouteDataArgs, useRouteData } from 'solid-start';
+import { type RouteDataArgs, A, useRouteData } from 'solid-start';
 import { createServerAction$, createServerData$, ServerError } from 'solid-start/server';
 import { z } from 'zod';
 import { Loading } from '~/components/Loading';
@@ -32,7 +32,8 @@ export default function ViewLeaderboard() {
 		return await prisma.vote.create({ data: { votedAgainstId: votedAgainst.id, votedForId: votedFor.id } });
 	});
 	function voteFor(chosenOption: number) {
-		enroll({ votedFor: data.latest![chosenOption].id, votedAgainst: data.latest![chosenOption === 0 ? 1 : 0].id });
+		if (!data.latest) return;
+		enroll({ votedFor: data.latest[chosenOption].id, votedAgainst: data.latest[chosenOption === 0 ? 1 : 0].id });
 	}
 
 	return (

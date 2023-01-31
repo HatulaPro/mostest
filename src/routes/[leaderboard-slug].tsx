@@ -1,4 +1,4 @@
-import { RouteDataArgs, Outlet, useRouteData, Head, Meta, Title } from 'solid-start';
+import { type RouteDataArgs, Outlet, useRouteData, Head, Meta, Title } from 'solid-start';
 import { createServerData$ } from 'solid-start/server';
 import { prisma } from '~/db';
 
