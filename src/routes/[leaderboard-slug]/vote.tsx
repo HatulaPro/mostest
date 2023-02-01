@@ -23,7 +23,7 @@ export function routeData(input: RouteDataArgs<typeof ParentRouteData>) {
 export default function ViewLeaderboard() {
 	const data = useRouteData<typeof routeData>();
 
-	const [enrolling, enroll] = createServerAction$(
+	const [, enroll] = createServerAction$(
 		async (ids: { votedFor: string; votedAgainst: string }) => {
 			if (ids.votedFor === ids.votedAgainst) throw new ServerError('Invalid option pair.');
 			const [votedFor, votedAgainst] = await Promise.all([prisma.option.findUnique({ where: { id: ids.votedFor } }), prisma.option.findUnique({ where: { id: ids.votedAgainst } })]);
@@ -50,15 +50,15 @@ export default function ViewLeaderboard() {
 					<div class="mt-8 flex w-full justify-evenly gap-3">
 						<For each={data.latest}>
 							{(option, i) => (
-								<button disabled={data.loading || enrolling.pending} onClick={[voteFor, i()]} type="button" class="group relative flex flex-col items-center rounded-md border-2 border-gray-500 bg-transparent transition-all disabled:scale-0 disabled:opacity-0">
-									<img classList={{ 'opacity-0': enrolling.pending, 'opacity-40': !enrolling.pending }} class="absolute w-64 scale-0 blur-2xl transition-transform group-hover:scale-100 sm:w-80" src={option.image ?? ''} alt={option.content} />
+								<button disabled={data.loading} onClick={[voteFor, i()]} type="button" class="group relative flex flex-col items-center rounded-md border-2 border-gray-500 bg-transparent transition-all disabled:scale-0 disabled:opacity-0">
+									<img class="absolute w-64 scale-0 opacity-40 blur-2xl transition-transform group-hover:scale-100 sm:w-80" src={option.image ?? ''} alt={option.content} />
 									<img class="w-48 sm:w-64" src={option.image ?? ''} alt={option.content} />
 									<p class="mt-auto">{option.content}</p>
 								</button>
 							)}
 						</For>
 					</div>
-					<Loading isLoading={data.loading || enrolling.pending} />
+					<Loading isLoading={data.loading} />
 					<div class="mt-8">
 						<A href=".." class="rounded-md bg-red-500 py-2 px-4 hover:bg-red-600">
 							View Results
