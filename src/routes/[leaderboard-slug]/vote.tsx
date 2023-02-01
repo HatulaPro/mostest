@@ -1,4 +1,4 @@
-import { For } from 'solid-js';
+import { For, Suspense } from 'solid-js';
 import { type RouteDataArgs, A, useRouteData, refetchRouteData } from 'solid-start';
 import { createServerAction$, createServerData$, ServerError } from 'solid-start/server';
 import { z } from 'zod';
@@ -45,9 +45,22 @@ export default function ViewLeaderboard() {
 
 	return (
 		<div>
-			{data.latest ? (
-				<>
-					<div class="mt-8 flex w-full justify-evenly gap-3">
+			<div class="mt-8 flex w-full justify-evenly gap-3">
+				<Suspense
+					fallback={
+						<>
+							<div class="flex animate-pulse flex-col items-center rounded-md border-2 border-gray-500 bg-slate-700">
+								<div class="h-48 w-48 sm:h-64 sm:w-64"></div>
+								<p class="mt-auto h-6"></p>
+							</div>
+							<div class="flex animate-pulse flex-col items-center rounded-md border-2 border-gray-500 bg-slate-700">
+								<div class="h-48 w-48 sm:h-64 sm:w-64"></div>
+								<p class="mt-auto h-6"></p>
+							</div>
+						</>
+					}
+				>
+					<>
 						<For each={data.latest}>
 							{(option, i) => (
 								<button disabled={data.loading} onClick={[voteFor, i()]} type="button" class="group relative flex flex-col items-center rounded-md border-2 border-gray-500 bg-transparent transition-all disabled:scale-0 disabled:opacity-0">
@@ -57,17 +70,15 @@ export default function ViewLeaderboard() {
 								</button>
 							)}
 						</For>
-					</div>
-					<Loading isLoading={data.loading} />
-					<div class="mt-8">
-						<A href=".." class="rounded-md bg-red-500 py-2 px-4 hover:bg-red-600">
-							View Results
-						</A>
-					</div>
-				</>
-			) : (
-				<>Error: Could not load candidates</>
-			)}
+					</>
+				</Suspense>
+			</div>
+			<Loading isLoading={data.loading} />
+			<div class="mt-8">
+				<A href=".." class="rounded-md bg-red-500 py-2 px-4 hover:bg-red-600">
+					View Results
+				</A>
+			</div>
 		</div>
 	);
 }
