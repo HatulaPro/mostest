@@ -26,7 +26,7 @@ export default function ViewLeaderboard() {
 	const [, enroll] = createServerAction$(
 		async (ids: { votedFor: string; votedAgainst: string }) => {
 			if (ids.votedFor === ids.votedAgainst) throw new ServerError('Invalid option pair.');
-			const [votedFor, votedAgainst] = await Promise.all([prisma.option.findUnique({ where: { id: ids.votedFor } }), prisma.option.findUnique({ where: { id: ids.votedAgainst } })]);
+			const [votedFor, votedAgainst] = await Promise.all([prisma.option.findUnique({ where: { id: ids.votedFor }, select: { id: true, leaderboardId: true } }), prisma.option.findUnique({ where: { id: ids.votedAgainst }, select: { id: true, leaderboardId: true } })]);
 			if (!votedFor || !votedAgainst) throw new ServerError('Option not found.');
 			if (votedFor.leaderboardId !== votedAgainst.leaderboardId) throw new ServerError('Invalid option pair.');
 
