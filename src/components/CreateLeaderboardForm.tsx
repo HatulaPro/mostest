@@ -99,6 +99,7 @@ export const CreateLeaderboardForm: Component<{
 				return { success: true, data: { leaderboard: updatedLeaderboard, candidates: transaction.length } };
 			}
 		} catch (e) {
+			console.log(e);
 			return { success: false };
 		}
 	});

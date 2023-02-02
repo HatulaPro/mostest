@@ -78,9 +78,9 @@ model Option {
 
 model Vote {
     id             String @id @default(cuid())
-    votedFor       Option @relation(name: "votesFor", fields: [votedForId], references: [id])
+    votedFor       Option @relation(name: "votesFor", fields: [votedForId], references: [id], onDelete: Cascade)
     votedForId     String
-    votedAgainst   Option @relation(name: "votesAgainst", fields: [votedAgainstId], references: [id])
+    votedAgainst   Option @relation(name: "votesAgainst", fields: [votedAgainstId], references: [id], onDelete: Cascade)
     votedAgainstId String
 
     @@index([votedForId])
