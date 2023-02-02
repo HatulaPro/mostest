@@ -30,7 +30,7 @@ export default function ProfilePage() {
 				fallback={
 					<>
 						<div class="mx-auto flex max-w-5xl flex-col p-2 pt-20">
-							<h1 class="mt-12 text-2xl text-red-500 sm:text-3xl md:text-4xl">Your Leaderboards</h1>
+							<h1 class="mt-12 text-2xl text-white sm:text-3xl md:text-4xl">Your Leaderboards</h1>
 							<div class="mx-auto mt-12 flex w-full flex-col overflow-hidden rounded-md border-2 border-gray-500 text-left">
 								<For each={[1, 2, 3]}>
 									{() => (
@@ -54,8 +54,8 @@ export default function ProfilePage() {
 							<Title>{data.latest.user?.name}'s Profile | Mostest</Title>
 						</Head>
 						<div class="mx-auto flex max-w-5xl flex-col p-2 pt-20">
-							<h1 class="mt-12 text-2xl text-red-500 sm:text-3xl md:text-4xl">
-								<span class="font-bold">{data.latest.user?.name}</span>'s Leaderboards
+							<h1 class="mt-12 text-2xl text-white sm:text-3xl md:text-4xl">
+								<span class="font-bold text-red-500">{data.latest.user?.name}</span>'s Leaderboards
 							</h1>
 							<div class="mx-auto mt-12 flex w-full flex-col overflow-hidden rounded-md border-2 border-gray-500 text-left">
 								<For each={data.latest.leaderboards}>
