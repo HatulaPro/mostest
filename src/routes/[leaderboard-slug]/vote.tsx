@@ -65,7 +65,7 @@ export default function ViewLeaderboard() {
 							{(option, i) => (
 								<button disabled={data.loading} onClick={[voteFor, i()]} type="button" class="group relative flex flex-col items-center rounded-md border-2 border-gray-500 bg-transparent transition-all disabled:scale-0 disabled:opacity-0">
 									<img class="absolute w-64 scale-0 opacity-40 blur-2xl transition-transform group-hover:scale-100 sm:w-80" src={option.image ?? ''} alt={option.content} />
-									<img class="w-48 sm:w-64" src={option.image ?? ''} alt={option.content} />
+									<img class="h-48 w-48 object-contain sm:h-64 sm:w-64" src={option.image ?? ''} alt={option.content} />
 									<p class="mt-auto">{option.content}</p>
 								</button>
 							)}
