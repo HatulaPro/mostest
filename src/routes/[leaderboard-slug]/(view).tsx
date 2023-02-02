@@ -23,7 +23,8 @@ export function routeData(input: RouteDataArgs<typeof ParentRouteData>) {
 }
 
 function calcPercentage(voteFor: number, voteAgainst: number) {
-	if (voteAgainst === 0) return 0;
+	if (voteAgainst + voteFor === 0) return 0;
+	if (voteFor !== 0 && voteAgainst === 0) return 100;
 	return (voteFor / (voteAgainst + voteFor)) * 100;
 }
 
