@@ -1,6 +1,6 @@
 import { A } from '@solidjs/router';
 import { AiOutlineEdit } from 'solid-icons/ai';
-import { For } from 'solid-js';
+import { For, Suspense } from 'solid-js';
 import { type RouteDataArgs, useRouteData } from 'solid-start';
 import { createServerData$ } from 'solid-start/server';
 import { Loading } from '~/components/Loading';
@@ -33,36 +33,53 @@ export default function ViewLeaderboard() {
 	return (
 		<div>
 			<Loading isLoading={data.loading} />
-			{data.latest && (
-				<>
-					<div class="mx-auto mt-6 flex w-full flex-col overflow-hidden rounded-md border-2 border-gray-500">
-						<For each={candidatesSorted()}>
-							{(option, i) => (
-								<div class="grid h-24 w-full grid-cols-[1fr_2fr_2fr] items-center gap-2 pr-1 hover:bg-black hover:bg-opacity-20 sm:grid-cols-[6rem_3fr_3fr] sm:pr-3">
-									<div class="grid h-full place-items-center border-r-2 border-gray-500 text-xl">{i() + 1}</div>
-									<div class="flex h-[inherit] items-center gap-2">
-										<img class="h-full object-contain py-1" alt={option.content} src={option.image ?? ''} />
-										<p class="text-center text-xs sm:text-lg">{option.content}</p>
+			<div class="mx-auto mt-6 flex w-full flex-col overflow-hidden rounded-md border-2 border-gray-500">
+				<Suspense
+					fallback={
+						<>
+							<For each={[1, 2, 3, 4]}>
+								{(i) => (
+									<div class="grid h-24 w-full grid-cols-[1fr_2fr_2fr] items-center gap-2 pr-1 hover:bg-black hover:bg-opacity-20 sm:grid-cols-[6rem_3fr_3fr] sm:pr-3">
+										<div class="grid h-full place-items-center border-r-2 border-gray-500 text-xl">{i}</div>
+										<div class="flex h-[inherit] items-center gap-2">
+											<div class="h-full animate-pulse bg-slate-700 object-contain py-1"></div>
+											<p class="animate-pulse bg-slate-700 text-center text-xs text-transparent sm:text-lg">SOME TEXT HERE</p>
+										</div>
+										<p class="ml-auto animate-pulse bg-slate-700 text-xs text-transparent sm:text-lg">99.99%</p>
 									</div>
-									<p class="ml-auto text-xs sm:text-lg">{calcPercentage(option._count.voteFor, option._count.voteAgainst).toPrecision(3)}%</p>
+								)}
+							</For>
+						</>
+					}
+				>
+					<For each={candidatesSorted()}>
+						{(option, i) => (
+							<div class="grid h-24 w-full grid-cols-[1fr_2fr_2fr] items-center gap-2 pr-1 hover:bg-black hover:bg-opacity-20 sm:grid-cols-[6rem_3fr_3fr] sm:pr-3">
+								<div class="grid h-full place-items-center border-r-2 border-gray-500 text-xl">{i() + 1}</div>
+								<div class="flex h-[inherit] items-center gap-2">
+									<img class="h-full object-contain py-1" alt={option.content} src={option.image ?? ''} />
+									<p class="text-center text-xs sm:text-lg">{option.content}</p>
 								</div>
-							)}
-						</For>
-					</div>
-					<div class="mt-8 flex justify-center gap-2">
-						<A href="./vote" class="rounded-md bg-red-500 py-2 px-4 hover:bg-red-600">
-							Vote
-						</A>
-						{data.latest.leaderboard && <ShareButton text={`Vote on ${data.latest.leaderboard.name}: ${data.latest.leaderboard.question}`} title={data.latest.leaderboard.name} url={document.location.href} />}
-						{data.latest.leaderboard?.ownerId && data.latest.leaderboard.ownerId === data.latest.user?.id && (
-							<A href="./edit" class="flex items-center rounded-md bg-slate-700 py-2 px-3 text-white hover:bg-slate-700 disabled:contrast-75">
-								<AiOutlineEdit class="mr-2 text-xl" />
-								Edit
-							</A>
+								<p class="ml-auto text-xs sm:text-lg">{calcPercentage(option._count.voteFor, option._count.voteAgainst).toPrecision(3)}%</p>
+							</div>
 						)}
-					</div>
-				</>
-			)}
+					</For>
+				</Suspense>
+			</div>
+			<div class="mt-8 flex justify-center gap-2">
+				<A href="./vote" class="rounded-md bg-red-500 py-2 px-4 hover:bg-red-600">
+					Vote
+				</A>
+				<Suspense fallback={<ShareButton text="" title="" url={document.location.href} disabled />}>
+					{data.latest?.leaderboard && <ShareButton text={`Vote on ${data.latest.leaderboard.name}: ${data.latest.leaderboard.question}`} title={data.latest.leaderboard.name} url={document.location.href} />}
+					{data.latest?.leaderboard?.ownerId && data.latest.leaderboard.ownerId === data.latest.user?.id && (
+						<A href="./edit" class="flex items-center rounded-md bg-slate-700 py-2 px-3 text-white hover:bg-slate-700 disabled:contrast-75">
+							<AiOutlineEdit class="mr-2 text-xl" />
+							Edit
+						</A>
+					)}
+				</Suspense>
+			</div>
 		</div>
 	);
 }
