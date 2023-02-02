@@ -1,6 +1,8 @@
+import { Suspense } from 'solid-js';
 import { type RouteDataArgs, useRouteData } from 'solid-start';
 import { createServerData$, redirect } from 'solid-start/server';
 import { CreateLeaderboardForm } from '~/components/CreateLeaderboardForm';
+import { Loading } from '~/components/Loading';
 import { prisma } from '~/db';
 import { getSession } from '../api/auth/[...solidauth]';
 import { type routeData as ParentRouteData } from '../[leaderboard-slug]';
@@ -25,11 +27,15 @@ export default function ViewLeaderboard() {
 	let ref: HTMLFormElement | undefined;
 	return (
 		<div>
-			{data.latest && (
-				<>
-					<CreateLeaderboardForm leaderboardData={data.latest} name="" ref={ref} />
-				</>
-			)}
+			<Suspense
+				fallback={
+					<div class="grid h-[40vh] w-full place-items-center">
+						<Loading isLoading />
+					</div>
+				}
+			>
+				{data() && <CreateLeaderboardForm leaderboardData={data.latest} name="" ref={ref} />}
+			</Suspense>
 		</div>
 	);
 }

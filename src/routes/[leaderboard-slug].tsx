@@ -24,7 +24,7 @@ export default function LeaderboardLayout() {
 							{data.latest.name} - {data.latest.question} | Mostest
 						</Title>
 					</Head>
-					<div class="mx-auto flex max-w-5xl flex-col p-2 pt-14">
+					<div class="mx-auto flex max-w-5xl flex-col p-2 pt-10">
 						<h1 class="mt-12 text-3xl font-bold text-red-500 sm:text-4xl md:text-5xl">{data.latest.name}</h1>
 
 						<span class="m-2 text-sm font-normal text-gray-300">#{data.latest.slug}</span>
