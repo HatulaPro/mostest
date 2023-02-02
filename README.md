@@ -12,6 +12,6 @@ Insparation taken from [https://roundest.t3.gg/](roundest). It's basically the s
 - [X] Creating leaderboards
 - [X] Voting on favorites leaderboards
 - [X] Import from CSV
-- [ ] Top leaderboards section
-- [ ] Editing leaderboards
+- [X] Top leaderboards section
+- [X] Editing leaderboards
 - [ ] Making every user a millionaire
