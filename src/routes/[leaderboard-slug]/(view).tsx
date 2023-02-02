@@ -28,7 +28,7 @@ function calcPercentage(voteFor: number, voteAgainst: number) {
 
 export default function ViewLeaderboard() {
 	const data = useRouteData<typeof routeData>();
-	const candidatesSorted = () => (data.latest ? [...data.latest.options] : []).sort((a, b) => calcPercentage(b._count.voteFor, b._count.voteAgainst) - calcPercentage(a._count.voteFor, a._count.voteAgainst)) ?? [];
+	const candidatesSorted = () => data()?.options.sort((a, b) => calcPercentage(b._count.voteFor, b._count.voteAgainst) - calcPercentage(a._count.voteFor, a._count.voteAgainst));
 
 	return (
 		<div>
@@ -36,20 +36,18 @@ export default function ViewLeaderboard() {
 			<div class="mx-auto mt-6 flex w-full flex-col overflow-hidden rounded-md border-2 border-gray-500">
 				<Suspense
 					fallback={
-						<>
-							<For each={[1, 2, 3, 4]}>
-								{(i) => (
-									<div class="grid h-24 w-full grid-cols-[1fr_2fr_2fr] items-center gap-2 pr-1 hover:bg-black hover:bg-opacity-20 sm:grid-cols-[6rem_3fr_3fr] sm:pr-3">
-										<div class="grid h-full place-items-center border-r-2 border-gray-500 text-xl">{i}</div>
-										<div class="flex h-[inherit] items-center gap-2">
-											<div class="h-full animate-pulse bg-slate-700 object-contain py-1"></div>
-											<p class="animate-pulse bg-slate-700 text-center text-xs text-transparent sm:text-lg">SOME TEXT HERE</p>
-										</div>
-										<p class="ml-auto animate-pulse bg-slate-700 text-xs text-transparent sm:text-lg">99.99%</p>
+						<For each={[1, 2, 3]}>
+							{(i) => (
+								<div class="grid h-24 w-full grid-cols-[1fr_2fr_2fr] items-center gap-2 pr-1 hover:bg-black hover:bg-opacity-20 sm:grid-cols-[6rem_3fr_3fr] sm:pr-3">
+									<div class="grid h-full place-items-center border-r-2 border-gray-500 text-xl">{i}</div>
+									<div class="flex h-[inherit] items-center gap-2">
+										<div class="h-full animate-pulse bg-slate-700 object-contain py-1"></div>
+										<p class="animate-pulse bg-slate-700 text-center text-xs text-transparent sm:text-lg">SOME TEXT HERE</p>
 									</div>
-								)}
-							</For>
-						</>
+									<p class="ml-auto animate-pulse bg-slate-700 text-xs text-transparent sm:text-lg">99.99%</p>
+								</div>
+							)}
+						</For>
 					}
 				>
 					<For each={candidatesSorted()}>
