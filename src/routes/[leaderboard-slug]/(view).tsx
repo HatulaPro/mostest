@@ -28,12 +28,14 @@ function calcPercentage(voteFor: number, voteAgainst: number) {
 
 export default function ViewLeaderboard() {
 	const data = useRouteData<typeof routeData>();
-	const candidatesSorted = () => data()?.options.sort((a, b) => calcPercentage(b._count.voteFor, b._count.voteAgainst) - calcPercentage(a._count.voteFor, a._count.voteAgainst));
+	const candidatesSorted = () =>
+		data()
+			?.options.slice()
+			.sort((a, b) => calcPercentage(b._count.voteFor, b._count.voteAgainst) - calcPercentage(a._count.voteFor, a._count.voteAgainst));
 
 	return (
 		<div>
-			<Loading isLoading={data.loading} />
-			<div class="mx-auto mt-6 flex w-full flex-col overflow-hidden rounded-md border-2 border-gray-500">
+			<div class="mx-auto mt-6 mb-2 flex w-full flex-col overflow-hidden rounded-md border-2 border-gray-500">
 				<Suspense
 					fallback={
 						<For each={[1, 2, 3]}>
@@ -64,6 +66,7 @@ export default function ViewLeaderboard() {
 					</For>
 				</Suspense>
 			</div>
+			<Loading isLoading={data.loading} />
 			<div class="mt-8 flex justify-center gap-2">
 				<A href="./vote" class="rounded-md bg-red-500 py-2 px-4 hover:bg-red-600">
 					Vote
