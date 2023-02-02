@@ -12,6 +12,7 @@ import { useNavigate } from '@solidjs/router';
 import { createStore } from 'solid-js/store';
 import { getSession } from '~/routes/api/auth/[...solidauth]';
 import clickOutside from '~/bindings/click-outside';
+import { A } from 'solid-start';
 // eslint-disable-next-line
 const clickOutsideDirective = clickOutside;
 
@@ -149,12 +150,25 @@ export const CreateLeaderboardForm: Component<{
 					<input required class="w-full rounded-md  border-2 border-gray-500 bg-gray-800 p-2 text-white outline-none transition-colors focus:border-gray-200" type="text" placeholder="Which Pokémon is Rounder?" value={form.formState['description'].value} onInput={(e) => form.setValue('description', e.currentTarget.value)} />
 					<span class="text-sm text-red-400">{form.getError('description')}</span>
 				</div>
-				<div class="mt-4 flex items-center">
-					<h3 class="text-lg">Candidates:</h3>
+				<div class="mt-4 flex flex-wrap items-center gap-2">
+					<h3 class="shrink-0 basis-full text-lg sm:basis-auto">Candidates:</h3>
 					<button type="button" onClick={() => setCandidates([])} class="ml-auto rounded-md bg-slate-700 py-2 px-4 text-sm text-white hover:bg-slate-700">
 						Clear All
 					</button>
-					<button type="button" onClick={addCandidate} class="ml-2 block rounded-md bg-red-500 py-2 px-4 text-sm text-white hover:bg-red-600 sm:hidden">
+					<ImportCSV
+						onImport={(data) => {
+							setCandidates((p) => {
+								const copy = [...p];
+								let id = 1 + Math.max(0, ...copy.map((c) => (typeof c.id === 'number' ? c.id : 0)));
+								for (const [name, image] of data) {
+									copy.push({ id, image, name });
+									++id;
+								}
+								return copy;
+							});
+						}}
+					/>
+					<button type="button" onClick={addCandidate} class="block rounded-md bg-red-500 py-2 px-4 text-sm text-white hover:bg-red-600 sm:hidden">
 						Add
 					</button>
 				</div>
@@ -167,7 +181,7 @@ export const CreateLeaderboardForm: Component<{
 					<TransitionGroup name="animated-x-list-item">
 						<For each={candidates}>
 							{(item) => (
-								<div use:clickOutsideDirective={() => setCurrentlyEditing(-1)} onClick={() => setCurrentlyEditing(item.id)} classList={{ 'gap-2': item.id === currentlyEditing() }} class="animated-x-list-item relative flex flex-col overflow-hidden rounded-md border-2 border-gray-500 bg-gray-800 py-4 px-2 sm:h-48 sm:flex-row">
+								<div use:clickOutsideDirective={() => setCurrentlyEditing(-1)} onClick={() => setCurrentlyEditing(item.id)} classList={{ 'gap-2': item.id === currentlyEditing() }} class="animated-x-list-item relative flex w-full flex-col overflow-hidden rounded-md border-2 border-gray-500 bg-gray-800 py-4 px-2 sm:h-48 sm:w-auto sm:flex-row">
 									<div class="mx-auto flex w-20 flex-col items-center justify-between sm:w-32">
 										<img src={item.image} class="h-full object-contain" />
 										<span class="text-center">{item.name}</span>
@@ -195,19 +209,11 @@ export const CreateLeaderboardForm: Component<{
 				</div>
 				<Loading isLoading={enrolling.pending} />
 				<div class="mx-auto flex gap-2">
-					<ImportCSV
-						onImport={(data) => {
-							setCandidates((p) => {
-								const copy = [...p];
-								let id = 1 + Math.max(0, ...copy.map((c) => (typeof c.id === 'number' ? c.id : 0)));
-								for (const [name, image] of data) {
-									copy.push({ id, image, name });
-									++id;
-								}
-								return copy;
-							});
-						}}
-					/>
+					{isEditing() && (
+						<A href=".." class="mt-4 flex items-center rounded-md bg-slate-700 py-2 px-4 text-lg text-white hover:bg-slate-700">
+							Cancel
+						</A>
+					)}
 					<button disabled={!form.isValid()} type="submit" class="mt-4 items-center rounded-md bg-red-500 py-2 px-4 text-lg text-white hover:enabled:bg-red-600 disabled:contrast-75">
 						{isEditing() ? 'Save' : 'Create'}
 					</button>
