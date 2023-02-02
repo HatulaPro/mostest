@@ -1,4 +1,4 @@
-import { A } from '@solidjs/router';
+import { A, useSearchParams } from '@solidjs/router';
 import { AiOutlineEdit } from 'solid-icons/ai';
 import { For, Suspense } from 'solid-js';
 import { type RouteDataArgs, useRouteData } from 'solid-start';
@@ -6,6 +6,7 @@ import { createServerData$ } from 'solid-start/server';
 import { Loading } from '~/components/Loading';
 import { ShareButton } from '~/components/ShareButton';
 import { prisma } from '~/db';
+import { range } from '~/utils/functions';
 import { getSession } from '../api/auth/[...solidauth]';
 import { type routeData as ParentRouteData } from '../[leaderboard-slug]';
 
@@ -26,6 +27,7 @@ function calcPercentage(voteFor: number, voteAgainst: number) {
 	return (voteFor / (voteAgainst + voteFor)) * 100;
 }
 
+const PAGE_SIZE = 10;
 export default function ViewLeaderboard() {
 	const data = useRouteData<typeof routeData>();
 	const candidatesSorted = () =>
@@ -33,9 +35,54 @@ export default function ViewLeaderboard() {
 			?.options.slice()
 			.sort((a, b) => calcPercentage(b._count.voteFor, b._count.voteAgainst) - calcPercentage(a._count.voteFor, a._count.voteAgainst));
 
+	const [searchParams, setSearchParams] = useSearchParams<{ page: string }>();
+	const page = () => parseInt(searchParams.page) || 1;
+	const setPage = (n: number) => setSearchParams({ ...searchParams, page: `${n}` });
+	const pageCount = () => Math.ceil((data()?.options.length ?? PAGE_SIZE) / PAGE_SIZE);
+
 	return (
 		<div>
-			<div class="mx-auto mt-6 mb-2 flex w-full flex-col overflow-hidden rounded-md border-2 border-gray-500">
+			<Suspense>
+				<div class="mb-1 mt-6 flex w-full items-end justify-center text-left text-xs sm:text-sm">
+					<span class="hidden text-xs text-gray-300 sm:block">
+						Showing page {page()} of {pageCount()}
+					</span>
+					<div class="flex gap-1 sm:ml-auto sm:gap-2">
+						{page() > 2 && (
+							<>
+								<For each={range(1, Math.min(3, page() - 1))}>
+									{(num) => (
+										<button onClick={() => setPage(num)} classList={{ 'rounded-md px-2 sm:px-3 py-1.5 transition-colors': true, 'bg-slate-500 hover:bg-slate-600': page() !== num, 'bg-red-500 hover:bg-red-600': page() === num }}>
+											{num}
+										</button>
+									)}
+								</For>
+								{page() > 4 && <span class="self-end">...</span>}
+							</>
+						)}
+						<For each={range(Math.max(1, page() - 1), Math.min(pageCount() + 1, page() + 2))}>
+							{(num) => (
+								<button onClick={() => setPage(num)} classList={{ 'rounded-md px-2 sm:px-3 py-1.5 transition-colors': true, 'bg-slate-500 hover:bg-slate-600': page() !== num, 'bg-red-500 hover:bg-red-600': page() === num }}>
+									{num}
+								</button>
+							)}
+						</For>
+						{page() < pageCount() - 1 && (
+							<>
+								{page() !== pageCount() - 2 && <span class="self-end">...</span>}
+								<For each={range(Math.max(page() + 2, pageCount() - 1), pageCount() + 1)}>
+									{(num) => (
+										<button onClick={() => setPage(num)} classList={{ 'rounded-md px-2 sm:px-3 py-1.5 transition-colors': true, 'bg-slate-500 hover:bg-slate-600': page() !== num, 'bg-red-500 hover:bg-red-600': page() === num }}>
+											{num}
+										</button>
+									)}
+								</For>
+							</>
+						)}
+					</div>
+				</div>
+			</Suspense>
+			<div class="mx-auto mb-2 flex w-full flex-col overflow-hidden rounded-md border-2 border-gray-500">
 				<Suspense
 					fallback={
 						<For each={[1, 2, 3]}>
@@ -52,7 +99,7 @@ export default function ViewLeaderboard() {
 						</For>
 					}
 				>
-					<For each={candidatesSorted()}>
+					<For each={candidatesSorted()?.slice(PAGE_SIZE * (page() - 1), PAGE_SIZE * page())}>
 						{(option, i) => (
 							<div class="grid h-24 w-full grid-cols-[1fr_2fr_2fr] items-center gap-2 pr-1 hover:bg-black hover:bg-opacity-20 sm:grid-cols-[6rem_3fr_3fr] sm:pr-3">
 								<div class="grid h-full place-items-center border-r-2 border-gray-500 text-xl">{i() + 1}</div>
