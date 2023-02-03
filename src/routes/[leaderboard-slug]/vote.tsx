@@ -19,6 +19,7 @@ export function routeData(input: RouteDataArgs<typeof ParentRouteData>) {
 		},
 		{
 			key: () => ['leaderboard-options', input.data.latest?.id],
+			reconcileOptions: { merge: false },
 		}
 	);
 }
@@ -100,7 +101,7 @@ export default function ViewLeaderboard() {
 									// Adding animation on new id
 									createEffect(
 										on(
-											() => option.id,
+											() => prev() ?? data(),
 											() => {
 												el.animate([{ transform: 'scale(0)' }, { transform: 'scale(1)' }], { duration: 200, fill: 'forwards' });
 											}
