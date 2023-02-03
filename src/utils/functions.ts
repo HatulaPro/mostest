@@ -10,7 +10,6 @@ export function slugify(s: string) {
 		const c = current.charCodeAt(i);
 		if ((c >= a && c <= z) || (c >= zero && c <= nine) || c === dash) result += current[i];
 	}
-	console.log({ s, result });
 	return result;
 }
 
