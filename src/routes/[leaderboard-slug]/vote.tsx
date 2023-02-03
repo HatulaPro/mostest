@@ -1,5 +1,4 @@
-import { useNavigate } from '@solidjs/router';
-import { createEffect, For, Suspense } from 'solid-js';
+import { For, Suspense } from 'solid-js';
 import { type RouteDataArgs, A, useRouteData, refetchRouteData } from 'solid-start';
 import { createServerAction$, createServerData$, ServerError } from 'solid-start/server';
 import { z } from 'zod';
@@ -41,18 +40,9 @@ export default function ViewLeaderboard() {
 	function voteFor(chosenOption: number) {
 		if (!data.latest) return;
 		refetchRouteData(['leaderboard-options', data.latest[chosenOption].leaderboardId]);
-
 		enroll({ votedFor: data.latest[chosenOption].id, votedAgainst: data.latest[chosenOption === 0 ? 1 : 0].id });
 	}
 
-	const navigate = useNavigate();
-	createEffect(() => {
-		const twoOptionsSchema = z.array(z.object({ id: z.string(), leaderboardId: z.string(), content: z.string(), image: z.string().optional() })).length(2);
-
-		if (data.latest && twoOptionsSchema.safeParse(data.latest).success === false) {
-			navigate('/blocked');
-		}
-	});
 	return (
 		<div>
 			<div class="mt-8 flex w-full justify-evenly gap-3">
@@ -71,7 +61,7 @@ export default function ViewLeaderboard() {
 					}
 				>
 					<>
-						<For each={data.latest?.slice(0, 2)}>
+						<For each={data.latest}>
 							{(option, i) => (
 								<button disabled={data.loading} onClick={[voteFor, i()]} type="button" class="group relative flex flex-col items-center rounded-md border-2 border-gray-500 bg-transparent transition-all disabled:scale-0 disabled:opacity-0">
 									<img class="absolute w-64 scale-0 opacity-40 blur-2xl transition-transform group-hover:scale-100 sm:w-80" src={option.image ?? ''} alt={option.content} />
