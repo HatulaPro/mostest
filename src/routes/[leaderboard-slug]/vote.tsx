@@ -45,15 +45,12 @@ export default function ViewLeaderboard() {
 
 	// Prefetching images
 	createEffect(() => {
-		const d = data();
-		if (d) {
-			d.forEach((value) => {
-				if (value.image) {
-					const preloaded = new Image();
-					preloaded.src = value.image;
-				}
-			});
-		}
+		data()?.forEach((value) => {
+			if (value.image) {
+				const preloaded = new Image();
+				preloaded.src = value.image;
+			}
+		});
 	});
 	const [, enroll] = createServerAction$(
 		async (ids: { votedFor: string; votedAgainst: string }) => {
