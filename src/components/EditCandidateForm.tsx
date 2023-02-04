@@ -105,7 +105,7 @@ export const EditCandidateForm: Component<{ editingId: number; setEditingId: (v:
 					<button disabled={!form.isValid() || enrolling.pending} type="submit" class="items-center rounded-md bg-red-500 py-1.5 px-3 text-base text-white hover:enabled:bg-red-600 disabled:contrast-75">
 						Save
 					</button>
-					<button onClick={() => props.setEditingId(-1)} class="flex items-center rounded-md bg-slate-700 py-1.5 px-3 text-base text-white hover:bg-slate-700">
+					<button type="button" onClick={() => props.setEditingId(-1)} class="flex items-center rounded-md bg-slate-700 py-1.5 px-3 text-base text-white hover:bg-slate-700">
 						Cancel
 					</button>
 				</div>
