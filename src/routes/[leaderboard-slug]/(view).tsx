@@ -1,6 +1,6 @@
 import { A, useSearchParams } from '@solidjs/router';
 import { AiOutlineEdit } from 'solid-icons/ai';
-import { For, Suspense } from 'solid-js';
+import { createMemo, For, Suspense } from 'solid-js';
 import { type RouteDataArgs, useRouteData } from 'solid-start';
 import { createServerData$ } from 'solid-start/server';
 import { Loading } from '~/components/Loading';
@@ -31,10 +31,11 @@ function calcPercentage(voteFor: number, voteAgainst: number) {
 const PAGE_SIZE = 10;
 export default function ViewLeaderboard() {
 	const data = useRouteData<typeof routeData>();
-	const candidatesSorted = () =>
+	const candidatesSorted = createMemo(() =>
 		data()
 			?.options.map((o) => ({ id: o[0], image: o[1], content: o[2], leaderboardId: o[3], _count: { voteFor: o[4], voteAgainst: o[5] } }))
-			.sort((a, b) => calcPercentage(b._count.voteFor, b._count.voteAgainst) - calcPercentage(a._count.voteFor, a._count.voteAgainst));
+			.sort((a, b) => calcPercentage(b._count.voteFor, b._count.voteAgainst) - calcPercentage(a._count.voteFor, a._count.voteAgainst))
+	);
 
 	const [searchParams, setSearchParams] = useSearchParams<{ page: string }>();
 	const page = () => parseInt(searchParams.page) || 1;
