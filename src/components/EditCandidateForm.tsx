@@ -1,4 +1,5 @@
 import type { Option } from '@prisma/client';
+import { AiFillDelete } from 'solid-icons/ai';
 import { type Component, createEffect, on } from 'solid-js';
 import { createServerAction$ } from 'solid-start/server';
 import { z } from 'zod';
@@ -19,7 +20,7 @@ type CandidatesList = {
 	};
 }[];
 
-const EditCandidateSchema = z.object({ name: z.string(), image: z.string(), candidateId: z.string(), leaderboardId: z.string() });
+const EditCandidateSchema = z.object({ action: z.union([z.literal('edit'), z.literal('remove')]), name: z.string(), image: z.string(), candidateId: z.string(), leaderboardId: z.string() });
 type EditCandidateType = z.infer<typeof EditCandidateSchema>;
 
 export const EditCandidateForm: Component<{ editingId: number; setEditingId: (v: number) => void; candidates: CandidatesList }> = (props) => {
@@ -47,12 +48,18 @@ export const EditCandidateForm: Component<{ editingId: number; setEditingId: (v:
 				if (!uid) return { success: false };
 				if (!candidate || candidate.leaderboard.ownerId !== uid) return { success: false };
 
-				const areDifferent = candidate.content !== data.name || candidate.image !== data.image;
-				if (!areDifferent) return { success: true, data: { content: candidate.content, id: candidate.id, image: candidate.image, leaderboardId: candidate.leaderboardId } };
+				if (data.action === 'edit') {
+					const areDifferent = candidate.content !== data.name || candidate.image !== data.image;
+					if (!areDifferent) return { success: true, data: { content: candidate.content, id: candidate.id, image: candidate.image, leaderboardId: candidate.leaderboardId } };
 
-				const newCandidate = await prisma.option.update({ where: { id: candidate.id }, data: { content: data.name, image: data.image || undefined } });
-				console.log(newCandidate);
-				return { success: true, data: newCandidate };
+					const newCandidate = await prisma.option.update({ where: { id: candidate.id }, data: { content: data.name, image: data.image || undefined } });
+					return { success: true, data: newCandidate };
+				} else if (data.action === 'remove') {
+					const newCandidate = await prisma.option.delete({ where: { id: candidate.id } });
+					return { success: true, data: newCandidate };
+				} else {
+					return { success: false };
+				}
 			} catch (e) {
 				console.log(e);
 				return { success: false };
@@ -70,6 +77,7 @@ export const EditCandidateForm: Component<{ editingId: number; setEditingId: (v:
 					const c = candidate();
 					if (!c) return;
 					enroll({
+						action: 'edit',
 						...form.data(),
 						leaderboardId: c.leaderboardId,
 						candidateId: c.id,
@@ -101,12 +109,29 @@ export const EditCandidateForm: Component<{ editingId: number; setEditingId: (v:
 					placeholder="Url to image"
 				/>
 				<Loading isLoading={enrolling.pending} />
-				<div class="flex justify-center gap-2 pb-4 sm:mt-4">
+				<div class="flex justify-center gap-2 sm:mt-4">
 					<button disabled={!form.isValid() || enrolling.pending} type="submit" class="items-center rounded-md bg-red-500 py-1.5 px-3 text-base text-white hover:enabled:bg-red-600 disabled:contrast-75">
 						Save
 					</button>
 					<button type="button" onClick={() => props.setEditingId(-1)} class="flex items-center rounded-md bg-slate-700 py-1.5 px-3 text-base text-white hover:bg-slate-700">
 						Cancel
+					</button>
+					<button
+						type="button"
+						onClick={() => {
+							const c = candidate();
+							if (!c) return;
+							enroll({
+								action: 'remove',
+								...form.data(),
+								leaderboardId: c.leaderboardId,
+								candidateId: c.id,
+							}).then(() => props.setEditingId(-1));
+						}}
+						class="flex items-center rounded-md bg-slate-700 py-1.5 px-3 text-base text-white hover:bg-slate-700"
+					>
+						<AiFillDelete class="mr-2 text-lg" />
+						Remove
 					</button>
 				</div>
 			</form>
