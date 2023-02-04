@@ -1,8 +1,9 @@
 import { A, useSearchParams } from '@solidjs/router';
 import { AiOutlineEdit } from 'solid-icons/ai';
-import { createMemo, For, Suspense } from 'solid-js';
+import { createMemo, createSignal, For, Suspense } from 'solid-js';
 import { type RouteDataArgs, useRouteData } from 'solid-start';
 import { createServerData$ } from 'solid-start/server';
+import { EditCandidateForm } from '~/components/EditCandidateForm';
 import { Loading } from '~/components/Loading';
 import { ShareButton } from '~/components/ShareButton';
 import { prisma } from '~/db';
@@ -41,6 +42,8 @@ export default function ViewLeaderboard() {
 	const page = () => parseInt(searchParams.page) || 1;
 	const setPage = (n: number) => setSearchParams({ ...searchParams, page: `${n}` });
 	const pageCount = () => Math.ceil((data()?.options.length ?? PAGE_SIZE) / PAGE_SIZE);
+	const isOwner = () => data.latest?.leaderboard?.ownerId && data.latest.leaderboard.ownerId === data.latest.user?.id;
+	const [editedId, setEditedId] = createSignal<number>(-1);
 
 	const preloadPageImages = (p: number) => {
 		candidatesSorted()
@@ -119,6 +122,11 @@ export default function ViewLeaderboard() {
 								<div class="flex h-[inherit] items-center gap-2">
 									<img class="h-full object-contain py-1" alt={option.content} src={option.image ?? ''} />
 									<p class="text-center text-xs sm:text-lg">{option.content}</p>
+									{isOwner() && (
+										<button onClick={() => setEditedId(PAGE_SIZE * (page() - 1) + i())} class="flex items-center rounded-md py-1.5 px-2 text-lg text-white transition-colors hover:bg-slate-800">
+											<AiOutlineEdit />
+										</button>
+									)}
 								</div>
 								<p class="ml-auto text-xs sm:text-lg">{calcPercentage(option._count.voteFor, option._count.voteAgainst).toPrecision(3)}%</p>
 							</div>
@@ -131,16 +139,10 @@ export default function ViewLeaderboard() {
 				<A href="./vote" class="rounded-md bg-red-500 py-2 px-4 hover:bg-red-600">
 					Vote
 				</A>
-				<Suspense fallback={<ShareButton text="" title="" url={document.location.href} disabled />}>
-					{data.latest?.leaderboard && <ShareButton text={`Vote on ${data.latest.leaderboard.name}: ${data.latest.leaderboard.question}`} title={data.latest.leaderboard.name} url={document.location.href} />}
-					{data.latest?.leaderboard?.ownerId && data.latest.leaderboard.ownerId === data.latest.user?.id && (
-						<A href="./edit" class="flex items-center rounded-md bg-slate-700 py-2 px-3 text-white hover:bg-slate-700 disabled:contrast-75">
-							<AiOutlineEdit class="mr-2 text-xl" />
-							Edit
-						</A>
-					)}
-				</Suspense>
+				<Suspense fallback={<ShareButton text="" title="" url={document.location.href} disabled />}>{data.latest?.leaderboard && <ShareButton text={`Vote on ${data.latest.leaderboard.name}: ${data.latest.leaderboard.question}`} title={data.latest.leaderboard.name} url={document.location.href} />}</Suspense>
 			</div>
+
+			{isOwner() && <EditCandidateForm editingId={editedId()} setEditingId={setEditedId} candidates={candidatesSorted() ?? []} />}
 		</div>
 	);
 }
