@@ -82,7 +82,7 @@ export default function ViewLeaderboard() {
 						</For>
 						{page() < pageCount() - 1 && (
 							<>
-								{page() !== pageCount() - 2 && <span class="self-end">...</span>}
+								{page() < pageCount() - 3 && <span class="self-end">...</span>}
 								<For each={range(Math.max(page() + 2, pageCount() - 1), pageCount() + 1)}>
 									{(num) => (
 										<button onPointerEnter={[preloadPageImages, num]} onClick={() => setPage(num)} classList={{ 'rounded-md px-2 sm:px-3 py-1.5 transition-colors': true, 'bg-slate-500 hover:bg-slate-600': page() !== num, 'bg-red-500 hover:bg-red-600': page() === num }}>
