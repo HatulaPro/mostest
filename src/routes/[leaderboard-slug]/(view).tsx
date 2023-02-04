@@ -146,7 +146,7 @@ export default function ViewLeaderboard() {
 				<Suspense fallback={<ShareButton text="" title="" url={document.location.href} disabled />}>{data.latest?.leaderboard && <ShareButton text={`Vote on ${data.latest.leaderboard.name}: ${data.latest.leaderboard.question}`} title={data.latest.leaderboard.name} url={document.location.href} />}</Suspense>
 			</div>
 
-			{isOwner() && <EditCandidateForm editingId={editedId()} setEditingId={setEditedId} candidates={candidatesSorted() ?? []} />}
+			{isOwner() && <EditCandidateForm isOpen={editedId() !== -1} close={() => setEditedId(-1)} candidate={(candidatesSorted() ?? [])[editedId()]} />}
 		</div>
 	);
 }

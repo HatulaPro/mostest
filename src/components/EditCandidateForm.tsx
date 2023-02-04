@@ -9,7 +9,7 @@ import { getSession } from '~/routes/api/auth/[...solidauth]';
 import { Loading } from './Loading';
 import { Modal } from './Modal';
 
-type CandidatesList = {
+type Candidate = {
 	id: string;
 	image: string | null;
 	content: string;
@@ -18,22 +18,25 @@ type CandidatesList = {
 		voteFor: number;
 		voteAgainst: number;
 	};
-}[];
+};
 
 const EditCandidateSchema = z.object({ action: z.union([z.literal('edit'), z.literal('remove')]), name: z.string(), image: z.string(), candidateId: z.string(), leaderboardId: z.string() });
 type EditCandidateType = z.infer<typeof EditCandidateSchema>;
 
-export const EditCandidateForm: Component<{ editingId: number; setEditingId: (v: number) => void; candidates: CandidatesList }> = (props) => {
-	const candidate = () => (props.editingId !== -1 ? props.candidates[props.editingId] : null);
-	const form = useForm({ name: { parser: z.string(), defaultValue: candidate()?.content }, image: { parser: z.string(), defaultValue: candidate()?.image ?? '' } });
+export const EditCandidateForm: Component<{ isOpen: boolean; close: () => void; candidate: Candidate | undefined }> = (props) => {
+	// const candidate = () => (props.editingId !== -1 ? props.candidates[props.editingId] : null);
+	const form = useForm({ name: { parser: z.string(), defaultValue: props.candidate?.content }, image: { parser: z.string(), defaultValue: props.candidate?.image ?? '' } });
 
 	createEffect(
-		on(candidate, (c) => {
-			if (c) {
-				form.setValue('name', c.content);
-				form.setValue('image', c.image ?? '');
+		on(
+			() => props.candidate,
+			(c) => {
+				if (c) {
+					form.setValue('name', c.content);
+					form.setValue('image', c.image ?? '');
+				}
 			}
-		})
+		)
 	);
 
 	const [enrolling, enroll] = createServerAction$(
@@ -69,23 +72,23 @@ export const EditCandidateForm: Component<{ editingId: number; setEditingId: (v:
 	);
 
 	return (
-		<Modal isOpen={props.editingId !== -1} close={() => props.setEditingId(-1)}>
+		<Modal isOpen={props.isOpen} close={props.close}>
 			<form
 				class="flex h-screen flex-col items-center justify-evenly gap-2 p-3 sm:h-auto"
 				onSubmit={(e) => {
 					e.preventDefault();
-					const c = candidate();
+					const c = props.candidate;
 					if (!c) return;
 					enroll({
 						action: 'edit',
 						...form.data(),
 						leaderboardId: c.leaderboardId,
 						candidateId: c.id,
-					}).then(() => props.setEditingId(-1));
+					}).then(props.close);
 				}}
 			>
 				<h2 class="mb-4 text-2xl font-bold">
-					Edit <span class="text-red-500">{candidate()?.content}</span>
+					Edit <span class="text-red-500">{props.candidate?.content}</span>
 				</h2>
 
 				<input
@@ -113,20 +116,20 @@ export const EditCandidateForm: Component<{ editingId: number; setEditingId: (v:
 					<button disabled={!form.isValid() || enrolling.pending} type="submit" class="items-center rounded-md bg-red-500 py-1.5 px-3 text-base text-white hover:enabled:bg-red-600 disabled:contrast-75">
 						Save
 					</button>
-					<button type="button" onClick={() => props.setEditingId(-1)} class="flex items-center rounded-md bg-slate-700 py-1.5 px-3 text-base text-white hover:bg-slate-700">
+					<button type="button" onClick={props.close} class="flex items-center rounded-md bg-slate-700 py-1.5 px-3 text-base text-white hover:bg-slate-700">
 						Cancel
 					</button>
 					<button
 						type="button"
 						onClick={() => {
-							const c = candidate();
+							const c = props.candidate;
 							if (!c) return;
 							enroll({
 								action: 'remove',
 								...form.data(),
 								leaderboardId: c.leaderboardId,
 								candidateId: c.id,
-							}).then(() => props.setEditingId(-1));
+							}).then(props.close);
 						}}
 						class="flex items-center rounded-md bg-slate-700 py-1.5 px-3 text-base text-white hover:bg-slate-700"
 					>
