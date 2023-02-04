@@ -143,10 +143,18 @@ export default function ViewLeaderboard() {
 				<A href="./vote" class="rounded-md bg-red-500 py-2 px-4 hover:bg-red-600">
 					Vote
 				</A>
-				<Suspense fallback={<ShareButton text="" title="" url={document.location.href} disabled />}>{data.latest?.leaderboard && <ShareButton text={`Vote on ${data.latest.leaderboard.name}: ${data.latest.leaderboard.question}`} title={data.latest.leaderboard.name} url={document.location.href} />}</Suspense>
+				<Suspense fallback={<ShareButton text="" title="" url={document.location.href} disabled />}>
+					<>
+						{data.latest?.leaderboard && <ShareButton text={`Vote on ${data.latest.leaderboard.name}: ${data.latest.leaderboard.question}`} title={data.latest.leaderboard.name} url={document.location.href} />}
+						{isOwner() && (
+							<button onClick={() => setEditedId(-2)} class="rounded-md bg-slate-700 py-2 px-3 text-white transition-colors hover:bg-slate-600">
+								Create
+							</button>
+						)}
+					</>
+				</Suspense>
 			</div>
-
-			{isOwner() && <EditCandidateForm isOpen={editedId() !== -1} close={() => setEditedId(-1)} candidate={(candidatesSorted() ?? [])[editedId()]} />}
+			<Suspense>{isOwner() && <EditCandidateForm isOpen={editedId() !== -1} close={() => setEditedId(-1)} leaderboardId={data.latest?.leaderboard?.id ?? ''} create={editedId() === -2} candidate={(candidatesSorted() ?? [])[editedId()]} />}</Suspense>
 		</div>
 	);
 }
