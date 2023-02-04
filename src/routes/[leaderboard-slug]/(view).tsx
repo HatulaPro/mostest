@@ -35,7 +35,11 @@ export default function ViewLeaderboard() {
 	const candidatesSorted = createMemo(() =>
 		data()
 			?.options.map((o) => ({ id: o[0], image: o[1], content: o[2], leaderboardId: o[3], _count: { voteFor: o[4], voteAgainst: o[5] } }))
-			.sort((a, b) => calcPercentage(b._count.voteFor, b._count.voteAgainst) - calcPercentage(a._count.voteFor, a._count.voteAgainst))
+			.sort((a, b) => {
+				const diff = calcPercentage(b._count.voteFor, b._count.voteAgainst) - calcPercentage(a._count.voteFor, a._count.voteAgainst);
+				if (diff !== 0) return diff;
+				return a.id.localeCompare(b.id);
+			})
 	);
 
 	const [searchParams, setSearchParams] = useSearchParams<{ page: string }>();
