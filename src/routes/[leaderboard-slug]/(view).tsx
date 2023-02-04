@@ -41,6 +41,17 @@ export default function ViewLeaderboard() {
 	const setPage = (n: number) => setSearchParams({ ...searchParams, page: `${n}` });
 	const pageCount = () => Math.ceil((data()?.options.length ?? PAGE_SIZE) / PAGE_SIZE);
 
+	const preloadPageImages = (p: number) => {
+		candidatesSorted()
+			?.slice(PAGE_SIZE * (p - 1), PAGE_SIZE * p)
+			.forEach((c) => {
+				if (c.image) {
+					const img = new Image();
+					img.src = c.image;
+				}
+			});
+	};
+
 	return (
 		<div>
 			<Suspense>
@@ -53,7 +64,7 @@ export default function ViewLeaderboard() {
 							<>
 								<For each={range(1, Math.min(3, page() - 1))}>
 									{(num) => (
-										<button onClick={() => setPage(num)} classList={{ 'rounded-md px-2 sm:px-3 py-1.5 transition-colors': true, 'bg-slate-500 hover:bg-slate-600': page() !== num, 'bg-red-500 hover:bg-red-600': page() === num }}>
+										<button onPointerEnter={[preloadPageImages, num]} onClick={() => setPage(num)} classList={{ 'rounded-md px-2 sm:px-3 py-1.5 transition-colors': true, 'bg-slate-500 hover:bg-slate-600': page() !== num, 'bg-red-500 hover:bg-red-600': page() === num }}>
 											{num}
 										</button>
 									)}
@@ -63,7 +74,7 @@ export default function ViewLeaderboard() {
 						)}
 						<For each={range(Math.max(1, page() - 1), Math.min(pageCount() + 1, page() + 2))}>
 							{(num) => (
-								<button onClick={() => setPage(num)} classList={{ 'rounded-md px-2 sm:px-3 py-1.5 transition-colors': true, 'bg-slate-500 hover:bg-slate-600': page() !== num, 'bg-red-500 hover:bg-red-600': page() === num }}>
+								<button onPointerEnter={[preloadPageImages, num]} onClick={() => setPage(num)} classList={{ 'rounded-md px-2 sm:px-3 py-1.5 transition-colors': true, 'bg-slate-500 hover:bg-slate-600': page() !== num, 'bg-red-500 hover:bg-red-600': page() === num }}>
 									{num}
 								</button>
 							)}
@@ -73,7 +84,7 @@ export default function ViewLeaderboard() {
 								{page() !== pageCount() - 2 && <span class="self-end">...</span>}
 								<For each={range(Math.max(page() + 2, pageCount() - 1), pageCount() + 1)}>
 									{(num) => (
-										<button onClick={() => setPage(num)} classList={{ 'rounded-md px-2 sm:px-3 py-1.5 transition-colors': true, 'bg-slate-500 hover:bg-slate-600': page() !== num, 'bg-red-500 hover:bg-red-600': page() === num }}>
+										<button onPointerEnter={[preloadPageImages, num]} onClick={() => setPage(num)} classList={{ 'rounded-md px-2 sm:px-3 py-1.5 transition-colors': true, 'bg-slate-500 hover:bg-slate-600': page() !== num, 'bg-red-500 hover:bg-red-600': page() === num }}>
 											{num}
 										</button>
 									)}
