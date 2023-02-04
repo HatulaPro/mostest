@@ -16,7 +16,7 @@ export function routeData(input: RouteDataArgs<typeof ParentRouteData>) {
 			if (!id) return null;
 			const [session, options] = await Promise.all([getSession(request), prisma.option.findMany({ where: { leaderboardId: id }, include: { _count: { select: { voteAgainst: true, voteFor: true } } } })]);
 
-			return { leaderboard: latest, user: session?.user, options };
+			return { leaderboard: latest, user: session?.user, options: options.map((o) => [o.id, o.image, o.content, o.leaderboardId, o._count.voteFor, o._count.voteAgainst] as const) };
 		},
 		{ key: () => ['leaderboard-options', input.data.latest?.id, input.data.latest] as const }
 	);
@@ -33,7 +33,7 @@ export default function ViewLeaderboard() {
 	const data = useRouteData<typeof routeData>();
 	const candidatesSorted = () =>
 		data()
-			?.options.slice()
+			?.options.map((o) => ({ id: o[0], image: o[1], content: o[2], leaderboardId: o[3], _count: { voteFor: o[4], voteAgainst: o[5] } }))
 			.sort((a, b) => calcPercentage(b._count.voteFor, b._count.voteAgainst) - calcPercentage(a._count.voteFor, a._count.voteAgainst));
 
 	const [searchParams, setSearchParams] = useSearchParams<{ page: string }>();
