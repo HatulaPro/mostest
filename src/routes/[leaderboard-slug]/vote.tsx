@@ -113,7 +113,7 @@ export default function ViewLeaderboard() {
 								type="button"
 								class="group relative flex scale-0 flex-col items-center rounded-md border-2 border-gray-500 bg-transparent"
 							>
-								<img class="absolute w-64 scale-0 opacity-40 blur-2xl transition-transform group-hover:scale-100 sm:w-80" src={option.image ?? ''} alt={option.content} />
+								<img class="absolute h-64 w-64 scale-0 opacity-40 blur-2xl transition-transform group-hover:scale-100 sm:h-80 sm:w-80" src={option.image ?? ''} alt={option.content} />
 								<img class="h-48 w-48 object-contain sm:h-64 sm:w-64" src={option.image ?? ''} alt={option.content} />
 								<p class="mt-auto">{option.content}</p>
 							</button>
