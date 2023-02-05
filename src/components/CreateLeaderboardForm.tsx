@@ -6,18 +6,16 @@ import { z } from 'zod';
 import { createServerAction$ } from 'solid-start/server';
 import { prisma } from '~/db';
 import { useForm } from '~/hooks/useForm';
-import type { Leaderboard, Option } from '@prisma/client';
+import type { Leaderboard } from '@prisma/client';
 import { Loading } from '~/components/Loading';
 import { useNavigate } from '@solidjs/router';
 import { createStore } from 'solid-js/store';
 import { getSession } from '~/routes/api/auth/[...solidauth]';
 import clickOutside from '~/bindings/click-outside';
-import { A } from 'solid-start';
 // eslint-disable-next-line
 const clickOutsideDirective = clickOutside;
 
 const CreateLeaderboardSchema = z.object({
-	id: z.string().optional(),
 	name: z.string().min(2, 'Name must contain at least 2 characters').max(24, 'Name must contain at most 24 characters'),
 	slug: z
 		.string()
@@ -32,28 +30,21 @@ type CreateLeaderboardType = z.infer<typeof CreateLeaderboardSchema>;
 export const CreateLeaderboardForm: Component<{
 	name: string;
 	ref: HTMLFormElement | undefined;
-	leaderboardData?: {
-		leaderboard: Leaderboard;
-		options: Option[];
-	};
 }> = (props) => {
-	const form = useForm({ name: { parser: CreateLeaderboardSchema.shape.name, defaultValue: props.leaderboardData?.leaderboard.name }, slug: { parser: CreateLeaderboardSchema.shape.slug, defaultValue: props.leaderboardData?.leaderboard.slug }, description: { parser: CreateLeaderboardSchema.shape.description, defaultValue: props.leaderboardData?.leaderboard.question } });
+	const form = useForm({ name: { parser: CreateLeaderboardSchema.shape.name, defaultValue: props.name }, slug: { parser: CreateLeaderboardSchema.shape.slug }, description: { parser: CreateLeaderboardSchema.shape.description } });
 
 	// ID is number: new candidate
 	// ID is string: existing candidate
-	const [candidates, setCandidates] = createStore<{ id: string | number; name: string; image: string }[]>(
-		props.leaderboardData?.options.map((option) => ({ id: option.id, image: option.image ?? '', name: option.content })) ?? [
-			{ id: 1, name: 'Zapdos', image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/145.png' },
-			{ id: 2, name: 'Castform', image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/351.png' },
-			{ id: 3, name: 'Bulbasaur', image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png' },
-		]
-	);
-	const isEditing = () => Boolean(props.leaderboardData);
-	const [currentlyEditing, setCurrentlyEditing] = createSignal<string | number>(-1);
+	const [candidates, setCandidates] = createStore<{ id: number; name: string; image: string }[]>([
+		{ id: 1, name: 'Zapdos', image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/145.png' },
+		{ id: 2, name: 'Castform', image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/351.png' },
+		{ id: 3, name: 'Bulbasaur', image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png' },
+	]);
+	const [currentlyEditing, setCurrentlyEditing] = createSignal<number>(-1);
 
 	const navigate = useNavigate();
 	function addCandidate() {
-		setCandidates((p) => [...p, { id: 1 + Math.max(0, ...p.map((c) => (typeof c.id === 'number' ? c.id : 0))), name: 'Bulbasaur', image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png' }]);
+		setCandidates((p) => [...p, { id: 1 + Math.max(0, ...p.map((c) => c.id)), name: 'Bulbasaur', image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png' }]);
 	}
 
 	const [enrolling, enroll] = createServerAction$(async (data: CreateLeaderboardType, { request }): Promise<{ success: true; data: { leaderboard: Leaderboard; candidates: number } } | { success: false }> => {
@@ -65,39 +56,10 @@ export const CreateLeaderboardForm: Component<{
 		try {
 			const user = await getSession(request);
 			// If no ID givem create a new leaderboard
-			if (!parsed.data.id) {
-				const leaderboard = await prisma.leaderboard.create({ data: { name: parsed.data.name, question: parsed.data.description, slug: data.slug, ownerId: user?.user?.id } });
-				const leaderboardId = leaderboard.id;
-				const candidates = (await prisma.option.createMany({ data: parsed.data.candidates.map((c) => ({ image: c.image.length ? c.image : undefined, content: c.name, leaderboardId })) })).count;
-				return { success: true, data: { leaderboard, candidates } };
-			} else {
-				const leaderboardId = parsed.data.id;
-				const leaderboard = await prisma.leaderboard.findUnique({ where: { id: leaderboardId }, select: { ownerId: true, options: { select: { id: true } } } });
-				if (!leaderboard || !leaderboard.ownerId) throw new Error('UNAUTHORIZED');
-				const updatedLeaderboard = await prisma.leaderboard.update({ where: { id: leaderboardId }, data: { name: parsed.data.name, question: parsed.data.description, slug: parsed.data.slug } });
-				const validOptionIds = new Set(leaderboard.options.map((o) => o.id));
-				const existingOptionIds = new Set<string>();
-				const existingOptions = parsed.data.candidates.filter((c) => {
-					if (c.id && validOptionIds.has(c.id)) {
-						existingOptionIds.add(c.id);
-						return true;
-					}
-					return false;
-				});
-				const nonExistingOptions = parsed.data.candidates.filter((c) => !c.id || !validOptionIds.has(c.id));
-
-				const removedOptions = [...validOptionIds].filter((someId) => !existingOptionIds.has(someId));
-
-				const transaction = await prisma.$transaction([
-					// Updating existing
-					...existingOptions.map((value) => prisma.option.update({ select: null, where: { id: value.id }, data: { image: value.image || undefined, id: value.id } })),
-					// Adding new ones
-					...(nonExistingOptions.length ? [prisma.option.createMany({ data: nonExistingOptions.map((value) => ({ image: value.image || undefined, id: value.id, content: value.name, leaderboardId: leaderboardId })) })] : []),
-					// Removing the removed
-					...(removedOptions.length ? [prisma.option.deleteMany({ where: { id: { in: removedOptions } } })] : []),
-				]);
-				return { success: true, data: { leaderboard: updatedLeaderboard, candidates: transaction.length } };
-			}
+			const leaderboard = await prisma.leaderboard.create({ data: { name: parsed.data.name, question: parsed.data.description, slug: data.slug, ownerId: user?.user?.id } });
+			const leaderboardId = leaderboard.id;
+			const candidates = (await prisma.option.createMany({ data: parsed.data.candidates.map((c) => ({ image: c.image.length ? c.image : undefined, content: c.name, leaderboardId })) })).count;
+			return { success: true, data: { leaderboard, candidates } };
 		} catch (e) {
 			console.log(e);
 			return { success: false };
@@ -110,7 +72,6 @@ export const CreateLeaderboardForm: Component<{
 				e.preventDefault();
 				enroll({
 					...form.data(),
-					id: props.leaderboardData?.leaderboard.id,
 					candidates: candidates.map((c) => ({ ...c, id: typeof c.id === 'string' ? c.id : undefined })),
 				}).then((res) => {
 					if (res.success) {
@@ -123,7 +84,7 @@ export const CreateLeaderboardForm: Component<{
 		>
 			<div class="flex w-full max-w-5xl flex-col gap-3 rounded-md bg-black bg-opacity-30 p-2 text-left sm:p-8">
 				<h2 class="mb-2 text-2xl sm:text-4xl">
-					{isEditing() ? 'Edit' : 'Create'} <span class="font-bold text-red-500">Leaderboard</span>
+					Create <span class="font-bold text-red-500">Leaderboard</span>
 				</h2>
 				<div class="flex w-full items-start gap-2">
 					<div class="flex-1">
@@ -210,13 +171,8 @@ export const CreateLeaderboardForm: Component<{
 				</div>
 				<Loading isLoading={enrolling.pending} />
 				<div class="mx-auto flex gap-2">
-					{isEditing() && (
-						<A href=".." class="mt-4 flex items-center rounded-md bg-slate-700 py-2 px-4 text-lg text-white hover:bg-slate-700">
-							Cancel
-						</A>
-					)}
 					<button disabled={!form.isValid()} type="submit" class="mt-4 items-center rounded-md bg-red-500 py-2 px-4 text-lg text-white hover:enabled:bg-red-600 disabled:contrast-75">
-						{isEditing() ? 'Save' : 'Create'}
+						Create
 					</button>
 				</div>
 			</div>

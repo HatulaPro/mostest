@@ -67,14 +67,18 @@ export default function ViewLeaderboard() {
 		}
 	);
 
-	function voteFor(chosenOption: number) {
+	function voteFor(chosenOption: string) {
 		const d = data();
 		const p = prev() ?? d;
 		if (!p) return;
 		setPrev(d ? [...d] : []);
 		setHasNext(false);
-		refetchRouteData(['leaderboard-options', p[chosenOption].leaderboardId]).then(() => setHasNext(true));
-		enroll({ votedFor: p[chosenOption].id, votedAgainst: p[chosenOption === 0 ? 1 : 0].id });
+		const votedFor = p.find((o) => o.id === chosenOption);
+		const votedAgainst = p.find((o) => o.id !== chosenOption);
+		refetchRouteData(['leaderboard-options', p[0].leaderboardId]).then(() => setHasNext(true));
+		if (votedFor && votedAgainst) {
+			enroll({ votedFor: votedFor.id, votedAgainst: votedAgainst.id });
+		}
 	}
 
 	return (
@@ -95,7 +99,7 @@ export default function ViewLeaderboard() {
 					}
 				>
 					<For each={prev() ?? data()}>
-						{(option, i) => (
+						{(option) => (
 							<button
 								ref={(el) =>
 									// Adding animation on new id
@@ -109,7 +113,7 @@ export default function ViewLeaderboard() {
 									)
 								}
 								disabled={!hasNext()}
-								onClick={[voteFor, i()]}
+								onClick={[voteFor, option.id]}
 								type="button"
 								class="group relative flex scale-0 flex-col items-center rounded-md border-2 border-gray-500 bg-transparent"
 							>
