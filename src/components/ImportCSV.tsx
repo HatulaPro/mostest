@@ -43,6 +43,24 @@ export const ImportCSV: Component<{ onImport: (data: CsvSchemaType) => void }> =
 		return enrolling.result.error;
 	};
 
+	const close = () => enrolling.clear();
+	const onDone = (
+		data:
+			| {
+					success: true;
+					data: string[][];
+			  }
+			| {
+					success: false;
+					error: string;
+			  }
+	) => {
+		if (data.success) props.onImport(data.data);
+		else if (inputFile) {
+			inputFile.value = inputFile.defaultValue;
+		}
+	};
+
 	let inputFile: HTMLInputElement | undefined;
 	return (
 		<div class="relative">
@@ -56,21 +74,14 @@ export const ImportCSV: Component<{ onImport: (data: CsvSchemaType) => void }> =
 					const file = e.currentTarget.files?.item(0);
 					if (!file) return;
 					const text = await file.text();
-					enroll(text)
-						.then((data) => {
-							if (data.success) props.onImport(data.data);
-							else if (inputFile) {
-								inputFile.value = inputFile.defaultValue;
-							}
-						})
-						.catch(console.log);
+					enroll(text).then(onDone).catch(console.log);
 				}}
 			/>
 			<button type="button" onClick={() => inputFile?.click()} disabled={enrolling.pending} class="flex items-center rounded-md bg-slate-700 py-2 px-4 text-sm text-white hover:bg-slate-700 disabled:contrast-75">
 				<AiFillFileText class="mx-1 text-xl" />
 				Import CSV
 			</button>
-			<Modal isOpen={Boolean(modalError())} close={() => enrolling.clear()}>
+			<Modal isOpen={Boolean(modalError())} close={() => close}>
 				<h3 class="top-full text-lg text-red-500">
 					<strong>Error:</strong> {modalError()}
 				</h3>

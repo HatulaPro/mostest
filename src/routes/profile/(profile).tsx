@@ -37,7 +37,7 @@ export default function ProfilePage() {
 										<span class="animate-pulse bg-slate-700 text-lg font-bold text-transparent">NAME OF THING</span>
 										<span class="animate-pulse bg-slate-700 text-base text-transparent">SOME QUESTION ABOUT IT?</span>
 										<div class="ml-auto flex h-8 gap-2">
-											<For each={[1, 2, 3, 4]}>{() => <div class="h-full w-8 animate-pulse bg-slate-700 object-contain text-transparent"></div>}</For>
+											<For each={[1, 2, 3, 4]}>{() => <div class="h-full w-8 animate-pulse bg-slate-700 object-contain text-transparent" />}</For>
 										</div>
 									</div>
 								)}

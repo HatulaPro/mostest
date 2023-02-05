@@ -30,18 +30,19 @@ export default function ViewLeaderboard() {
 
 	const [hasNext, setHasNext] = createSignal(false);
 
+	const fillPrev = () => {
+		setHasNext(true);
+		if (!prev()) {
+			const track = createReaction(() => {
+				setPrev(data.latest && [...data.latest]);
+				refetchRouteData(['leaderboard-options', data.latest && data.latest[0].leaderboardId]);
+			});
+			track(() => data());
+		}
+	};
 	// Filling prev on mount
 	onMount(() => {
-		refetchRouteData(['leaderboard-options', data.latest && data.latest[0].leaderboardId]).then(() => {
-			setHasNext(true);
-			if (!prev()) {
-				const track = createReaction(() => {
-					setPrev(data.latest && [...data.latest]);
-					refetchRouteData(['leaderboard-options', data.latest && data.latest[0].leaderboardId]);
-				});
-				track(() => data());
-			}
-		});
+		refetchRouteData(['leaderboard-options', data.latest && data.latest[0].leaderboardId]).then(fillPrev);
 	});
 
 	// Prefetching images
@@ -88,12 +89,12 @@ export default function ViewLeaderboard() {
 					fallback={
 						<>
 							<div class="flex animate-pulse flex-col items-center rounded-md border-2 border-gray-500 bg-slate-700">
-								<div class="h-48 w-48 sm:h-64 sm:w-64"></div>
-								<p class="mt-auto h-6"></p>
+								<div class="h-48 w-48 sm:h-64 sm:w-64" />
+								<p class="mt-auto h-6" />
 							</div>
 							<div class="flex animate-pulse flex-col items-center rounded-md border-2 border-gray-500 bg-slate-700">
-								<div class="h-48 w-48 sm:h-64 sm:w-64"></div>
-								<p class="mt-auto h-6"></p>
+								<div class="h-48 w-48 sm:h-64 sm:w-64" />
+								<p class="mt-auto h-6" />
 							</div>
 						</>
 					}

@@ -23,15 +23,19 @@ export const ExportCSV: Component<{ leaderboardId: string }> = (props) => {
 		return Papa.unparse(mappedOptions);
 	});
 
-	const [enrolling, enroll] = createRouteAction(async (file: string) => {
-		// if (enrolling.result) return enrolling.result;
-		const res = exportCSV(file);
+	const close = () => {
 		batch(() => {
 			setOpen(true);
 			setCopied(false);
 			unsetTimeout();
 			setCopiedTimeout(null);
 		});
+	};
+
+	const [enrolling, enroll] = createRouteAction(async (file: string) => {
+		// if (enrolling.result) return enrolling.result;
+		const res = exportCSV(file);
+		close();
 		return res;
 	});
 
@@ -53,17 +57,7 @@ export const ExportCSV: Component<{ leaderboardId: string }> = (props) => {
 			>
 				<AiOutlineDownload />
 			</button>
-			<Modal
-				close={() => {
-					batch(() => {
-						setOpen(false);
-						setCopied(false);
-						unsetTimeout();
-						setCopiedTimeout(null);
-					});
-				}}
-				isOpen={isOpen()}
-			>
+			<Modal close={() => close} isOpen={isOpen()}>
 				<Loading isLoading={enrolling.pending} />
 				<p class="relative w-full overflow-hidden text-ellipsis border-2 border-gray-500 p-3 pr-10">
 					{enrolling.result}

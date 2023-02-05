@@ -23,7 +23,7 @@ type Candidate = {
 const EditCandidateSchema = z.object({ action: z.union([z.literal('edit'), z.literal('remove'), z.literal('create')]), name: z.string(), image: z.string(), candidateId: z.string(), leaderboardId: z.string() });
 type EditCandidateType = z.infer<typeof EditCandidateSchema>;
 
-export const EditCandidateForm: Component<{ leaderboardId: string; isOpen: boolean; close: () => void; candidate: Candidate | undefined; create: boolean }> = (props) => {
+export const EditCandidateForm: Component<{ leaderboardId: string; isOpen: boolean; close: () => () => void; candidate: Candidate | undefined; create: boolean }> = (props) => {
 	const form = useForm({ name: { parser: z.string(), defaultValue: props.candidate?.content }, image: { parser: z.string(), defaultValue: props.candidate?.image ?? '' } });
 
 	createEffect(

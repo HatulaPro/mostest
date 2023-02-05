@@ -3,8 +3,8 @@
 	"parserOptions": {
 		"project": "./tsconfig.json"
 	},
-	"plugins": ["@typescript-eslint"],
-	"extends": ["plugin:@typescript-eslint/recommended"],
+	"plugins": ["solid", "@typescript-eslint"],
+	"extends": ["plugin:@typescript-eslint/recommended", "plugin:solid/typescript"],
 	"rules": {
 		"@typescript-eslint/consistent-type-imports": "warn"
 	}

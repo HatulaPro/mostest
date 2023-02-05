@@ -88,7 +88,7 @@ export const CreateLeaderboardForm: Component<{
 				</h2>
 				<div class="flex w-full items-start gap-2">
 					<div class="flex-1">
-						<input required class="w-full rounded-md border-2 border-gray-500 bg-gray-800 p-2 text-white outline-none transition-colors focus:border-gray-200" type="text" value={props.name || form.formState['name'].value} onInput={(e) => form.setValue('name', e.currentTarget.value)} placeholder="Roundest" />
+						<input required class="w-full rounded-md border-2 border-gray-500 bg-gray-800 p-2 text-white outline-none transition-colors focus:border-gray-200" type="text" value={props.name || form.getValue('name')} onInput={(e) => form.setValue('name', e.currentTarget.value)} placeholder="Roundest" />
 						<span class="text-sm text-red-400">{form.getError('name')}</span>
 					</div>
 					<div class="flex-[2]">
@@ -96,7 +96,7 @@ export const CreateLeaderboardForm: Component<{
 							required
 							class="w-full rounded-md border-2 border-gray-500 bg-gray-800 p-2 text-white outline-none transition-colors focus:border-gray-200"
 							type="text"
-							value={form.formState['slug'].value}
+							value={form.getValue('slug')}
 							onInput={(e) => {
 								form.setValue('slug', e.currentTarget.value);
 							}}
@@ -109,7 +109,7 @@ export const CreateLeaderboardForm: Component<{
 					</div>
 				</div>
 				<div class="w-full">
-					<input required class="w-full rounded-md  border-2 border-gray-500 bg-gray-800 p-2 text-white outline-none transition-colors focus:border-gray-200" type="text" placeholder="Which Pokémon is Rounder?" value={form.formState['description'].value} onInput={(e) => form.setValue('description', e.currentTarget.value)} />
+					<input required class="w-full rounded-md  border-2 border-gray-500 bg-gray-800 p-2 text-white outline-none transition-colors focus:border-gray-200" type="text" placeholder="Which Pokémon is Rounder?" value={form.getValue('description')} onInput={(e) => form.setValue('description', e.currentTarget.value)} />
 					<span class="text-sm text-red-400">{form.getError('description')}</span>
 				</div>
 				<div class="mt-4 flex flex-wrap items-center gap-2">

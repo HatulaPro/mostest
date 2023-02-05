@@ -59,6 +59,8 @@ export default function ViewLeaderboard() {
 			});
 	};
 
+	const close = () => setEditedId(-1);
+
 	return (
 		<div>
 			<Suspense>
@@ -72,7 +74,7 @@ export default function ViewLeaderboard() {
 								<div class="grid h-24 w-full grid-cols-[1fr_2fr_2fr] items-center gap-2 pr-1 hover:bg-black hover:bg-opacity-20 sm:grid-cols-[6rem_3fr_3fr] sm:pr-3">
 									<div class="grid h-full place-items-center border-r-2 border-gray-500 text-xl">{PAGE_SIZE * (page() - 1) + i}</div>
 									<div class="flex h-[inherit] items-center gap-2">
-										<div class="h-full animate-pulse bg-slate-700 object-contain py-1"></div>
+										<div class="h-full animate-pulse bg-slate-700 object-contain py-1" />
 										<p class="animate-pulse bg-slate-700 text-center text-xs text-transparent sm:text-lg">SOME TEXT HERE</p>
 									</div>
 									<p class="ml-auto animate-pulse bg-slate-700 text-xs text-transparent sm:text-lg">99.99%</p>
@@ -116,7 +118,7 @@ export default function ViewLeaderboard() {
 					</>
 				</Suspense>
 			</div>
-			<Suspense>{isOwner() && <EditCandidateForm isOpen={editedId() !== -1} close={() => setEditedId(-1)} leaderboardId={data.latest?.leaderboard?.id ?? ''} create={editedId() === -2} candidate={(candidatesSorted() ?? [])[editedId()]} />}</Suspense>
+			<Suspense>{isOwner() && <EditCandidateForm isOpen={editedId() !== -1} close={() => close} leaderboardId={data.latest?.leaderboard?.id ?? ''} create={editedId() === -2} candidate={(candidatesSorted() ?? [])[editedId()]} />}</Suspense>
 		</div>
 	);
 }

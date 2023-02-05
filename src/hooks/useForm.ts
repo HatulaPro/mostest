@@ -49,5 +49,5 @@ export function useForm<TField extends string>(fields: Record<TField, Field>) {
 		return result as Record<TField, string>;
 	};
 
-	return { getError, getValue, setValue, isValid, data, formState: formState() };
+	return { getError, getValue, setValue, isValid, data, formState };
 }
