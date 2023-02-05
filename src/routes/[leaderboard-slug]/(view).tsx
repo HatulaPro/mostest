@@ -1,13 +1,13 @@
 import { A, useSearchParams } from '@solidjs/router';
 import { AiOutlineEdit } from 'solid-icons/ai';
-import { createMemo, createSignal, For, Suspense } from 'solid-js';
+import { createSignal, For, Suspense } from 'solid-js';
 import { type RouteDataArgs, useRouteData } from 'solid-start';
 import { createServerData$ } from 'solid-start/server';
 import { EditCandidateForm } from '~/components/EditCandidateForm';
 import { Loading } from '~/components/Loading';
+import { Pagination } from '~/components/Pagination';
 import { ShareButton } from '~/components/ShareButton';
 import { prisma } from '~/db';
-import { range } from '~/utils/functions';
 import { getSession } from '../api/auth/[...solidauth]';
 import { type routeData as ParentRouteData } from '../[leaderboard-slug]';
 
@@ -32,15 +32,14 @@ function calcPercentage(voteFor: number, voteAgainst: number) {
 const PAGE_SIZE = 10;
 export default function ViewLeaderboard() {
 	const data = useRouteData<typeof routeData>();
-	const candidatesSorted = createMemo(() =>
+	const candidatesSorted = () =>
 		data()
 			?.options.map((o) => ({ id: o[0], image: o[1], content: o[2], leaderboardId: o[3], _count: { voteFor: o[4], voteAgainst: o[5] } }))
 			.sort((a, b) => {
 				const diff = calcPercentage(b._count.voteFor, b._count.voteAgainst) - calcPercentage(a._count.voteFor, a._count.voteAgainst);
 				if (diff !== 0) return diff;
 				return a.id.localeCompare(b.id);
-			})
-	);
+			});
 
 	const [searchParams, setSearchParams] = useSearchParams<{ page: string }>();
 	const page = () => parseInt(searchParams.page) || 1;
@@ -63,44 +62,7 @@ export default function ViewLeaderboard() {
 	return (
 		<div>
 			<Suspense>
-				<div class="mb-1 mt-6 flex w-full items-end justify-center text-left text-xs sm:text-sm">
-					<span class="hidden text-xs text-gray-300 sm:block">
-						Showing page {page()} of {pageCount()}
-					</span>
-					<div class="flex gap-1 sm:ml-auto sm:gap-2">
-						{page() > 2 && (
-							<>
-								<For each={range(1, Math.min(3, page() - 1))}>
-									{(num) => (
-										<button onPointerEnter={[preloadPageImages, num]} onClick={() => setPage(num)} classList={{ 'rounded-md px-2 sm:px-3 py-1.5 transition-colors': true, 'bg-slate-500 hover:bg-slate-600': page() !== num, 'bg-red-500 hover:bg-red-600': page() === num }}>
-											{num}
-										</button>
-									)}
-								</For>
-								{page() > 4 && <span class="self-end">...</span>}
-							</>
-						)}
-						<For each={range(Math.max(1, page() - 1), Math.min(pageCount() + 1, page() + 2))}>
-							{(num) => (
-								<button onPointerEnter={[preloadPageImages, num]} onClick={() => setPage(num)} classList={{ 'rounded-md px-2 sm:px-3 py-1.5 transition-colors': true, 'bg-slate-500 hover:bg-slate-600': page() !== num, 'bg-red-500 hover:bg-red-600': page() === num }}>
-									{num}
-								</button>
-							)}
-						</For>
-						{page() < pageCount() - 1 && (
-							<>
-								{page() < pageCount() - 3 && <span class="self-end">...</span>}
-								<For each={range(Math.max(page() + 2, pageCount() - 1), pageCount() + 1)}>
-									{(num) => (
-										<button onPointerEnter={[preloadPageImages, num]} onClick={() => setPage(num)} classList={{ 'rounded-md px-2 sm:px-3 py-1.5 transition-colors': true, 'bg-slate-500 hover:bg-slate-600': page() !== num, 'bg-red-500 hover:bg-red-600': page() === num }}>
-											{num}
-										</button>
-									)}
-								</For>
-							</>
-						)}
-					</div>
-				</div>
+				<Pagination page={page()} setPage={setPage} pageCount={pageCount()} preloader={preloadPageImages} />
 			</Suspense>
 			<div class="mx-auto mb-2 flex w-full flex-col overflow-hidden rounded-md border-2 border-gray-500">
 				<Suspense
