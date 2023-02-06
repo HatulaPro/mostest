@@ -92,7 +92,7 @@ export const EditCandidateForm: Component<{ leaderboardId: string; isOpen: boole
 						...form.data(),
 						leaderboardId: props.leaderboardId,
 						candidateId: props.candidate?.id ?? '',
-					}).then(props.close);
+					}).then(props.close());
 				}}
 			>
 				<h2 class="mb-4 text-2xl font-bold">
@@ -135,7 +135,7 @@ export const EditCandidateForm: Component<{ leaderboardId: string; isOpen: boole
 						<button disabled={!form.isValid() || enrolling.pending} type="submit" class="items-center rounded-md bg-red-500 py-1.5 px-3 text-base text-white hover:enabled:bg-red-600 disabled:contrast-75">
 							{props.create ? 'Create' : 'Save'}
 						</button>
-						<button type="button" onClick={props.close} class="flex items-center rounded-md bg-slate-700 py-1.5 px-3 text-base text-white hover:bg-slate-700">
+						<button type="button" onClick={props.close()} class="flex items-center rounded-md bg-slate-700 py-1.5 px-3 text-base text-white hover:bg-slate-700">
 							Cancel
 						</button>
 						{props.create === false && (
