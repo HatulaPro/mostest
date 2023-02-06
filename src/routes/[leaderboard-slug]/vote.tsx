@@ -5,6 +5,7 @@ import { createServerAction$, createServerData$, ServerError } from 'solid-start
 import { z } from 'zod';
 import { Loading } from '~/components/Loading';
 import { prisma } from '~/db';
+import { safeArg } from '~/utils/functions';
 import { type routeData as ParentRouteData } from '../[leaderboard-slug]';
 
 export function routeData(input: RouteDataArgs<typeof ParentRouteData>) {
@@ -114,7 +115,7 @@ export default function ViewLeaderboard() {
 									)
 								}
 								disabled={!hasNext()}
-								onClick={[voteFor, option.id]}
+								onClick={safeArg(voteFor, option.id)}
 								type="button"
 								class="group relative flex scale-0 flex-col items-center rounded-md border-2 border-gray-500 bg-transparent"
 							>

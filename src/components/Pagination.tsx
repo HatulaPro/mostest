@@ -1,5 +1,5 @@
 import { For, type Component } from 'solid-js';
-import { range } from '~/utils/functions';
+import { range, safeArg } from '~/utils/functions';
 
 export const Pagination: Component<{ page: number; setPage: (n: number) => void; pageCount: number; preloader: (n: number) => void }> = (props) => {
 	return (
@@ -30,7 +30,7 @@ const RangedButtons: Component<{ from: number; to: number; page: number; setPage
 	return (
 		<For each={range(props.from, props.to)}>
 			{(num) => (
-				<button onPointerEnter={[props.preloader, num]} onClick={() => props.setPage(num)} classList={{ 'rounded-md px-2 sm:px-3 py-1.5 transition-colors': true, 'bg-slate-500 hover:bg-slate-600': props.page !== num, 'bg-red-500 hover:bg-red-600': props.page === num }}>
+				<button onPointerEnter={safeArg(props.preloader, num)} onClick={() => props.setPage(num)} classList={{ 'rounded-md px-2 sm:px-3 py-1.5 transition-colors': true, 'bg-slate-500 hover:bg-slate-600': props.page !== num, 'bg-red-500 hover:bg-red-600': props.page === num }}>
 					{num}
 				</button>
 			)}

@@ -2,6 +2,7 @@ import { type Component, createSignal, For } from 'solid-js';
 import { Head, Meta, Title } from 'solid-start';
 import { TransitionGroup } from 'solid-transition-group';
 import { CreateLeaderboardForm } from '~/components/CreateLeaderboardForm';
+import { safeArg } from '~/utils/functions';
 
 export default function Home() {
 	const [newLeaderboardName, setNewLeaderboardName] = createSignal('');
@@ -64,7 +65,7 @@ const Minigame: Component = () => {
 							{(k, i) => (
 								<div class="animated-y-list-item flex items-center gap-1 border-b-2 border-gray-600 p-2 text-left last:border-b-0">
 									<strong>{i() + 1}</strong>. {k} <span class="text-xs text-gray-300">({leaderboard()[k]} votes)</span>
-									<button class="ml-auto rounded-md bg-red-500 px-4 py-1.5" onClick={[voteFor, k]}>
+									<button class="ml-auto rounded-md bg-red-500 px-4 py-1.5" onClick={safeArg(voteFor, k)}>
 										Vote
 									</button>
 								</div>
