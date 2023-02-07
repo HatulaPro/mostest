@@ -20,7 +20,7 @@ const CreateLeaderboardSchema = z.object({
 	slug: z
 		.string()
 		.min(2, 'Slug must contain at least 2 characters')
-		.max(24, 'Name must contain at most 24 characters')
+		.max(24, 'Slug must contain at most 24 characters')
 		.regex(/^[a-z0-9\-]*$/g, 'Only lowercase letters, digits and dashes (-) are allowed.'),
 	description: z.string().min(4, 'Question must contain at least 4 characters').max(64, 'Question must contain at most 64 characters'),
 	candidates: z.array(z.object({ id: z.string().optional(), name: z.string(), image: z.string() })),
