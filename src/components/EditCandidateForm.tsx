@@ -113,17 +113,17 @@ export const EditCandidateForm: Component<{ leaderboardId: string; isOpen: boole
 					required
 					class="w-full rounded-md border-2 border-gray-500 bg-gray-800 p-2 text-white outline-none transition-colors focus:border-gray-200"
 					type="text"
-					value={form.data()['name']}
+					value={form.getValue('name')}
 					onInput={(e) => {
 						form.setValue('name', e.currentTarget.value);
 					}}
 					placeholder="Candidate name"
 				/>
-				<div class="grid aspect-square place-items-center rounded-md border-2 border-gray-500">{form.data()['image'] ? <img src={form.data()['image']} alt="Image for candidate" class="h-32 w-32 object-contain" /> : <div class="grid h-32 w-32 place-items-center">No image.</div>}</div>
+				<div class="grid aspect-square place-items-center rounded-md border-2 border-gray-500">{form.getValue('image') ? <img src={form.getValue('image')} alt="Image for candidate" class="h-32 w-32 object-contain" /> : <div class="grid h-32 w-32 place-items-center">No image.</div>}</div>
 				<textarea
 					class="h-auto w-full rounded-md border-2 border-gray-500 bg-gray-800 p-2 text-white outline-none transition-colors focus:border-gray-200"
 					rows={4}
-					value={form.data()['image']}
+					value={form.getValue('image')}
 					onInput={(e) => {
 						form.setValue('image', e.currentTarget.value);
 					}}
