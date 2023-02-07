@@ -62,7 +62,7 @@ export default function ViewLeaderboard() {
 			if (!votedFor || !votedAgainst) throw new ServerError('Option not found.');
 			if (votedFor.leaderboardId !== votedAgainst.leaderboardId) throw new ServerError('Invalid option pair.');
 
-			return await prisma.vote.create({ data: { votedAgainstId: votedAgainst.id, votedForId: votedFor.id } });
+			return await prisma.vote.create({ data: { votedAgainstId: votedAgainst.id, votedForId: votedFor.id, leaderboardId: votedFor.leaderboardId } });
 		},
 		{
 			invalidate: () => [],

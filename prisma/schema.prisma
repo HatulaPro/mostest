@@ -62,6 +62,7 @@ model Leaderboard {
     ownerId  String?
     owner    User?    @relation(fields: [ownerId], references: [id], onDelete: Cascade)
     options  Option[]
+    votes    Vote[]
 }
 
 model Option {
@@ -77,12 +78,15 @@ model Option {
 }
 
 model Vote {
-    id             String @id @default(cuid())
-    votedFor       Option @relation(name: "votesFor", fields: [votedForId], references: [id], onDelete: Cascade)
+    id             String      @id @default(cuid())
+    votedFor       Option      @relation(name: "votesFor", fields: [votedForId], references: [id], onDelete: Cascade)
     votedForId     String
-    votedAgainst   Option @relation(name: "votesAgainst", fields: [votedAgainstId], references: [id], onDelete: Cascade)
+    votedAgainst   Option      @relation(name: "votesAgainst", fields: [votedAgainstId], references: [id], onDelete: Cascade)
     votedAgainstId String
+    leaderboardId  String
+    leaderboard    Leaderboard @relation(fields: [leaderboardId], references: [id], onDelete: Cascade)
 
     @@index([votedForId])
     @@index([votedAgainstId])
+    @@index([leaderboardId])
 }
