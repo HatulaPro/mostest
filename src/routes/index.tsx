@@ -35,7 +35,9 @@ export default function Home() {
 					</div>
 					<Minigame />
 				</div>
-				<CreateLeaderboardForm name={newLeaderboardName()} ref={createLeaderboardFormRef} />
+				<div class="grid min-h-screen w-full place-items-center bg-gradient-to-b from-transparent via-black/30 to-black/30">
+					<CreateLeaderboardForm name={newLeaderboardName()} ref={createLeaderboardFormRef} />
+				</div>
 			</main>
 		</>
 	);

@@ -80,9 +80,9 @@ export const CreateLeaderboardForm: Component<{
 				});
 			}}
 			ref={props.ref}
-			class="grid w-full place-items-center overflow-hidden pt-4"
+			class="grid w-full place-items-center overflow-hidden pt-12"
 		>
-			<div class="flex w-full max-w-5xl flex-col gap-3 rounded-md bg-black bg-opacity-30 p-2 text-left sm:p-8">
+			<div class="flex w-full max-w-5xl flex-col gap-3 rounded-md p-2 text-left sm:p-8">
 				<h2 class="mb-2 text-2xl sm:text-4xl">
 					Create <span class="font-bold text-red-500">Leaderboard</span>
 				</h2>
