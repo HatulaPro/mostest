@@ -9,7 +9,7 @@ export const InfoSection: Component = () => {
 		<div class="w-full bg-black/30 p-4 sm:p-16 sm:pt-4">
 			<div class="mx-auto mt-6 max-w-5xl">
 				<img src="/people.svg" class="m-auto block w-[40%] object-contain md:hidden" alt="Image of many people" />
-				<h2 class="my-4 text-4xl font-bold">Community Leaderboards</h2>
+				<h2 class="my-4 text-3xl font-bold sm:text-4xl md:text-5xl">Community Leaderboards</h2>
 				<span class="text-lg text-slate-300">Bringing power back to the people</span>
 				<div class="mt-12 grid grid-cols-1 gap-4 text-left md:grid-cols-2">
 					<Advantage title="Design a Leaderboard" icon={AiOutlineUnorderedList}>
@@ -39,12 +39,12 @@ const Advantage: Component<{ title: string; children: JSX.Element; icon: IconTyp
 	return (
 		<div class="col-start-1">
 			<div class="flex items-center gap-4">
-				<span class="w-min rounded-md bg-red-700 p-2 text-3xl">
+				<span class="w-min rounded-md bg-red-700 p-2 text-2xl sm:text-3xl">
 					<Dynamic component={props.icon} />
 				</span>
-				<h3 class="text-2xl">{props.title}</h3>
+				<h3 class="text-lg sm:text-2xl">{props.title}</h3>
 			</div>
-			<p class="mt-3 ml-16 text-slate-300">{props.children}</p>
+			<p class="mt-2 ml-14 text-sm text-slate-300 sm:ml-16 sm:mt-3 sm:text-base">{props.children}</p>
 		</div>
 	);
 };

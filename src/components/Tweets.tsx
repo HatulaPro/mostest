@@ -137,7 +137,7 @@ export const Tweets: Component = () => {
 			</div>
 			<div class="col-start-1 flex flex-1 flex-col gap-3 p-4 text-left sm:col-start-2">
 				<span class="text-xl font-bold text-slate-300">Make more informed decisions</span>
-				<h2 class="text-5xl font-bold">
+				<h2 class="text-3xl font-bold sm:text-4xl md:text-5xl">
 					Understand the <span class="text-red-500">public</span>'s opinion
 				</h2>
 				<span class="text-lg text-slate-300">{'And influnce it in a fun & reactive game'}</span>
