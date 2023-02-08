@@ -64,20 +64,31 @@ function toTweeterNumber(n: number) {
 
 export const Tweets: Component = () => {
 	const [currentTweet, setCurrentTweet] = createSignal(0);
+	const [autoScrollInterval, setAutoScrollInterval] = createSignal(
+		setInterval(() => {
+			setCurrentTweet((prev) => (prev + 1) % TWEETS.length);
+		}, 5000)
+	);
 
 	let tweetsWrapper: HTMLDivElement | undefined;
-
-	const interval = setInterval(() => {
-		setCurrentTweet((currentTweet() + 1) % TWEETS.length);
-	}, 5000);
 
 	createEffect(() => {
 		const tweetEl = tweetsWrapper?.children[currentTweet()];
 		if (!tweetEl || !tweetsWrapper) return;
-		tweetsWrapper.scrollBy({ behavior: 'smooth', left: tweetEl.getBoundingClientRect().x - tweetsWrapper.getBoundingClientRect().x });
+		tweetsWrapper.scrollBy({ behavior: 'smooth', left: tweetEl.getBoundingClientRect().x - tweetsWrapper.getBoundingClientRect().x - 8 });
 	});
 
-	onCleanup(() => clearInterval(interval));
+	onCleanup(() => clearInterval(autoScrollInterval()));
+
+	function setTweetIndex(index: number) {
+		setCurrentTweet(index);
+		setAutoScrollInterval((prev) => {
+			clearInterval(prev);
+			return setInterval(() => {
+				setCurrentTweet((prev) => (prev + 1) % TWEETS.length);
+			}, 5000);
+		});
+	}
 
 	return (
 		<div class="grid w-full max-w-5xl grid-cols-1 gap-4 sm:grid-cols-2">
@@ -123,6 +134,9 @@ export const Tweets: Component = () => {
 				</h2>
 				<span class="text-lg text-slate-300">{'And influnce it in a fun & reactive game'}</span>
 				<span class="text-sm text-slate-400">All tweets seen here are obviously fabricated.</span>
+			</div>
+			<div class="col-start-1 row-start-2 flex justify-center gap-2">
+				<For each={TWEETS}>{(_, i) => <button classList={{ 'bg-white/30': i() === currentTweet(), 'bg-white/80': i() !== currentTweet() }} class="block rounded-full  p-1 hover:bg-white/30" onClick={() => setTweetIndex(i())} />}</For>
 			</div>
 		</div>
 	);
