@@ -23,7 +23,7 @@ const CreateLeaderboardSchema = z.object({
 		.max(24, 'Slug must contain at most 24 characters')
 		.regex(/^[a-z0-9\-]*$/g, 'Only lowercase letters, digits and dashes (-) are allowed.'),
 	description: z.string().min(4, 'Question must contain at least 4 characters').max(64, 'Question must contain at most 64 characters'),
-	candidates: z.array(z.object({ id: z.string().optional(), name: z.string(), image: z.string() })),
+	candidates: z.array(z.object({ id: z.string().optional(), name: z.string().max(64), image: z.string().max(256) })),
 });
 type CreateLeaderboardType = z.infer<typeof CreateLeaderboardSchema>;
 
@@ -149,8 +149,24 @@ export const CreateLeaderboardForm: Component<{
 										<span class="text-center">{item.name}</span>
 									</div>
 									<div classList={{ 'sm:w-64': item.id === currentlyEditing(), 'sm:w-0': item.id !== currentlyEditing() }} class="z-10 flex h-40 w-full flex-1 flex-col justify-evenly gap-2 overflow-hidden bg-gray-800 transition-all">
-										<input class="rounded-full px-3 py-1.5 text-black outline-none" type="text" value={item.image} onChange={(e) => setCandidates((c) => c.id === currentlyEditing(), 'image', e.currentTarget.value)} />
-										<input class="rounded-full px-3 py-1.5 text-black outline-none" type="text" value={item.name} onChange={(e) => setCandidates((c) => c.id === currentlyEditing(), 'name', e.currentTarget.value)} />
+										<input
+											class="rounded-full px-3 py-1.5 text-black outline-none"
+											type="text"
+											value={item.image}
+											onInput={(e) => {
+												if (e.currentTarget.value.length > 256) e.currentTarget.value = e.currentTarget.value.slice(0, 256);
+												setCandidates((c) => c.id === currentlyEditing(), 'image', e.currentTarget.value);
+											}}
+										/>
+										<input
+											class="rounded-full px-3 py-1.5 text-black outline-none"
+											type="text"
+											value={item.name}
+											onInput={(e) => {
+												if (e.currentTarget.value.length > 64) e.currentTarget.value = e.currentTarget.value.slice(0, 64);
+												setCandidates((c) => c.id === currentlyEditing(), 'name', e.currentTarget.value);
+											}}
+										/>
 									</div>
 									<button
 										onClick={(e) => {

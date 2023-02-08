@@ -20,7 +20,7 @@ type Candidate = {
 	};
 };
 
-const EditCandidateSchema = z.object({ action: z.union([z.literal('edit'), z.literal('remove'), z.literal('create')]), name: z.string(), image: z.string(), candidateId: z.string(), leaderboardId: z.string() });
+const EditCandidateSchema = z.object({ action: z.union([z.literal('edit'), z.literal('remove'), z.literal('create')]), name: z.string().max(64), image: z.string(), candidateId: z.string(), leaderboardId: z.string().max(256) });
 type EditCandidateType = z.infer<typeof EditCandidateSchema>;
 
 export const EditCandidateForm: Component<{ leaderboardId: string; isOpen: boolean; close: () => () => void; candidate: Candidate | undefined; create: boolean }> = (props) => {
@@ -115,6 +115,7 @@ export const EditCandidateForm: Component<{ leaderboardId: string; isOpen: boole
 					type="text"
 					value={form.getValue('name')}
 					onInput={(e) => {
+						if (e.currentTarget.value.length > 64) e.currentTarget.value = e.currentTarget.value.slice(0, 64);
 						form.setValue('name', e.currentTarget.value);
 					}}
 					placeholder="Candidate name"
@@ -125,6 +126,7 @@ export const EditCandidateForm: Component<{ leaderboardId: string; isOpen: boole
 					rows={4}
 					value={form.getValue('image')}
 					onInput={(e) => {
+						if (e.currentTarget.value.length > 256) e.currentTarget.value = e.currentTarget.value.slice(0, 256);
 						form.setValue('image', e.currentTarget.value);
 					}}
 					placeholder="Url to image"
