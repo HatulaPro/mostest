@@ -119,7 +119,7 @@ export const Tweets: Component = () => {
 									{MONTHS[tweet.createdAt.getMonth()]} {tweet.createdAt.getDate()}, {tweet.createdAt.getFullYear()}
 								</div>
 								<hr class="my-4 border-zinc-500" />
-								<div class="flex gap-2 text-xs sm:gap-6 sm:text-sm">
+								<div class="flex gap-2 text-xs font-bold sm:gap-6 sm:text-sm">
 									<span class="hover:underline">
 										{toTweeterNumber(tweet.counts.retweets)} <span class="font-normal text-zinc-500">Retweets</span>
 									</span>
