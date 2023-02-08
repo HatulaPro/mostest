@@ -1,4 +1,4 @@
-import { createEffect, createSignal, For, onCleanup, type Component } from 'solid-js';
+import { createSignal, For, onCleanup, type Component } from 'solid-js';
 
 type Tweet = {
 	image: string;
@@ -64,19 +64,15 @@ function toTweeterNumber(n: number) {
 
 export const Tweets: Component = () => {
 	const [currentTweet, setCurrentTweet] = createSignal(0);
-	const [autoScrollInterval, setAutoScrollInterval] = createSignal(
-		setInterval(() => {
+
+	function createInterval() {
+		return setInterval(() => {
 			setCurrentTweet((prev) => (prev + 1) % TWEETS.length);
-		}, 5000)
-	);
+		}, 5000);
+	}
+	const [autoScrollInterval, setAutoScrollInterval] = createSignal(createInterval());
 
 	let tweetsWrapper: HTMLDivElement | undefined;
-
-	createEffect(() => {
-		const tweetEl = tweetsWrapper?.children[currentTweet()];
-		if (!tweetEl || !tweetsWrapper) return;
-		tweetsWrapper.scrollBy({ behavior: 'smooth', left: tweetEl.getBoundingClientRect().x - tweetsWrapper.getBoundingClientRect().x - 8 });
-	});
 
 	onCleanup(() => clearInterval(autoScrollInterval()));
 
@@ -84,48 +80,60 @@ export const Tweets: Component = () => {
 		setCurrentTweet(index);
 		setAutoScrollInterval((prev) => {
 			clearInterval(prev);
-			return setInterval(() => {
-				setCurrentTweet((prev) => (prev + 1) % TWEETS.length);
-			}, 5000);
+			return createInterval();
 		});
 	}
 
 	return (
 		<div class="grid w-full max-w-5xl grid-cols-1 gap-4 p-2 sm:grid-cols-2 sm:p-4 md:p-8">
-			<div ref={tweetsWrapper} class="col-start-1 row-start-2 flex flex-1 gap-4 overflow-hidden p-2 text-left sm:row-start-1">
-				<For each={TWEETS}>
-					{(tweet) => (
-						<div class="flex h-full w-full shrink-0 basis-full flex-col rounded-md bg-black p-4">
-							<div class="flex items-center gap-2">
-								<img class="h-12 w-12 rounded-full object-contain" src={tweet.image} alt={`Profile picture of @${tweet.username}`} />
-								<div class="flex flex-col">
-									<span class="font-bold">
-										{tweet.displayName} <CheckmarkSVG />
+			<div
+				onMouseMove={() => {
+					clearInterval(autoScrollInterval());
+				}}
+				onMouseLeave={() =>
+					setAutoScrollInterval((prev) => {
+						clearInterval(prev);
+						return createInterval();
+					})
+				}
+				onScroll={(e) => console.log(e.currentTarget.scrollLeft)}
+				class="col-start-1 row-start-2 flex-1 overflow-hidden p-2 text-left sm:row-start-1"
+			>
+				<div class="grid w-full grid-cols-[100%_100%_100%] gap-4 transition-all duration-300" ref={tweetsWrapper} style={{ transform: `translateX(-${currentTweet() * (100 + 1600 / (tweetsWrapper?.children[0]?.getBoundingClientRect()?.width || Infinity))}%)` }}>
+					<For each={TWEETS}>
+						{(tweet) => (
+							<div class="flex h-full w-full shrink-0 basis-full flex-col rounded-md bg-black p-4">
+								<div class="flex items-center gap-2">
+									<img class="h-12 w-12 rounded-full object-contain" src={tweet.image} alt={`Profile picture of @${tweet.username}`} />
+									<div class="flex flex-col">
+										<span class="font-bold">
+											{tweet.displayName} <CheckmarkSVG />
+										</span>
+										<span class="text-zinc-500">@{tweet.username}</span>
+									</div>
+								</div>
+								<p class="whitespace-pre-line py-3 text-xl">{tweet.content}</p>
+								<div class="mt-auto text-sm text-zinc-500">
+									{tweet.createdAt.getHours() % 12}:{tweet.createdAt.getMinutes()} {tweet.createdAt.getHours() > 12 ? 'PM' : 'AM'}
+									{' • '}
+									{MONTHS[tweet.createdAt.getMonth()]} {tweet.createdAt.getDate()}, {tweet.createdAt.getFullYear()}
+								</div>
+								<hr class="my-4 border-zinc-500" />
+								<div class="flex gap-2 text-xs sm:gap-6 sm:text-sm">
+									<span class="hover:underline">
+										{toTweeterNumber(tweet.counts.retweets)} <span class="font-normal text-zinc-500">Retweets</span>
 									</span>
-									<span class="text-zinc-500">@{tweet.username}</span>
+									<span class="hover:underline">
+										{toTweeterNumber(tweet.counts.quote_tweets)} <span class="font-normal text-zinc-500">Quote Tweets</span>
+									</span>
+									<span class="hover:underline">
+										{toTweeterNumber(tweet.counts.likes)} <span class="font-normal text-zinc-500">Likes</span>
+									</span>
 								</div>
 							</div>
-							<p class="whitespace-pre-line py-3 text-xl">{tweet.content}</p>
-							<div class="mt-auto text-sm text-zinc-500">
-								{tweet.createdAt.getHours() % 12}:{tweet.createdAt.getMinutes()} {tweet.createdAt.getHours() > 12 ? 'PM' : 'AM'}
-								{' • '}
-								{MONTHS[tweet.createdAt.getMonth()]} {tweet.createdAt.getDate()}, {tweet.createdAt.getFullYear()}
-							</div>
-							<hr class="my-4 border-zinc-500" />
-							<div class="flex gap-6 text-sm">
-								<span class="hover:underline">
-									{toTweeterNumber(tweet.counts.retweets)} <span class="font-normal text-zinc-500">Retweets</span>
-								</span>
-								<span class="hover:underline">
-									{toTweeterNumber(tweet.counts.quote_tweets)} <span class="font-normal text-zinc-500">Quote Tweets</span>
-								</span>
-								<span class="hover:underline">
-									{toTweeterNumber(tweet.counts.likes)} <span class="font-normal text-zinc-500">Likes</span>
-								</span>
-							</div>
-						</div>
-					)}
-				</For>
+						)}
+					</For>
+				</div>
 			</div>
 			<div class="col-start-1 flex flex-1 flex-col gap-3 p-4 text-left sm:col-start-2">
 				<span class="text-xl font-bold text-slate-300">Make more informed decisions</span>
