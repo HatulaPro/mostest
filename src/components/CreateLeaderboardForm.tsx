@@ -12,6 +12,7 @@ import { useNavigate } from '@solidjs/router';
 import { createStore } from 'solid-js/store';
 import { getSession } from '~/routes/api/auth/[...solidauth]';
 import clickOutside from '~/bindings/click-outside';
+import { slugify } from '~/utils/functions';
 // eslint-disable-next-line
 const clickOutsideDirective = clickOutside;
 
@@ -98,7 +99,9 @@ export const CreateLeaderboardForm: Component<{
 							type="text"
 							value={form.getValue('slug')}
 							onInput={(e) => {
-								form.setValue('slug', e.currentTarget.value);
+								const slugified = slugify(e.currentTarget.value);
+								if (e.currentTarget.value !== slugified) e.currentTarget.value = slugified;
+								form.setValue('slug', slugified);
 							}}
 							placeholder="roundest-pokemon"
 						/>
