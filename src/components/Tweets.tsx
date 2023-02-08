@@ -138,7 +138,7 @@ export const Tweets: Component = () => {
 			<div class="col-start-1 flex flex-1 flex-col gap-3 p-4 text-left sm:col-start-2">
 				<span class="text-xl font-bold text-slate-300">Make more informed decisions</span>
 				<h2 class="text-5xl font-bold">
-					Understand the <span class="text-red-500">public</span>'s eye
+					Understand the <span class="text-red-500">public</span>'s opinion
 				</h2>
 				<span class="text-lg text-slate-300">{'And influnce it in a fun & reactive game'}</span>
 				<span class="text-sm text-slate-400">All tweets seen here are obviously fabricated.</span>

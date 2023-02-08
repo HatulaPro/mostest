@@ -1,0 +1,50 @@
+import type { IconTypes } from 'solid-icons';
+import { AiOutlineArrowRight, AiOutlineControl, AiOutlineShareAlt, AiOutlineUnorderedList } from 'solid-icons/ai';
+import type { JSX, Component } from 'solid-js';
+import { Dynamic } from 'solid-js/web';
+import { A } from 'solid-start';
+
+export const InfoSection: Component = () => {
+	return (
+		<div class="w-full bg-black/30 p-4 sm:p-16 sm:pt-4">
+			<div class="mx-auto mt-6 max-w-5xl">
+				<img src="/people.svg" class="m-auto block w-[40%] object-contain md:hidden" alt="Image of many people" />
+				<h2 class="my-4 text-4xl font-bold">Community Leaderboards</h2>
+				<span class="text-lg text-slate-300">Bringing power back to the people</span>
+				<div class="mt-12 grid grid-cols-1 gap-4 text-left md:grid-cols-2">
+					<Advantage title="Design a Leaderboard" icon={AiOutlineUnorderedList}>
+						Find out who comes out on top in <i>your</i> own custom leaderboard.
+						<br />
+						<A class="group relative mt-4 inline-block text-white hover:underline" href="/">
+							Start creating
+							<AiOutlineArrowRight class="ml-2 inline-block transition-transform group-hover:translate-x-2" />
+						</A>
+					</Advantage>
+					<Advantage title="Use The Wisdom of the Crowd" icon={AiOutlineShareAlt}>
+						Take advantage of the only reliable way to get the information you want.
+					</Advantage>
+					<Advantage title="Manage the Data" icon={AiOutlineControl}>
+						Recieve the best possible answer to your question.
+					</Advantage>
+					<div class="col-start-2 row-span-3 row-start-1 hidden place-items-center md:grid">
+						<img src="/people.svg" class="m-auto h-[70%] object-contain" alt="Image of many people" />
+					</div>
+				</div>
+			</div>
+		</div>
+	);
+};
+
+const Advantage: Component<{ title: string; children: JSX.Element; icon: IconTypes }> = (props) => {
+	return (
+		<div class="col-start-1">
+			<div class="flex items-center gap-4">
+				<span class="w-min rounded-md bg-red-700 p-2 text-3xl">
+					<Dynamic component={props.icon} />
+				</span>
+				<h3 class="text-2xl">{props.title}</h3>
+			</div>
+			<p class="mt-3 ml-16 text-slate-300">{props.children}</p>
+		</div>
+	);
+};

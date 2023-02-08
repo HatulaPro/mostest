@@ -1,6 +1,7 @@
 import { createSignal } from 'solid-js';
 import { Head, Meta, Title } from 'solid-start';
 import { CreateLeaderboardForm } from '~/components/CreateLeaderboardForm';
+import { InfoSection } from '~/components/InfoSection';
 import { Minigame } from '~/components/MiniGame';
 import { TopLeaderboards } from '~/components/TopLeaderboards';
 import { Tweets } from '~/components/Tweets';
@@ -36,11 +37,14 @@ export default function Home() {
 					</div>
 					<Minigame />
 				</div>
-				<div class="my-12 grid w-full place-items-center">
+				<div class="my-20 grid w-full place-items-center">
 					<TopLeaderboards />
 				</div>
-				<div class="my-12 grid w-full place-items-center">
+				<div class="my-20 grid w-full place-items-center">
 					<Tweets />
+				</div>
+				<div class="my-20 grid w-full place-items-center">
+					<InfoSection />
 				</div>
 				<div class="grid min-h-screen w-full place-items-center bg-gradient-to-b from-transparent via-black/30 to-black/30">
 					<CreateLeaderboardForm name={newLeaderboardName()} ref={createLeaderboardFormRef} />
