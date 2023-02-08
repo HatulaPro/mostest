@@ -1,5 +1,5 @@
 import { TransitionGroup } from 'solid-transition-group';
-import { type Component, createSignal, For } from 'solid-js';
+import { type Component, createSignal, For, createEffect } from 'solid-js';
 import { AiOutlineClose, AiOutlinePlus } from 'solid-icons/ai';
 import { ImportCSV } from '~/components/ImportCSV';
 import { z } from 'zod';
@@ -29,9 +29,10 @@ type CreateLeaderboardType = z.infer<typeof CreateLeaderboardSchema>;
 
 export const CreateLeaderboardForm: Component<{
 	name: string;
-	ref: HTMLFormElement | undefined;
 }> = (props) => {
 	const form = useForm({ name: { parser: CreateLeaderboardSchema.shape.name, defaultValue: props.name }, slug: { parser: CreateLeaderboardSchema.shape.slug }, description: { parser: CreateLeaderboardSchema.shape.description } });
+
+	createEffect(() => console.log(props.name));
 
 	// ID is number: new candidate
 	// ID is string: existing candidate
@@ -79,11 +80,10 @@ export const CreateLeaderboardForm: Component<{
 					}
 				});
 			}}
-			ref={props.ref}
-			class="grid w-full place-items-center overflow-hidden pt-12"
+			class="grid w-full place-items-center overflow-hidden pt-16"
 		>
 			<div class="flex w-full max-w-5xl flex-col gap-3 rounded-md p-2 text-left sm:p-8">
-				<h2 class="mb-2 text-2xl sm:text-4xl">
+				<h2 class="my-8 text-center text-3xl sm:text-4xl md:text-5xl">
 					Create <span class="font-bold text-red-500">Leaderboard</span>
 				</h2>
 				<div class="flex w-full items-start gap-2">

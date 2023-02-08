@@ -1,6 +1,6 @@
+import { useNavigate } from '@solidjs/router';
 import { createSignal } from 'solid-js';
 import { Head, Meta, Title } from 'solid-start';
-import { CreateLeaderboardForm } from '~/components/CreateLeaderboardForm';
 import { InfoSection } from '~/components/InfoSection';
 import { Minigame } from '~/components/MiniGame';
 import { TopLeaderboards } from '~/components/TopLeaderboards';
@@ -8,7 +8,7 @@ import { Tweets } from '~/components/Tweets';
 
 export default function Home() {
 	const [newLeaderboardName, setNewLeaderboardName] = createSignal('');
-	let createLeaderboardFormRef: HTMLFormElement | undefined;
+	const navigate = useNavigate();
 	return (
 		<>
 			<Head>
@@ -26,7 +26,8 @@ export default function Home() {
 							class="text-md mx-auto mt-8 flex w-full justify-between rounded-full bg-gray-200 p-2 md:w-2/3 md:text-xl"
 							onSubmit={(e) => {
 								e.preventDefault();
-								createLeaderboardFormRef?.scrollIntoView({ behavior: 'smooth' });
+								const params = new URLSearchParams({ name: newLeaderboardName() });
+								navigate(`/create?${params}`);
 							}}
 						>
 							<input value={newLeaderboardName()} onChange={(e) => setNewLeaderboardName(e.currentTarget.value)} class="text-md flex-1 rounded-full bg-gray-200 pl-3 text-black outline-none md:text-xl" type="text" placeholder="What interests you?" />
@@ -46,9 +47,9 @@ export default function Home() {
 				<div class="my-20 grid w-full place-items-center">
 					<InfoSection />
 				</div>
-				<div class="grid min-h-screen w-full place-items-center bg-gradient-to-b from-transparent via-black/30 to-black/30">
+				{/* <div class="grid min-h-screen w-full place-items-center bg-gradient-to-b from-transparent via-black/30 to-black/30">
 					<CreateLeaderboardForm name={newLeaderboardName()} ref={createLeaderboardFormRef} />
-				</div>
+				</div> */}
 			</main>
 		</>
 	);

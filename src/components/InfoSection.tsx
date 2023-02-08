@@ -15,9 +15,9 @@ export const InfoSection: Component = () => {
 					<Advantage title="Design a Leaderboard" icon={AiOutlineUnorderedList}>
 						Find out who comes out on top in <i>your</i> own custom leaderboard.
 						<br />
-						<A class="group relative mt-4 inline-block text-white hover:underline" href="/">
+						<A class="group relative mt-4 inline-block text-white hover:underline" href="/create">
 							Start creating
-							<AiOutlineArrowRight class="ml-2 inline-block transition-transform group-hover:translate-x-2" />
+							<AiOutlineArrowRight class="inline-block translate-x-1 transition-transform group-hover:translate-x-3" />
 						</A>
 					</Advantage>
 					<Advantage title="Use The Wisdom of the Crowd" icon={AiOutlineShareAlt}>
