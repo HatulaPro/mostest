@@ -20,11 +20,11 @@ const TWEETS: Tweet[] = [
 		displayName: 'Zapdos',
 		username: 'ZapdosOfficial',
 		createdAt: new Date(2023, 2, 7, 20, 22, 0, 0),
-		content: 'Finally I can prove my merit as the roundest Pokemon in the universe!',
+		content: 'the bird is freed',
 		counts: {
-			quote_tweets: 870,
-			retweets: 1585,
-			likes: 7899,
+			quote_tweets: 54039,
+			retweets: 344985,
+			likes: 2447543,
 		},
 	},
 	{
@@ -81,10 +81,10 @@ export const Tweets: Component = () => {
 
 	return (
 		<div class="grid w-full max-w-5xl grid-cols-1 gap-4 sm:grid-cols-2">
-			<div ref={tweetsWrapper} class="col-start-1 flex flex-1 overflow-hidden p-2 text-left">
+			<div ref={tweetsWrapper} class="col-start-1 flex flex-1 gap-4 overflow-hidden p-2 text-left">
 				<For each={TWEETS}>
 					{(tweet) => (
-						<div class="h-full w-full shrink-0 basis-full bg-black p-4">
+						<div class="flex h-full w-full shrink-0 basis-full flex-col rounded-md bg-black p-4">
 							<div class="flex items-center gap-2">
 								<img class="h-12 w-12 rounded-full object-contain" src={tweet.image} alt={`Profile picture of @${tweet.username}`} />
 								<div class="flex flex-col">
@@ -94,8 +94,8 @@ export const Tweets: Component = () => {
 									<span class="text-zinc-500">@{tweet.username}</span>
 								</div>
 							</div>
-							<p class="mt-3 whitespace-pre-line text-xl">{tweet.content}</p>
-							<div class="mt-4 text-sm text-zinc-500">
+							<p class="whitespace-pre-line py-3 text-xl">{tweet.content}</p>
+							<div class="mt-auto text-sm text-zinc-500">
 								{tweet.createdAt.getHours() % 12}:{tweet.createdAt.getMinutes()} {tweet.createdAt.getHours() > 12 ? 'PM' : 'AM'}
 								{' • '}
 								{MONTHS[tweet.createdAt.getMonth()]} {tweet.createdAt.getDate()}, {tweet.createdAt.getFullYear()}
