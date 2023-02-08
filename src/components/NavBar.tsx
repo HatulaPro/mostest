@@ -12,7 +12,7 @@ export const NavBar: Component = () => {
 				<img src="/logo.svg" class="m-2 max-h-[2rem] object-contain sm:max-h-[2.8rem]" alt="Mostest logo" />
 			</A>
 			<div class="flex w-full items-center justify-end p-4">
-				<A class="mx-2 transition-colors duration-500 hover:text-red-400 sm:mx-6" href="/">
+				<A class="mx-2 hidden transition-colors duration-500 hover:text-red-400 sm:mx-6 sm:inline-block" href="/">
 					Home
 				</A>
 				<A class="mx-2 transition-colors duration-500 hover:text-red-400 sm:mx-6" href="/create">
