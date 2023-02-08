@@ -91,8 +91,8 @@ export const Tweets: Component = () => {
 	}
 
 	return (
-		<div class="grid w-full max-w-5xl grid-cols-1 gap-4 sm:grid-cols-2">
-			<div ref={tweetsWrapper} class="col-start-1 flex flex-1 gap-4 overflow-hidden p-2 text-left">
+		<div class="grid w-full max-w-5xl grid-cols-1 gap-4 p-2 sm:grid-cols-2 sm:p-4 md:p-8">
+			<div ref={tweetsWrapper} class="col-start-1 row-start-2 flex flex-1 gap-4 overflow-hidden p-2 text-left sm:row-start-1">
 				<For each={TWEETS}>
 					{(tweet) => (
 						<div class="flex h-full w-full shrink-0 basis-full flex-col rounded-md bg-black p-4">
@@ -127,7 +127,7 @@ export const Tweets: Component = () => {
 					)}
 				</For>
 			</div>
-			<div class="col-start-2 flex flex-1 flex-col gap-3 p-4 text-left">
+			<div class="col-start-1 flex flex-1 flex-col gap-3 p-4 text-left sm:col-start-2">
 				<span class="text-xl font-bold text-slate-300">Make more informed decisions</span>
 				<h2 class="text-5xl font-bold">
 					Understand the <span class="text-red-500">public</span>'s eye
@@ -135,7 +135,7 @@ export const Tweets: Component = () => {
 				<span class="text-lg text-slate-300">{'And influnce it in a fun & reactive game'}</span>
 				<span class="text-sm text-slate-400">All tweets seen here are obviously fabricated.</span>
 			</div>
-			<div class="col-start-1 row-start-2 flex justify-center gap-2">
+			<div class="col-start-1 row-start-3 flex justify-center gap-2 sm:row-start-2">
 				<For each={TWEETS}>{(_, i) => <button classList={{ 'bg-white/30': i() === currentTweet(), 'bg-white/80': i() !== currentTweet() }} class="block rounded-full  p-1 hover:bg-white/30" onClick={() => setTweetIndex(i())} />}</For>
 			</div>
 		</div>
