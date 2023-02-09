@@ -7,7 +7,7 @@ export const NavBar: Component = () => {
 	const user = useSession();
 
 	return (
-		<nav class="fixed top-0 z-50 flex w-full items-center border-b-2 border-gray-700 bg-gray-900 text-white">
+		<nav class="fixed top-0 z-50 flex w-full max-w-[100vw] items-center border-b-2 border-gray-700 bg-gray-900 text-white">
 			<A href="/">
 				<img src="/logo.svg" class="m-2 max-h-[2rem] object-contain sm:max-h-[2.8rem]" alt="Mostest logo" />
 			</A>
