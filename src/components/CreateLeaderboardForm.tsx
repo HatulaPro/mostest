@@ -146,15 +146,15 @@ export const CreateLeaderboardForm: Component<{
 					<TransitionGroup name="animated-x-list-item">
 						<For each={candidates}>
 							{(item) => (
-								<div use:clickOutsideDirective={() => setCurrentlyEditing(-1)} onClick={() => setCurrentlyEditing(item.id)} classList={{ 'gap-2': item.id === currentlyEditing() }} class="animated-x-list-item relative flex w-full flex-col overflow-hidden rounded-md border-2 border-gray-500 bg-gray-800 py-4 px-2 sm:h-48 sm:w-auto sm:flex-row">
+								<div use:clickOutsideDirective={() => setCurrentlyEditing(-1)} onClick={() => setCurrentlyEditing(item.id)} classList={{ 'sm:gap-2': item.id === currentlyEditing() }} class="animated-x-list-item relative flex w-full flex-col overflow-hidden rounded-md bg-gray-800 py-4 px-2 sm:h-48 sm:w-auto sm:flex-row">
 									<div class="mx-auto flex w-20 flex-col items-center justify-between sm:w-32">
 										<img src={item.image} class="h-full object-contain" />
 										<span class="text-center">{item.name}</span>
 									</div>
-									<div classList={{ 'sm:w-64': item.id === currentlyEditing(), 'sm:w-0': item.id !== currentlyEditing() }} class="z-10 flex h-40 w-full flex-1 flex-col justify-evenly gap-2 overflow-hidden bg-gray-800 transition-all">
-										<input
-											class="rounded-full px-3 py-1.5 text-black outline-none"
-											type="text"
+									<div classList={{ 'sm:w-64': item.id === currentlyEditing(), 'sm:w-0': item.id !== currentlyEditing() }} class="z-10 flex h-40 w-full flex-1 flex-col justify-evenly gap-2 overflow-hidden bg-gray-800 transition-all sm:gap-0">
+										<textarea
+											rows={3}
+											class="resize-none rounded-md px-3 py-1.5 text-black outline-none"
 											value={item.image}
 											onInput={(e) => {
 												if (e.currentTarget.value.length > 256) e.currentTarget.value = e.currentTarget.value.slice(0, 256);
@@ -162,7 +162,7 @@ export const CreateLeaderboardForm: Component<{
 											}}
 										/>
 										<input
-											class="rounded-full px-3 py-1.5 text-black outline-none"
+											class="rounded-md px-3 py-1.5 text-black outline-none"
 											type="text"
 											value={item.name}
 											onInput={(e) => {
@@ -179,7 +179,7 @@ export const CreateLeaderboardForm: Component<{
 											});
 											setCurrentlyEditing(-1);
 										}}
-										class="absolute top-0 right-0 z-10 grid h-7 w-7 place-items-center bg-red-500"
+										class="absolute top-0 right-0 z-10 grid h-6 w-6 place-items-center bg-red-500"
 									>
 										<AiOutlineClose />
 									</button>
