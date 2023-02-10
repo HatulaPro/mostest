@@ -60,14 +60,3 @@ export async function GET(e: APIEvent) {
 
 	return new Response(res, { status: 200, headers });
 }
-
-// const Test = () => {
-// 	return (<div class="flex h-28 shrink-0 grow flex-col items-start gap-2 rounded-md border-2 border-gray-700 p-3 hover:bg-black hover:bg-opacity-20">
-// 				<A href={`/${leaderboard.slug}`} class="text-lg font-bold hover:underline ">
-// 					{leaderboard.name} <span class="text-base font-normal text-gray-300">{leaderboard.question}</span>
-// 				</A>
-// 				<div class="flex h-8 gap-2">
-// 					<For each={leaderboard.options.filter((x) => typeof x.image === 'string')}>{(option) => <img class="h-full object-contain" src={option.image ?? ''} />}</For>
-// 				</div>
-// 			</div>)
-// }
