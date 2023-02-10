@@ -1,5 +1,7 @@
+import type { Leaderboard, Option } from '@prisma/client';
 import { useNavigate } from '@solidjs/router';
-import { type Component, createSignal, For, lazy } from 'solid-js';
+import { type Component, createSignal, For, lazy, createEffect } from 'solid-js';
+import { createStore, reconcile, unwrap } from 'solid-js/store';
 import { A, Head, Meta, Title } from 'solid-start';
 import { createServerAction$ } from 'solid-start/server';
 import { InfoSection } from '~/components/InfoSection';
@@ -42,9 +44,21 @@ const SearchLeaderboards: Component = () => {
 
 	const [enrolling, enroll] = createServerAction$(async (query: string) => {
 		if (typeof query !== 'string') return [];
-		const q = query.toLowerCase().trim();
-		const leaderboards = await prisma.leaderboard.findMany({ take: 6, include: { options: { take: 4, where: { image: { not: null } } } }, where: { OR: [{ name: { contains: q } }, { slug: { contains: q } }, { question: { contains: q } }] } });
+		const q = query.trim(); //.toLowerCase().trim();
+		const leaderboards = await prisma.leaderboard.findMany({ take: 6, include: { options: { take: 4 } }, where: { OR: [{ name: { contains: q, mode: 'insensitive' } }, { slug: { contains: q, mode: 'insensitive' } }, { question: { contains: q, mode: 'insensitive' } }] } });
 		return leaderboards;
+	});
+
+	const [results, setResults] = createStore<
+		(Leaderboard & {
+			options: Option[];
+		})[]
+	>([]);
+
+	createEffect(() => {
+		if (enrolling.result) {
+			setResults(reconcile([...unwrap(enrolling.result)], { key: 'slug' }));
+		}
 	});
 
 	return (
@@ -66,9 +80,11 @@ const SearchLeaderboards: Component = () => {
 						value={newLeaderboardName()}
 						onInput={(e) => {
 							setNewLeaderboardName(e.currentTarget.value);
-							if (e.currentTarget.value) enroll(e.currentTarget.value);
-							else {
+							if (e.currentTarget.value.length > 0) {
+								enroll(e.currentTarget.value);
+							} else {
 								enrolling.clear();
+								setResults([]);
 							}
 						}}
 						class="text-md flex-1 rounded-full bg-gray-200 pl-3 text-black outline-none md:text-xl"
@@ -83,8 +99,8 @@ const SearchLeaderboards: Component = () => {
 			<div class="my-4 overflow-hidden text-left">
 				<div class="justify-left scrollbar flex h-32 w-full gap-4 overflow-x-scroll">
 					<TransitionGroup name="animated-x-list-item">
-						{enrolling.result ? (
-							<For each={enrolling.result}>
+						{results ? (
+							<For each={results}>
 								{(leaderboard) => (
 									<div class="animated-x-list-item flex h-28 shrink-0 grow flex-col items-start gap-2 rounded-md border-2 border-gray-700 p-3 hover:bg-black hover:bg-opacity-20">
 										<A href={`/${leaderboard.slug}`} class="text-lg font-bold hover:underline ">
