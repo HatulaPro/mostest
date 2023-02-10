@@ -1,14 +1,12 @@
 import satori from 'satori';
-import sharp from 'sharp';
 import { type APIEvent, redirect } from 'solid-start';
 import { prisma } from '~/db';
 
 const interFont = fetch(new URL('https://github.com/rsms/inter/blob/master/docs/font-files/Inter-Regular.woff?raw=true')).then((res) => res.arrayBuffer());
 const interFontBold = fetch(new URL('https://github.com/rsms/inter/blob/master/docs/font-files/Inter-Bold.woff?raw=true')).then((res) => res.arrayBuffer());
 export async function GET(e: APIEvent) {
-	const fileName = e.params['slug'];
-	if (!fileName || typeof fileName !== 'string') return redirect('/');
-	const slug = fileName.slice(0, -4);
+	const slug = e.params['slug'];
+	if (!slug || typeof slug !== 'string') return redirect('/');
 	const [inter, interBold, leaderboard] = await Promise.all([interFont, interFontBold, prisma.leaderboard.findUnique({ where: { slug }, include: { options: { take: 5 } } })]);
 	if (!leaderboard) return redirect('/');
 
@@ -56,11 +54,11 @@ export async function GET(e: APIEvent) {
 		}
 	);
 	const headers = new Headers();
-	headers.set('Content-Type', 'image/png');
+	headers.set('Content-Type', 'image/svg+xml');
 	headers.set('Cache-Control', 'public, immutable, no-transform, max-age=86400');
 	try {
-		const pnged = await sharp(Buffer.from(res)).resize(1200, 600).png().toBuffer();
-		return new Response(pnged, { status: 200, headers });
+		// const pnged = await sharp(Buffer.from(res)).resize(1200, 600).png().toBuffer();
+		return new Response(res, { status: 200, headers });
 	} catch (e) {
 		console.log(e);
 		return new Response('error');
