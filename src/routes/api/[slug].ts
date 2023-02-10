@@ -1,7 +1,6 @@
 import satori from 'satori';
 import { type APIEvent, redirect } from 'solid-start';
 import { prisma } from '~/db';
-import { Resvg } from '@resvg/resvg-js';
 
 const interFont = fetch(new URL('https://github.com/rsms/inter/blob/master/docs/font-files/Inter-Regular.woff?raw=true')).then((res) => res.arrayBuffer());
 const interFontBold = fetch(new URL('https://github.com/rsms/inter/blob/master/docs/font-files/Inter-Bold.woff?raw=true')).then((res) => res.arrayBuffer());
@@ -12,7 +11,7 @@ export async function GET(e: APIEvent) {
 	const [inter, interBold, leaderboard] = await Promise.all([interFont, interFontBold, prisma.leaderboard.findUnique({ where: { slug }, include: { options: { take: 4 } } })]);
 	if (!leaderboard) return redirect('/');
 
-	const svg = await satori(
+	const res = await satori(
 		{
 			type: 'div',
 			props: {
@@ -56,20 +55,8 @@ export async function GET(e: APIEvent) {
 		}
 	);
 	const headers = new Headers();
-	headers.set('Content-Type', 'image/png');
+	headers.set('Content-Type', 'image/svg+xml');
 	headers.set('Cache-Control', 'public, immutable, no-transform, max-age=86400');
 
-	const resvg = new Resvg(svg, {
-		background: 'transparent',
-		fitTo: {
-			mode: 'width',
-			value: 512,
-		},
-		font: {
-			loadSystemFonts: false,
-		},
-	});
-	const pngData = resvg.render().asPng();
-
-	return new Response(pngData, { status: 200, headers });
+	return new Response(res, { status: 200, headers });
 }
