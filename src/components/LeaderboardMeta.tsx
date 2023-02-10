@@ -16,7 +16,9 @@ export const LeaderboardMeta: Component<{ leaderboard: Leaderboard }> = (props) 
 			<Meta property="og:url" content={`https://mostest.vercel.app/${props.leaderboard.slug}`} />
 			<Meta property="og:title" content={title()} />
 			<Meta property="og:description" content={description()} />
-			<Meta property="og:image" content={`https://mostest.vercel.app/api/${props.leaderboard.slug}.svg`} />
+			<Meta property="og:image" content={`https://mostest.vercel.app/api/${props.leaderboard.slug}`} />
+			<Meta property="og:image:width" content="250" />
+			<Meta property="og:image:height" content="250" />
 			<Meta property="og:image:alt" content={`Image for ${props.leaderboard.name}`} />
 			<Meta property="og:site_name" content="Mostest" />
 
@@ -25,7 +27,7 @@ export const LeaderboardMeta: Component<{ leaderboard: Leaderboard }> = (props) 
 			<Meta property="twitter:url" content={`https://mostest.vercel.app/${props.leaderboard.slug}`} />
 			<Meta property="twitter:title" content={title()} />
 			<Meta property="twitter:description" content={description()} />
-			<Meta property="twitter:image:src" content={`https://mostest.vercel.app/api/${props.leaderboard.slug}.svg`} />
+			<Meta property="twitter:image:src" content={`https://mostest.vercel.app/api/${props.leaderboard.slug}`} />
 			<Meta property="twitter:image:alt" content={`Image for ${props.leaderboard.name}`} />
 		</>
 	);

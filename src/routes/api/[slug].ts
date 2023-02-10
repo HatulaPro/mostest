@@ -1,4 +1,5 @@
 import satori from 'satori';
+import sharp from 'sharp';
 import { type APIEvent, redirect } from 'solid-start';
 import { prisma } from '~/db';
 
@@ -6,9 +7,9 @@ const interFont = fetch(new URL('https://github.com/rsms/inter/blob/master/docs/
 const interFontBold = fetch(new URL('https://github.com/rsms/inter/blob/master/docs/font-files/Inter-Bold.woff?raw=true')).then((res) => res.arrayBuffer());
 export async function GET(e: APIEvent) {
 	const fileName = e.params['slug'];
-	if (!fileName || !fileName.endsWith('.svg') || typeof fileName !== 'string') return redirect('/');
+	if (!fileName || typeof fileName !== 'string') return redirect('/');
 	const slug = fileName.slice(0, -4);
-	const [inter, interBold, leaderboard] = await Promise.all([interFont, interFontBold, prisma.leaderboard.findUnique({ where: { slug }, include: { options: { take: 4 } } })]);
+	const [inter, interBold, leaderboard] = await Promise.all([interFont, interFontBold, prisma.leaderboard.findUnique({ where: { slug }, include: { options: { take: 5 } } })]);
 	if (!leaderboard) return redirect('/');
 
 	const res = await satori(
@@ -16,27 +17,28 @@ export async function GET(e: APIEvent) {
 			type: 'div',
 			props: {
 				children: [
-					{ type: 'h1', props: { children: leaderboard.name, style: { fontSize: leaderboard.name.length > 10 ? '28px' : '36px', fontWeight: '900', whiteSpace: 'pre-line', marginTop: '4px', marginBottom: '0px' } } },
-					{ type: 'h3', props: { children: leaderboard.question, style: { fontSize: '20px', fontWeight: '400' } } },
-					// {
-					// 	type: 'div',
-					// 	props: {
-					// 		children: leaderboard.options
-					// 			.filter(({ image }) => image)
-					// 			.map((option) => {
-					// 				return { type: 'img', props: { src: option.image, style: { height: '54px', objectFit: 'contain', borderRadius: '8px' } } };
-					// 			}),
-					// 		style: { display: 'flex', width: '100%', gap: '10px', justifyContent: 'center', marginTop: 'auto', paddingBottom: '12px' },
-					// 	},
-					// },
-					{ type: 'span', props: { children: 'Powered by Mostest', style: { position: 'absolute', bottom: '6px', right: '6px', color: '#cbd5e1', fontSize: '10px' } } },
+					{ type: 'h1', props: { children: leaderboard.name, style: { fontSize: leaderboard.name.length > 10 ? (leaderboard.name.length > 20 ? '54px' : '64px') : '72px', fontWeight: '900', whiteSpace: 'pre-line', paddingRight: '230px' } } },
+					{ type: 'h3', props: { children: leaderboard.question, style: { fontSize: '42px', fontWeight: '400', paddingRight: '230px' } } },
+					{
+						type: 'div',
+						props: {
+							children: leaderboard.options
+								.filter(({ image }) => image)
+								.map((option) => {
+									return { type: 'img', props: { src: option.image, style: { height: '154px', objectFit: 'contain', borderRadius: '8px' } } };
+								}),
+							style: { display: 'flex', width: '100%', gap: '10px', justifyContent: 'center', marginTop: 'auto' },
+						},
+					},
+					{ type: 'img', props: { src: 'https://mostest.vercel.app/logo.png', style: { width: '154px', position: 'absolute', top: '64px', right: '64px' } } },
+					{ type: 'span', props: { children: 'Powered by Mostest', style: { position: 'absolute', bottom: '12px', right: '12px', color: '#cbd5e1', fontSize: '22px' } } },
 				],
-				style: { position: 'relative', color: 'white', backgroundImage: 'linear-gradient(to bottom, #1e293b, #111827)', fontFamily: 'Inter', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', padding: '12px' },
+				style: { position: 'relative', color: 'white', backgroundImage: 'linear-gradient(to bottom, #1e293b, #111827)', fontFamily: 'Inter', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', padding: '64px', paddingBottom: '32px' },
 			},
 		},
 		{
-			width: 250,
-			height: 250,
+			width: 1200,
+			height: 600,
 			fonts: [
 				{
 					name: 'Inter',
@@ -54,8 +56,13 @@ export async function GET(e: APIEvent) {
 		}
 	);
 	const headers = new Headers();
-	headers.set('Content-Type', 'image/svg+xml');
+	headers.set('Content-Type', 'image/png');
 	headers.set('Cache-Control', 'public, immutable, no-transform, max-age=86400');
-
-	return new Response(res, { status: 200, headers });
+	try {
+		const pnged = await sharp(Buffer.from(res)).resize(1200, 600).png().toBuffer();
+		return new Response(pnged, { status: 200, headers });
+	} catch (e) {
+		console.log(e);
+		return new Response('error');
+	}
 }
