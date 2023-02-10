@@ -16,7 +16,7 @@ export async function GET(e: APIEvent) {
 			type: 'div',
 			props: {
 				children: [
-					{ type: 'img', props: { src: 'https://github.com/HatulaPro/mostest/blob/master/public/logo.svg?raw=true', style: { height: '36px', marginBottom: '12px' } } },
+					{ type: 'img', props: { src: 'https://mostest.vercel.app/logo.svg', style: { height: '36px', marginBottom: '12px' } } },
 					{ type: 'h1', props: { children: leaderboard.name, style: { fontSize: leaderboard.name.length > 10 ? '28px' : '36px', fontWeight: '900', whiteSpace: 'pre-line', marginTop: '4px', marginBottom: '0px' } } },
 					{ type: 'h3', props: { children: leaderboard.question, style: { fontSize: '20px', fontWeight: '400' } } },
 					// {
