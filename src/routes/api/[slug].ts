@@ -5,9 +5,9 @@ import { prisma } from '~/db';
 const interFont = fetch(new URL('https://github.com/rsms/inter/blob/master/docs/font-files/Inter-Regular.woff?raw=true')).then((res) => res.arrayBuffer());
 const interFontBold = fetch(new URL('https://github.com/rsms/inter/blob/master/docs/font-files/Inter-Bold.woff?raw=true')).then((res) => res.arrayBuffer());
 export async function GET(e: APIEvent) {
-	const slug = e.params['slug'];
-	if (!slug || typeof slug !== 'string') return redirect('/');
-
+	const fileName = e.params['slug'];
+	if (!fileName || !fileName.endsWith('.svg') || typeof fileName !== 'string') return redirect('/');
+	const slug = fileName.slice(0, -4);
 	const [inter, interBold, leaderboard] = await Promise.all([interFont, interFontBold, prisma.leaderboard.findUnique({ where: { slug }, include: { options: { take: 4 } } })]);
 	if (!leaderboard) return redirect('/');
 
