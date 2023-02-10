@@ -65,7 +65,8 @@ export default function ViewLeaderboard() {
 			return await prisma.vote.create({ data: { votedAgainstId: votedAgainst.id, votedForId: votedFor.id, leaderboardId: votedFor.leaderboardId } });
 		},
 		{
-			invalidate: () => [],
+			// Using a made up key to ensure nothing is invalidated
+			invalidate: ['nothing'],
 		}
 	);
 
