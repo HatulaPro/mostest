@@ -1,4 +1,4 @@
-import { type RouteDataArgs, Outlet, useRouteData, Head } from 'solid-start';
+import { type RouteDataArgs, Outlet, useRouteData } from 'solid-start';
 import { createServerData$ } from 'solid-start/server';
 import { LeaderboardMeta } from '~/components/LeaderboardMeta';
 import { prisma } from '~/db';
@@ -19,9 +19,7 @@ export default function LeaderboardLayout() {
 		<main class="text-center">
 			{data.latest ? (
 				<>
-					<Head>
-						<LeaderboardMeta leaderboard={data.latest} />
-					</Head>
+					<LeaderboardMeta leaderboard={data.latest} />
 					<div class="mx-auto flex max-w-5xl flex-col p-2 pt-10">
 						<h1 class="mt-12 text-3xl font-bold text-red-500 sm:text-4xl md:text-5xl">{data.latest.name}</h1>
 
