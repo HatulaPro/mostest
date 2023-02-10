@@ -99,7 +99,7 @@ const SearchLeaderboards: Component = () => {
 			<div class="my-4 overflow-hidden text-left">
 				<div class="justify-left scrollbar flex h-32 w-full gap-4 overflow-x-scroll">
 					<TransitionGroup name="animated-x-list-item">
-						{results ? (
+						{results.length ? (
 							<For each={results}>
 								{(leaderboard) => (
 									<div class="animated-x-list-item flex h-28 shrink-0 grow flex-col items-start gap-2 rounded-md border-2 border-gray-700 p-3 hover:bg-black hover:bg-opacity-20">
