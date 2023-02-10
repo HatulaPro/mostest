@@ -30,6 +30,7 @@
 		"@auth/solid-start": "^0.1.0",
 		"@next-auth/prisma-adapter": "^1.0.5",
 		"@prisma/client": "^4.9.0",
+		"@resvg/resvg-js": "^2.4.0",
 		"@solidjs/meta": "^0.28.2",
 		"@solidjs/router": "^0.7.0",
 		"papaparse": "^5.3.2",
