@@ -16,20 +16,20 @@ export async function GET(e: APIEvent) {
 			type: 'div',
 			props: {
 				children: [
+					{ type: 'img', props: { src: 'https://github.com/HatulaPro/mostest/blob/master/public/logo.svg?raw=true', style: { height: '36px', marginBottom: '12px' } } },
 					{ type: 'h1', props: { children: leaderboard.name, style: { fontSize: leaderboard.name.length > 10 ? '28px' : '36px', fontWeight: '900', whiteSpace: 'pre-line', marginTop: '4px', marginBottom: '0px' } } },
 					{ type: 'h3', props: { children: leaderboard.question, style: { fontSize: '20px', fontWeight: '400' } } },
-					{
-						type: 'div',
-						props: {
-							children: leaderboard.options
-								.filter(({ image }) => image)
-								.map((option) => {
-									return { type: 'img', props: { src: option.image, style: { height: '54px', objectFit: 'contain', borderRadius: '8px' } } };
-								}),
-							style: { display: 'flex', width: '100%', gap: '10px', justifyContent: 'center', marginTop: 'auto', paddingBottom: '12px' },
-						},
-					},
-					// { type: 'img', props: { src: 'https://github.com/HatulaPro/mostest/blob/master/public/logo.svg?raw=true', style: { height: '32px', position: 'absolute', top: '78px', right: '64px' } } },
+					// {
+					// 	type: 'div',
+					// 	props: {
+					// 		children: leaderboard.options
+					// 			.filter(({ image }) => image)
+					// 			.map((option) => {
+					// 				return { type: 'img', props: { src: option.image, style: { height: '54px', objectFit: 'contain', borderRadius: '8px' } } };
+					// 			}),
+					// 		style: { display: 'flex', width: '100%', gap: '10px', justifyContent: 'center', marginTop: 'auto', paddingBottom: '12px' },
+					// 	},
+					// },
 					{ type: 'span', props: { children: 'Powered by Mostest', style: { position: 'absolute', bottom: '6px', right: '6px', color: '#cbd5e1', fontSize: '10px' } } },
 				],
 				style: { position: 'relative', color: 'white', backgroundImage: 'linear-gradient(to bottom, #1e293b, #111827)', fontFamily: 'Inter', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', padding: '12px' },
