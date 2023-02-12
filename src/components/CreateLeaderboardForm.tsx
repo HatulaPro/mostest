@@ -1,5 +1,5 @@
 import { TransitionGroup } from 'solid-transition-group';
-import { type Component, createSignal, For, createEffect } from 'solid-js';
+import { type Component, createSignal, For } from 'solid-js';
 import { AiOutlineClose, AiOutlinePlus } from 'solid-icons/ai';
 import { ImportCSV } from '~/components/ImportCSV';
 import { z } from 'zod';
