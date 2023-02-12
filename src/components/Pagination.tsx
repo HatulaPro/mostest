@@ -1,27 +1,38 @@
 import { For, type Component } from 'solid-js';
 import { range, safeArg } from '~/utils/functions';
+import { Loading } from './Loading';
 
-export const Pagination: Component<{ page: number; setPage: (n: number) => void; pageCount: number; preloader: (n: number) => void }> = (props) => {
+export const Pagination: Component<{ page: number; setPage: (n: number) => void; pageCount: number; preloader: (n: number) => void; isLoading: boolean; isEmpty: boolean }> = (props) => {
 	return (
 		<div class="mb-1 flex w-full items-end justify-center text-left text-xs sm:text-sm">
-			<span class="hidden text-xs text-gray-300 sm:block">
-				Showing page {props.page} of {props.pageCount}
-			</span>
-			<div class="flex gap-1 sm:ml-auto sm:gap-2">
-				{props.page > 2 && (
-					<>
-						<RangedButtons from={1} to={Math.min(3, props.page - 1)} page={props.page} setPage={props.setPage} preloader={props.preloader} />
-						{props.page > 4 && <span class="self-end">...</span>}
-					</>
-				)}
-				<RangedButtons from={Math.max(1, props.page - 1)} to={Math.min(props.pageCount + 1, props.page + 2)} page={props.page} setPage={props.setPage} preloader={props.preloader} />
-				{props.page < props.pageCount - 1 && (
-					<>
-						{props.page < props.pageCount - 3 && <span class="self-end">...</span>}
-						<RangedButtons from={Math.max(props.page + 2, props.pageCount - 1)} to={props.pageCount + 1} page={props.page} setPage={props.setPage} preloader={props.preloader} />
-					</>
-				)}
-			</div>
+			{props.isLoading ? (
+				<Loading isLoading={props.isLoading} />
+			) : props.isEmpty ? (
+				<>
+					<span class="text-xs text-gray-300">No Results</span>
+				</>
+			) : (
+				<>
+					<span class="hidden text-xs text-gray-300 sm:block">
+						Showing page {props.page} of {props.pageCount}
+					</span>
+					<div class="flex gap-1 sm:ml-auto sm:gap-2">
+						{props.page > 2 && (
+							<>
+								<RangedButtons from={1} to={Math.min(3, props.page - 1)} page={props.page} setPage={props.setPage} preloader={props.preloader} />
+								{props.page > 4 && <span class="self-end">...</span>}
+							</>
+						)}
+						<RangedButtons from={Math.max(1, props.page - 1)} to={Math.min(props.pageCount + 1, props.page + 2)} page={props.page} setPage={props.setPage} preloader={props.preloader} />
+						{props.page < props.pageCount - 1 && (
+							<>
+								{props.page < props.pageCount - 3 && <span class="self-end">...</span>}
+								<RangedButtons from={Math.max(props.page + 2, props.pageCount - 1)} to={props.pageCount + 1} page={props.page} setPage={props.setPage} preloader={props.preloader} />
+							</>
+						)}
+					</div>
+				</>
+			)}
 		</div>
 	);
 };

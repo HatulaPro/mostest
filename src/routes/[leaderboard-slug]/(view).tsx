@@ -6,7 +6,6 @@ import { type RouteDataArgs, useRouteData } from 'solid-start';
 import { createServerData$ } from 'solid-start/server';
 import { TransitionGroup } from 'solid-transition-group';
 import { EditCandidateForm } from '~/components/EditCandidateForm';
-import { Loading } from '~/components/Loading';
 import { Pagination } from '~/components/Pagination';
 import { ShareButton } from '~/components/ShareButton';
 import { prisma } from '~/db';
@@ -51,7 +50,7 @@ export default function ViewLeaderboard() {
 				return a.id.localeCompare(b.id);
 			});
 
-	const [currents, setCurrents] = createStore(
+	const [activeCandidates, setActiveCandidates] = createStore(
 		candidatesSorted()
 			?.map((value, index) => ({ value, index }))
 			.filter(({ value }) => JSON.stringify(value).toLowerCase().includes(query().toLowerCase())) ?? []
@@ -61,21 +60,21 @@ export default function ViewLeaderboard() {
 			const nexts = candidatesSorted()
 				?.map((value, index) => ({ value, index }))
 				.filter(({ value }) => value.content.toLowerCase().includes(query().toLowerCase()));
-			if (!nexts) return setCurrents([]);
-			setCurrents(reconcile(nexts, { key: 'index' }));
+			if (!nexts) return setActiveCandidates([]);
+			setActiveCandidates(reconcile(nexts, { key: 'index' }));
 			return;
 		}
 		const nexts = candidatesSorted()?.map((value, index) => ({ value, index }));
-		if (!nexts) return setCurrents([]);
-		setCurrents(reconcile(nexts, { key: 'index' }));
+		if (!nexts) return setActiveCandidates([]);
+		setActiveCandidates(reconcile(nexts, { key: 'index' }));
 	});
 
-	const pageCount = () => Math.ceil((currents.length || PAGE_SIZE) / PAGE_SIZE);
+	const pageCount = () => Math.ceil((activeCandidates.length || PAGE_SIZE) / PAGE_SIZE);
 	const isOwner = () => data.latest?.leaderboard?.ownerId && data.latest.leaderboard.ownerId === data.latest.user?.id;
 	const [editedId, setEditedId] = createSignal<number>(-1);
 
 	const preloadPageImages = (p: number) => {
-		currents.slice(PAGE_SIZE * (p - 1), PAGE_SIZE * p).forEach((c) => {
+		activeCandidates.slice(PAGE_SIZE * (p - 1), PAGE_SIZE * p).forEach((c) => {
 			if (c.value.image) {
 				const img = new Image();
 				img.src = c.value.image;
@@ -99,11 +98,11 @@ export default function ViewLeaderboard() {
 			</div>
 
 			<Suspense>
-				<Pagination page={page()} setPage={setPage} pageCount={pageCount()} preloader={preloadPageImages} />
+				<Pagination page={page()} setPage={setPage} pageCount={pageCount()} preloader={preloadPageImages} isLoading={data.loading} isEmpty={activeCandidates.length === 0} />
 			</Suspense>
-			<div class="mx-auto mb-2 flex w-full flex-col overflow-hidden rounded-md border-2 border-gray-500">
-				<Suspense
-					fallback={
+			<Suspense
+				fallback={
+					<div class="mx-auto mb-2 flex w-full flex-col overflow-hidden rounded-md border-2 border-gray-500">
 						<For each={[1, 2, 3]}>
 							{(i) => (
 								<div class="grid h-24 w-full grid-cols-[1fr_2fr_2fr] items-center gap-2 pr-1 hover:bg-black hover:bg-opacity-20 sm:grid-cols-[6rem_3fr_3fr] sm:pr-3">
@@ -116,8 +115,10 @@ export default function ViewLeaderboard() {
 								</div>
 							)}
 						</For>
-					}
-				>
+					</div>
+				}
+			>
+				<div class="mx-auto mb-2 flex w-full flex-col overflow-hidden rounded-md border-2" classList={{ 'border-gray-500': activeCandidates.length !== 0, 'border-transparent': activeCandidates.length === 0 }}>
 					{data() && (
 						<TransitionGroup
 							onEnter={(el, done) => {
@@ -141,8 +142,8 @@ export default function ViewLeaderboard() {
 								anim.finished.then(done);
 							}}
 						>
-							{currents.length ? (
-								<For each={currents.slice(PAGE_SIZE * (page() - 1), PAGE_SIZE * page())}>
+							{activeCandidates.length ? (
+								<For each={activeCandidates.slice(PAGE_SIZE * (page() - 1), PAGE_SIZE * page())}>
 									{(option) => (
 										<div class="grid h-24 w-full grid-cols-[1fr_2fr_2fr] items-center gap-2 pr-1 hover:bg-black hover:bg-opacity-20 sm:grid-cols-[6rem_3fr_3fr] sm:pr-3">
 											<div class="grid h-full place-items-center border-r-2 border-gray-500 text-xl">{option.index + 1}</div>
@@ -164,9 +165,8 @@ export default function ViewLeaderboard() {
 							)}
 						</TransitionGroup>
 					)}
-				</Suspense>
-			</div>
-			<Loading isLoading={data.loading} />
+				</div>
+			</Suspense>
 			<div class="mt-8 flex justify-center gap-2">
 				<A href="./vote" class="rounded-md bg-red-500 py-2 px-4 hover:bg-red-600">
 					Vote
