@@ -3,7 +3,8 @@
 	"scripts": {
 		"dev": "solid-start dev",
 		"lint": "eslint .",
-		"build": "solid-start build && cp node_modules/@prisma/engines/*query* .vercel/output/functions/api.func/ && cp node_modules/@prisma/engines/*query* .vercel/output/functions/render.func/ && cp prisma/schema.prisma .vercel/output/functions/render.func/ && cp prisma/schema.prisma .vercel/output/functions/api.func/",
+		"build2": "solid-start build && cp node_modules/@prisma/engines/*query* .vercel/output/functions/api.func/ && cp node_modules/@prisma/engines/*query* .vercel/output/functions/render.func/ && cp prisma/schema.prisma .vercel/output/functions/render.func/ && cp prisma/schema.prisma .vercel/output/functions/api.func/",
+		"build": "solid-start build",
 		"start": "solid-start start",
 		"postinstall": "prisma generate"
 	},
