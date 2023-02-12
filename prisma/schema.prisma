@@ -63,6 +63,8 @@ model Leaderboard {
     owner    User?    @relation(fields: [ownerId], references: [id], onDelete: Cascade)
     options  Option[]
     votes    Vote[]
+
+    @@index([ownerId])
 }
 
 model Option {
