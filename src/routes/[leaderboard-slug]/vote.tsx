@@ -90,12 +90,12 @@ export default function ViewLeaderboard() {
 				<Suspense
 					fallback={
 						<>
-							<div class="flex animate-pulse flex-col items-center rounded-md border-2 border-gray-500 bg-slate-700">
-								<div class="h-48 w-48 sm:h-64 sm:w-64" />
+							<div class="flex flex-1 animate-pulse flex-col items-center rounded-md border-2 border-gray-500 bg-slate-700">
+								<div class="h-48 sm:h-64" />
 								<p class="mt-auto h-6" />
 							</div>
-							<div class="flex animate-pulse flex-col items-center rounded-md border-2 border-gray-500 bg-slate-700">
-								<div class="h-48 w-48 sm:h-64 sm:w-64" />
+							<div class="flex flex-1 animate-pulse flex-col items-center rounded-md border-2 border-gray-500 bg-slate-700">
+								<div class="h-48 sm:h-64" />
 								<p class="mt-auto h-6" />
 							</div>
 						</>
@@ -120,7 +120,7 @@ export default function ViewLeaderboard() {
 								type="button"
 								class="group relative flex scale-0 flex-col items-center rounded-md border-2 border-gray-500 bg-transparent"
 							>
-								<img class="absolute h-64 w-64 scale-0 opacity-40 blur-2xl transition-transform group-hover:scale-100 sm:h-80 sm:w-80" src={option.image ?? ''} alt={option.content} />
+								<img class="absolute h-64 w-64 scale-0 opacity-40 blur-2xl transition-transform group-hover:scale-100 sm:h-80 sm:w-80 [@media(hover:none)]:hidden" src={option.image ?? ''} alt={option.content} />
 								<img class="h-48 w-48 object-contain sm:h-64 sm:w-64" src={option.image ?? ''} alt={option.content} />
 								<p class="mt-auto">{option.content}</p>
 							</button>
