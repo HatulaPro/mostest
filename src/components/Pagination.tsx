@@ -3,7 +3,7 @@ import { range, safeArg } from '~/utils/functions';
 
 export const Pagination: Component<{ page: number; setPage: (n: number) => void; pageCount: number; preloader: (n: number) => void }> = (props) => {
 	return (
-		<div class="mb-1 mt-6 flex w-full items-end justify-center text-left text-xs sm:text-sm">
+		<div class="mb-1 flex w-full items-end justify-center text-left text-xs sm:text-sm">
 			<span class="hidden text-xs text-gray-300 sm:block">
 				Showing page {props.page} of {props.pageCount}
 			</span>

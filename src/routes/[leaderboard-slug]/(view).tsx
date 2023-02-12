@@ -1,8 +1,10 @@
 import { A, useSearchParams } from '@solidjs/router';
-import { AiOutlineEdit } from 'solid-icons/ai';
-import { createSignal, For, Suspense } from 'solid-js';
+import { AiOutlineEdit, AiOutlineSearch } from 'solid-icons/ai';
+import { createEffect, createSignal, For, Suspense } from 'solid-js';
+import { createStore, reconcile } from 'solid-js/store';
 import { type RouteDataArgs, useRouteData } from 'solid-start';
 import { createServerData$ } from 'solid-start/server';
+import { TransitionGroup } from 'solid-transition-group';
 import { EditCandidateForm } from '~/components/EditCandidateForm';
 import { Loading } from '~/components/Loading';
 import { Pagination } from '~/components/Pagination';
@@ -32,6 +34,14 @@ function calcPercentage(voteFor: number, voteAgainst: number) {
 const PAGE_SIZE = 10;
 export default function ViewLeaderboard() {
 	const data = useRouteData<typeof routeData>();
+
+	const [searchParams, setSearchParams] = useSearchParams<{ page: string; query: string }>();
+	const page = () => parseInt(searchParams.page) || 1;
+	const setPage = (n: number) => setSearchParams({ ...searchParams, page: `${n}` });
+
+	const query = () => searchParams.query || '';
+	const setQuery = (s: string) => setSearchParams({ ...searchParams, query: s });
+
 	const candidatesSorted = () =>
 		data()
 			?.options.map((o) => ({ id: o[0], image: o[1], content: o[2], leaderboardId: o[3], _count: { voteFor: o[4], voteAgainst: o[5] } }))
@@ -41,28 +51,53 @@ export default function ViewLeaderboard() {
 				return a.id.localeCompare(b.id);
 			});
 
-	const [searchParams, setSearchParams] = useSearchParams<{ page: string }>();
-	const page = () => parseInt(searchParams.page) || 1;
-	const setPage = (n: number) => setSearchParams({ ...searchParams, page: `${n}` });
-	const pageCount = () => Math.ceil((data()?.options.length ?? PAGE_SIZE) / PAGE_SIZE);
+	const [currents, setCurrents] = createStore(
+		candidatesSorted()
+			?.map((value, index) => ({ value, index }))
+			.filter(({ value }) => JSON.stringify(value).toLowerCase().includes(query().toLowerCase())) ?? []
+	);
+	createEffect(() => {
+		if (query()) {
+			const nexts = candidatesSorted()
+				?.map((value, index) => ({ value, index }))
+				.filter(({ value }) => value.content.toLowerCase().includes(query().toLowerCase()));
+			if (!nexts) return setCurrents([]);
+			setCurrents(reconcile(nexts, { key: 'index' }));
+			return;
+		}
+		const nexts = candidatesSorted()?.map((value, index) => ({ value, index }));
+		if (!nexts) return setCurrents([]);
+		setCurrents(reconcile(nexts, { key: 'index' }));
+	});
+
+	const pageCount = () => Math.ceil((currents.length || PAGE_SIZE) / PAGE_SIZE);
 	const isOwner = () => data.latest?.leaderboard?.ownerId && data.latest.leaderboard.ownerId === data.latest.user?.id;
 	const [editedId, setEditedId] = createSignal<number>(-1);
 
 	const preloadPageImages = (p: number) => {
-		candidatesSorted()
-			?.slice(PAGE_SIZE * (p - 1), PAGE_SIZE * p)
-			.forEach((c) => {
-				if (c.image) {
-					const img = new Image();
-					img.src = c.image;
-				}
-			});
+		currents.slice(PAGE_SIZE * (p - 1), PAGE_SIZE * p).forEach((c) => {
+			if (c.value.image) {
+				const img = new Image();
+				img.src = c.value.image;
+			}
+		});
 	};
 
 	const close = () => setEditedId(-1);
 
+	createEffect(() => {
+		if (page() > pageCount()) {
+			setPage(pageCount());
+		}
+	});
+
 	return (
 		<div>
+			<div class="mt-8 mb-2 flex w-full items-center rounded-md border-2 border-gray-500 bg-gray-800 p-2 text-white transition-colors group-focus:border-gray-200">
+				<input class="w-full bg-transparent text-white outline-none" type="text" value={query()} onInput={(e) => setQuery(e.currentTarget.value)} placeholder="Search" />
+				<AiOutlineSearch class="text-xl" />
+			</div>
+
 			<Suspense>
 				<Pagination page={page()} setPage={setPage} pageCount={pageCount()} preloader={preloadPageImages} />
 			</Suspense>
@@ -83,23 +118,52 @@ export default function ViewLeaderboard() {
 						</For>
 					}
 				>
-					<For each={candidatesSorted()?.slice(PAGE_SIZE * (page() - 1), PAGE_SIZE * page())}>
-						{(option, i) => (
-							<div class="grid h-24 w-full grid-cols-[1fr_2fr_2fr] items-center gap-2 pr-1 hover:bg-black hover:bg-opacity-20 sm:grid-cols-[6rem_3fr_3fr] sm:pr-3">
-								<div class="grid h-full place-items-center border-r-2 border-gray-500 text-xl">{PAGE_SIZE * (page() - 1) + i() + 1}</div>
-								<div class="flex h-[inherit] items-center gap-2">
-									<img class="h-full object-contain py-1" alt={option.content} src={option.image ?? ''} />
-									<p class="text-center text-xs sm:text-lg">{option.content}</p>
-									{isOwner() && (
-										<button onClick={() => setEditedId(PAGE_SIZE * (page() - 1) + i())} class="flex items-center rounded-md py-1.5 px-2 text-lg text-white transition-colors hover:bg-slate-800">
-											<AiOutlineEdit />
-										</button>
+					{data() && (
+						<TransitionGroup
+							onEnter={(el, done) => {
+								const anim = el.animate(
+									[
+										{ opacity: 0, transform: 'translateY(-100%)' },
+										{ opacity: 1, transform: 'translateY(0%)' },
+									],
+									{ duration: 200, fill: 'forwards' }
+								);
+								anim.finished.then(done);
+							}}
+							onExit={(el, done) => {
+								const anim = el.animate(
+									[
+										{ opacity: 1, transform: 'translateY(0%)' },
+										{ opacity: 0, transform: 'translateY(100%)' },
+									],
+									{ duration: 200, fill: 'forwards' }
+								);
+								anim.finished.then(done);
+							}}
+						>
+							{currents.length ? (
+								<For each={currents.slice(PAGE_SIZE * (page() - 1), PAGE_SIZE * page())}>
+									{(option) => (
+										<div class="grid h-24 w-full grid-cols-[1fr_2fr_2fr] items-center gap-2 pr-1 hover:bg-black hover:bg-opacity-20 sm:grid-cols-[6rem_3fr_3fr] sm:pr-3">
+											<div class="grid h-full place-items-center border-r-2 border-gray-500 text-xl">{option.index + 1}</div>
+											<div class="flex h-[inherit] items-center gap-2">
+												<img class="h-full object-contain py-1" alt={option.value.content} src={option.value.image ?? ''} />
+												<p class="text-center text-xs sm:text-lg">{option.value.content}</p>
+												{isOwner() && (
+													<button onClick={() => setEditedId(option.index)} class="flex items-center rounded-md py-1.5 px-2 text-lg text-white transition-colors hover:bg-slate-800">
+														<AiOutlineEdit />
+													</button>
+												)}
+											</div>
+											<p class="ml-auto text-xs sm:text-lg">{calcPercentage(option.value._count.voteFor, option.value._count.voteAgainst).toPrecision(3)}%</p>
+										</div>
 									)}
-								</div>
-								<p class="ml-auto text-xs sm:text-lg">{calcPercentage(option._count.voteFor, option._count.voteAgainst).toPrecision(3)}%</p>
-							</div>
-						)}
-					</For>
+								</For>
+							) : (
+								[]
+							)}
+						</TransitionGroup>
+					)}
 				</Suspense>
 			</div>
 			<Loading isLoading={data.loading} />
