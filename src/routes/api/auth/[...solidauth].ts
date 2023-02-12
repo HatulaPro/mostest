@@ -28,7 +28,7 @@ export const authOpts: SolidAuthConfig = {
 		maxAge: 30 * 24 * 60 * 60,
 		updateAge: 24 * 60 * 60,
 		generateSessionToken: () => {
-			return crypto.randomUUID();
+			return (Math.random() + 1).toString(16).substring(7) + (Math.random() + 1).toString(16).substring(7) + (Math.random() + 1).toString(16).substring(7) + (Math.random() + 1).toString(16).substring(7);
 		},
 	},
 };
