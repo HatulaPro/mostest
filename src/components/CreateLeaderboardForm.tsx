@@ -33,8 +33,6 @@ export const CreateLeaderboardForm: Component<{
 }> = (props) => {
 	const form = useForm({ name: { parser: CreateLeaderboardSchema.shape.name, defaultValue: props.name }, slug: { parser: CreateLeaderboardSchema.shape.slug }, description: { parser: CreateLeaderboardSchema.shape.description } });
 
-	createEffect(() => console.log(props.name));
-
 	// ID is number: new candidate
 	// ID is string: existing candidate
 	const [candidates, setCandidates] = createStore<{ id: number; name: string; image: string }[]>([
@@ -63,7 +61,6 @@ export const CreateLeaderboardForm: Component<{
 			const candidates = (await prisma.option.createMany({ data: parsed.data.candidates.map((c) => ({ image: c.image.length ? c.image : undefined, content: c.name, leaderboardId })) })).count;
 			return { success: true, data: { leaderboard, candidates } };
 		} catch (e) {
-			console.log(e);
 			return { success: false };
 		}
 	});

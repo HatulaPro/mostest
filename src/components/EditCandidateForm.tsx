@@ -74,7 +74,6 @@ export const EditCandidateForm: Component<{ leaderboardId: string; isOpen: boole
 					return { success: true, data: newCandidate };
 				}
 			} catch (e) {
-				console.log(e);
 				return { success: false };
 			}
 		},

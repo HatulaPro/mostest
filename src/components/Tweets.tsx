@@ -96,7 +96,6 @@ export const Tweets: Component = () => {
 						return createInterval();
 					})
 				}
-				onScroll={(e) => console.log(e.currentTarget.scrollLeft)}
 				class="col-start-1 row-start-2 flex-1 overflow-hidden p-2 text-left sm:row-start-1"
 			>
 				<div class="grid w-full grid-cols-[100%_100%_100%] gap-4 transition-all duration-300" ref={tweetsWrapper} style={{ transform: `translateX(-${currentTweet() * (100 + 1600 / (tweetsWrapper?.children[0]?.getBoundingClientRect()?.width || Infinity))}%)` }}>

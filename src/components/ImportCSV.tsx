@@ -23,7 +23,6 @@ export type CsvSchemaType = z.infer<typeof CsvSchema>;
 export const ImportCSV: Component<{ onImport: (data: CsvSchemaType) => void }> = (props) => {
 	const parseCSV = server$(async (file: string): Promise<{ success: true; data: CsvSchemaType } | { success: false; error: string }> => {
 		const { data } = Papa.parse(file);
-		console.log(data);
 		const parsed = CsvSchema.safeParse(data);
 		if (parsed.success) {
 			return { success: true, data: parsed.data };
@@ -74,7 +73,7 @@ export const ImportCSV: Component<{ onImport: (data: CsvSchemaType) => void }> =
 					const file = e.currentTarget.files?.item(0);
 					if (!file) return;
 					const text = await file.text();
-					enroll(text).then(onDone).catch(console.log);
+					enroll(text).then(onDone);
 				}}
 			/>
 			<button type="button" onClick={() => inputFile?.click()} disabled={enrolling.pending} class="flex items-center rounded-md bg-slate-700 py-2 px-4 text-sm text-white hover:bg-slate-700 disabled:contrast-75">
