@@ -30,7 +30,7 @@ function calcPercentage(voteFor: number, voteAgainst: number) {
 	return (voteFor / (voteAgainst + voteFor)) * 100;
 }
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 8;
 export default function ViewLeaderboard() {
 	const data = useRouteData<typeof routeData>();
 

@@ -16,16 +16,26 @@ export const Pagination: Component<{ page: number; setPage: (n: number) => void;
 					<span class="hidden text-xs text-gray-300 sm:block">
 						Showing page {props.page} of {props.pageCount}
 					</span>
+					{/* 1 : 12345 ..        .. 49 50 */}
+					{/* 2 : 12345 ..        .. 49 50 */}
+					{/* 3 : 12345 ..        .. 49 50 */}
+					{/* 4 : 12345 ..        .. 49 50 */}
+					{/* 5 : 12    .. 456    .. 49 50 */}
+					{/* 6 : 12    .. 567    .. 49 50 */}
+					{/* 7 : 12    .. 679    .. 49 50 */}
+					{/* 47: 12    .. 464748 .. 49 50 */}
+					{/* 48: 12    .. 464748 .. 49 50 */}
+					{/* 49: 12    .. 464748 .. 49 50 */}
+					{/* 50: 12    .. 464748 .. 49 50 */}
 					<div class="flex gap-1 sm:ml-auto sm:gap-2">
-						{props.page > 2 && (
+						{props.pageCount <= 7 ? (
+							<RangedButtons from={1} to={props.pageCount + 1} page={props.page} setPage={props.setPage} preloader={props.preloader} />
+						) : (
 							<>
-								<RangedButtons from={1} to={Math.min(3, props.page - 1)} page={props.page} setPage={props.setPage} preloader={props.preloader} />
-								{props.page > 4 && <span class="self-end">...</span>}
-							</>
-						)}
-						<RangedButtons from={Math.max(1, props.page - 1)} to={Math.min(props.pageCount + 1, props.page + 2)} page={props.page} setPage={props.setPage} preloader={props.preloader} />
-						{props.page < props.pageCount - 1 && (
-							<>
+								<RangedButtons from={1} to={Math.min(props.page < 5 ? 6 : 3, props.pageCount + 1)} page={props.page} setPage={props.setPage} preloader={props.preloader} />
+								{props.page >= 5 && <span class="self-end">...</span>}
+
+								{props.page >= 5 && <RangedButtons from={props.page > props.pageCount - 4 ? props.pageCount - 4 : props.page - 1} to={Math.min(props.pageCount + 1, props.page + 2)} page={props.page} setPage={props.setPage} preloader={props.preloader} />}
 								{props.page < props.pageCount - 3 && <span class="self-end">...</span>}
 								<RangedButtons from={Math.max(props.page + 2, props.pageCount - 1)} to={props.pageCount + 1} page={props.page} setPage={props.setPage} preloader={props.preloader} />
 							</>
