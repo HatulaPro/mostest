@@ -1,6 +1,6 @@
 import { A, useSearchParams } from '@solidjs/router';
 import { AiOutlineEdit, AiOutlineSearch } from 'solid-icons/ai';
-import { createEffect, createSignal, For, Suspense } from 'solid-js';
+import { type Component, createEffect, createSignal, For, Match, Suspense, Switch } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
 import { type RouteDataArgs, useRouteData } from 'solid-start';
 import { createServerData$ } from 'solid-start/server';
@@ -106,7 +106,9 @@ export default function ViewLeaderboard() {
 						<For each={[1, 2, 3]}>
 							{(i) => (
 								<div class="grid h-24 w-full grid-cols-[1fr_2fr_2fr] items-center gap-2 pr-1 hover:bg-black hover:bg-opacity-20 sm:grid-cols-[6rem_3fr_3fr] sm:pr-3">
-									<div class="grid h-full place-items-center border-r-2 border-gray-500 text-xl">{PAGE_SIZE * (page() - 1) + i}</div>
+									<div class="grid h-full place-items-center border-r-2 border-gray-500 text-xl">
+										<ImageOfIndex index={PAGE_SIZE * (page() - 1) + i - 1} />
+									</div>
 									<div class="flex h-[inherit] items-center gap-2">
 										<div class="h-full animate-pulse bg-slate-700 object-contain py-1" />
 										<p class="animate-pulse bg-slate-700 text-center text-xs text-transparent sm:text-lg">SOME TEXT HERE</p>
@@ -146,7 +148,9 @@ export default function ViewLeaderboard() {
 								<For each={activeCandidates.slice(PAGE_SIZE * (page() - 1), PAGE_SIZE * page())}>
 									{(option) => (
 										<div class="grid h-24 w-full grid-cols-[1fr_2fr_2fr] items-center gap-2 pr-1 hover:bg-black hover:bg-opacity-20 sm:grid-cols-[6rem_3fr_3fr] sm:pr-3">
-											<div class="grid h-full place-items-center border-r-2 border-gray-500 text-xl">{option.index + 1}</div>
+											<div class="grid h-full place-items-center border-r-2 border-gray-500 text-xl">
+												<ImageOfIndex index={option.index} />
+											</div>
 											<div class="flex h-[inherit] items-center gap-2">
 												<img class="h-full object-contain py-1" alt={option.value.content} src={option.value.image ?? ''} />
 												<p class="text-center text-xs sm:text-lg">{option.value.content}</p>
@@ -186,3 +190,19 @@ export default function ViewLeaderboard() {
 		</div>
 	);
 }
+
+const ImageOfIndex: Component<{ index: number }> = (props) => {
+	return (
+		<Switch fallback={<span>{props.index + 1}</span>}>
+			<Match when={props.index === 0}>
+				<img class="h-10" src="/cups/GoldCup2.svg" alt="Gold Cup" />
+			</Match>
+			<Match when={props.index === 1}>
+				<img class="h-10" src="/cups/SilverCup2.svg" alt="Silver Cup" />
+			</Match>
+			<Match when={props.index === 2}>
+				<img class="h-10" src="/cups/BronzeCup2.svg" alt="Bronze Cup" />
+			</Match>
+		</Switch>
+	);
+};
