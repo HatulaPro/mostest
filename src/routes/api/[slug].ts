@@ -1,6 +1,7 @@
 import satori from 'satori';
 import { type APIEvent, redirect } from 'solid-start';
 import { prisma } from '~/db';
+import { Resvg } from '@resvg/resvg-js';
 
 const interFont = fetch(new URL('https://github.com/rsms/inter/blob/master/docs/font-files/Inter-Regular.woff?raw=true')).then((res) => res.arrayBuffer());
 const interFontBold = fetch(new URL('https://github.com/rsms/inter/blob/master/docs/font-files/Inter-Bold.woff?raw=true')).then((res) => res.arrayBuffer());
@@ -53,11 +54,19 @@ export async function GET(e: APIEvent) {
 			],
 		}
 	);
+	const png = new Resvg(res, {
+		background: 'transparent',
+		fitTo: {
+			mode: 'width',
+			value: 1200,
+		},
+		logLevel: 'debug',
+	});
 	const headers = new Headers();
-	headers.set('Content-Type', 'image/svg+xml');
+	headers.set('Content-Type', 'image/png');
 	headers.set('Cache-Control', 'public, immutable, no-transform, max-age=86400');
 	try {
-		return new Response(res, { status: 200, headers });
+		return new Response(png.render().asPng(), { status: 200, headers });
 	} catch (e) {
 		console.log(e);
 	}
