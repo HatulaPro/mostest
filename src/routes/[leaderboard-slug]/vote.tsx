@@ -114,7 +114,7 @@ export default function ViewLeaderboard() {
 								type="button"
 								class="group relative flex h-48 w-48 scale-0 flex-col items-center rounded-md border-2 border-gray-500 bg-transparent pb-6 sm:h-64 sm:w-64"
 							>
-								<img class="absolute h-64 w-64 scale-0 opacity-40 blur-2xl transition-transform group-hover:scale-100 sm:h-80 sm:w-80 [@media(hover:none)]:hidden" src={option.image ?? ''} alt={option.content} />
+								<img class="absolute left-1/2 top-1/2 h-64 w-64 -translate-x-1/2 -translate-y-1/2 scale-0 opacity-0 blur-2xl transition-all group-hover:scale-75 group-hover:opacity-40 sm:h-80 sm:w-80 [@media(hover:none)]:hidden" src={option.image ?? ''} alt={option.content} />
 								<img class="h-full w-full object-contain" src={option.image ?? ''} alt={option.content} />
 								<p class="mt-auto">{option.content}</p>
 							</button>
