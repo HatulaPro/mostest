@@ -24,7 +24,7 @@ const CreateLeaderboardSchema = z.object({
 		.max(24, 'Slug must contain at most 24 characters')
 		.regex(/^[a-z0-9\-]*$/g, 'Only lowercase letters, digits and dashes (-) are allowed.'),
 	description: z.string().min(4, 'Question must contain at least 4 characters').max(64, 'Question must contain at most 64 characters'),
-	candidates: z.array(z.object({ id: z.string().optional(), name: z.string().max(64), image: z.string().max(256) })),
+	candidates: z.array(z.object({ id: z.string().optional(), name: z.string().max(64), image: z.string().max(256) })).max(500),
 });
 type CreateLeaderboardType = z.infer<typeof CreateLeaderboardSchema>;
 
@@ -113,7 +113,9 @@ export const CreateLeaderboardForm: Component<{
 					<span class="text-sm text-red-400">{form.getError('description')}</span>
 				</div>
 				<div class="mt-4 flex flex-wrap items-center gap-2">
-					<h3 class="shrink-0 basis-full text-lg sm:basis-auto">Candidates:</h3>
+					<h3 class="shrink-0 basis-full text-lg sm:basis-auto">
+						Candidates <span class="text-sm">({candidates.length}/500)</span>:
+					</h3>
 					<button type="button" onClick={() => setCandidates([])} class="ml-auto rounded-md bg-slate-700 py-2 px-4 text-sm text-white hover:bg-slate-700">
 						Clear All
 					</button>
@@ -126,19 +128,23 @@ export const CreateLeaderboardForm: Component<{
 									copy.push({ id, image, name });
 									++id;
 								}
-								return copy;
+								return copy.slice(0, 500);
 							});
 						}}
 					/>
-					<button type="button" onClick={addCandidate} class="block rounded-md bg-red-500 py-2 px-4 text-sm text-white hover:bg-red-600 sm:hidden">
+					<button type="button" disabled={candidates.length >= 500} onClick={addCandidate} class="block disabled:opacity-50 rounded-md bg-red-500 py-2 px-4 text-sm text-white enabled:hover:bg-red-600 sm:hidden">
 						Add
 					</button>
 				</div>
 				<div class="flex flex-col flex-wrap items-center gap-2 sm:flex-row">
-					<button type="button" onClick={addCandidate} class="hidden h-48 w-36 place-items-center rounded-md border-2 border-gray-500 bg-gray-800 p-4 transition-colors hover:border-gray-200 sm:grid">
-						<div class="grid aspect-square h-16 w-16 place-items-center rounded-full bg-white bg-opacity-20 text-3xl text-white">
-							<AiOutlinePlus />
-						</div>
+					<button type="button" onClick={addCandidate} disabled={candidates.length >= 500} class="hidden h-48 w-36 place-items-center rounded-md border-2 border-gray-500 bg-gray-800 p-4 transition-colors enabled:hover:border-gray-200 sm:grid">
+						{candidates.length >= 500 ? (
+							<span class="text-red-400">Candidates limit exceeded</span>
+						) : (
+							<div class="grid aspect-square h-16 w-16 place-items-center rounded-full bg-white bg-opacity-20 text-3xl text-white">
+								<AiOutlinePlus />
+							</div>
+						)}
 					</button>
 					<TransitionGroup name="animated-x-list-item">
 						<For each={candidates}>
