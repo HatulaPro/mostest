@@ -1,5 +1,5 @@
 import { TransitionGroup } from 'solid-transition-group';
-import { type Component, createSignal, For, createEffect } from 'solid-js';
+import { type Component, createSignal, For, createEffect, batch } from 'solid-js';
 import { AiOutlineClose, AiOutlinePlus } from 'solid-icons/ai';
 import { ImportCSV } from '~/components/ImportCSV';
 import { z } from 'zod';
@@ -57,7 +57,11 @@ export const CreateLeaderboardForm: Component<{
 
 	const navigate = useNavigate();
 	function addCandidate() {
-		setCandidates((p) => [...p, { id: 1 + Math.max(0, ...p.map((c) => c.id)), name: 'Bulbasaur', image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png' }]);
+		const currentLength = candidates.length;
+		batch(() => {
+			setCandidates((p) => [...p, { id: 1 + Math.max(0, ...p.map((c) => c.id)), name: 'Bulbasaur', image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png' }]);
+			setPage(Math.ceil((currentLength + 1) / PAGE_SIZE));
+		});
 	}
 
 	const [enrolling, enroll] = createServerAction$(async (data: CreateLeaderboardType, { request }): Promise<{ success: true; data: { leaderboard: Leaderboard; candidates: number } } | { success: false }> => {
