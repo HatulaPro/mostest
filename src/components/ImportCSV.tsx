@@ -5,6 +5,7 @@ import server$ from 'solid-start/server';
 import Papa from 'papaparse';
 import { z } from 'zod';
 import { Modal } from './Modal';
+import { Loading } from './Loading';
 
 const CsvSchema = z.array(
 	z
@@ -76,8 +77,11 @@ export const ImportCSV: Component<{ onImport: (data: CsvSchemaType) => void }> =
 					enroll(text).then(onDone);
 				}}
 			/>
-			<button type="button" onClick={() => inputFile?.click()} disabled={enrolling.pending} class="flex items-center rounded-md bg-slate-700 py-2 px-4 text-sm text-white hover:bg-slate-700 disabled:contrast-75">
-				<AiFillFileText class="mx-1 text-xl" />
+			<button type="button" onClick={() => inputFile?.click()} disabled={enrolling.pending} class="flex gap-2 justify-center items-center rounded-md bg-slate-700 p-2 text-sm text-white hover:bg-slate-700 disabled:contrast-75">
+				<span class="absolute">
+					<Loading isLoading={enrolling.pending} />
+				</span>
+				<AiFillFileText class="text-xl" />
 				Import CSV
 			</button>
 			<Modal isOpen={Boolean(modalError())} close={() => close}>
