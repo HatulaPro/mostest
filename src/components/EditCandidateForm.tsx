@@ -65,10 +65,11 @@ export const EditCandidateForm: Component<{ leaderboardId: string; isOpen: boole
 					const removedCandidate = await prisma.option.delete({ where: { id: candidate.id } });
 					return { success: true, data: removedCandidate };
 				} else {
-					const [leaderboard, user] = await Promise.all([prisma.leaderboard.findUnique({ where: { id: parsed.data.leaderboardId } }), getSession(request)]);
+					const [leaderboard, user] = await Promise.all([prisma.leaderboard.findUnique({ where: { id: parsed.data.leaderboardId }, include: { _count: { select: { options: true } } } }), getSession(request)]);
 					const uid = user?.user?.id;
 					if (!uid) return { success: false };
 					if (!leaderboard || leaderboard.ownerId !== uid) return { success: false };
+					if (leaderboard._count.options >= 500) return { success: false };
 
 					const newCandidate = await prisma.option.create({ data: { content: data.name, image: data.image, leaderboardId: data.leaderboardId } });
 					return { success: true, data: newCandidate };

@@ -177,7 +177,7 @@ export default function ViewLeaderboard() {
 				<Suspense fallback={<ShareButton text="" title="" url={document.location.href} disabled />}>
 					<>
 						{data.latest?.leaderboard && <ShareButton text={`Vote on ${data.latest.leaderboard.name}: ${data.latest.leaderboard.question}`} title={data.latest.leaderboard.name} url={document.location.href} />}
-						{isOwner() && (
+						{isOwner() && !Boolean(!data.latest || data.latest?.options.length >= 500) && (
 							<button onClick={() => setEditedId(-2)} class="rounded-md bg-slate-700 py-2 px-3 text-white transition-colors hover:bg-slate-600">
 								Create
 							</button>
