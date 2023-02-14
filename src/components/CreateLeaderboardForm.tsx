@@ -13,6 +13,7 @@ import { createStore } from 'solid-js/store';
 import { getSession } from '~/routes/api/auth/[...solidauth]';
 import clickOutside from '~/bindings/click-outside';
 import { slugify } from '~/utils/functions';
+import { useAnimatedNumber } from '~/hooks/useAnimatedNumber';
 // eslint-disable-next-line
 const clickOutsideDirective = clickOutside;
 
@@ -32,14 +33,12 @@ export const CreateLeaderboardForm: Component<{
 	name: string;
 }> = (props) => {
 	const form = useForm({ name: { parser: CreateLeaderboardSchema.shape.name, defaultValue: props.name }, slug: { parser: CreateLeaderboardSchema.shape.slug }, description: { parser: CreateLeaderboardSchema.shape.description } });
-
-	// ID is number: new candidate
-	// ID is string: existing candidate
 	const [candidates, setCandidates] = createStore<{ id: number; name: string; image: string }[]>([
 		{ id: 1, name: 'Zapdos', image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/145.png' },
 		{ id: 2, name: 'Castform', image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/351.png' },
 		{ id: 3, name: 'Bulbasaur', image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png' },
 	]);
+	const animatedCandidatesCount = useAnimatedNumber(() => candidates.length, { startingValue: candidates.length, duration: 200, steps: 7 });
 	const [currentlyEditing, setCurrentlyEditing] = createSignal<number>(-1);
 
 	const navigate = useNavigate();
@@ -114,7 +113,7 @@ export const CreateLeaderboardForm: Component<{
 				</div>
 				<div class="mt-4 flex flex-wrap items-center gap-2">
 					<h3 class="shrink-0 basis-full text-lg sm:basis-auto">
-						Candidates <span class="text-sm">({candidates.length}/500)</span>:
+						Candidates <span class="text-sm">({animatedCandidatesCount().toFixed(0)}/500)</span>:
 					</h3>
 					<button type="button" onClick={() => setCandidates([])} class="ml-auto rounded-md bg-slate-700 py-2 px-4 text-sm text-white hover:bg-slate-700">
 						Clear All

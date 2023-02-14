@@ -1,8 +1,11 @@
 import { For, type Component } from 'solid-js';
+import { useAnimatedNumber } from '~/hooks/useAnimatedNumber';
 import { range, safeArg } from '~/utils/functions';
 import { Loading } from './Loading';
 
 export const Pagination: Component<{ page: number; setPage: (n: number) => void; pageCount: number; preloader: (n: number) => void; isLoading: boolean; isEmpty: boolean }> = (props) => {
+	const animatedPageCount = useAnimatedNumber(() => props.pageCount, { startingValue: props.pageCount, duration: 250 });
+	const animatedPage = useAnimatedNumber(() => props.page, { startingValue: props.page, duration: 250 });
 	return (
 		<div class="mb-1 flex w-full items-end justify-center text-left text-xs sm:text-sm">
 			{props.isLoading ? (
@@ -14,19 +17,8 @@ export const Pagination: Component<{ page: number; setPage: (n: number) => void;
 			) : (
 				<>
 					<span class="hidden text-xs text-gray-300 sm:block">
-						Showing page {props.page} of {props.pageCount}
+						Showing page {animatedPage().toFixed(0)} of {animatedPageCount().toFixed(0)}
 					</span>
-					{/* 1 : 12345 ..        .. 49 50 */}
-					{/* 2 : 12345 ..        .. 49 50 */}
-					{/* 3 : 12345 ..        .. 49 50 */}
-					{/* 4 : 12345 ..        .. 49 50 */}
-					{/* 5 : 12    .. 456    .. 49 50 */}
-					{/* 6 : 12    .. 567    .. 49 50 */}
-					{/* 7 : 12    .. 679    .. 49 50 */}
-					{/* 47: 12    .. 464748 .. 49 50 */}
-					{/* 48: 12    .. 464748 .. 49 50 */}
-					{/* 49: 12    .. 464748 .. 49 50 */}
-					{/* 50: 12    .. 464748 .. 49 50 */}
 					<div class="flex gap-1 sm:ml-auto sm:gap-2">
 						{props.pageCount <= 7 ? (
 							<RangedButtons from={1} to={props.pageCount + 1} page={props.page} setPage={props.setPage} preloader={props.preloader} />
