@@ -91,15 +91,14 @@ export default function ViewLeaderboard() {
 	});
 
 	return (
-		<div>
-			<div class="mt-8 mb-2 flex w-full items-center rounded-md border-2 border-gray-500 bg-gray-800 p-2 text-white transition-colors group-focus:border-gray-200">
-				<input class="w-full bg-transparent text-white outline-none" type="text" value={query()} onInput={(e) => setQuery(e.currentTarget.value)} placeholder="Search" />
-				<AiOutlineSearch class="text-xl" />
-			</div>
-
+		<div class="pt-6">
 			<Suspense>
 				<Pagination page={page()} setPage={setPage} pageCount={pageCount()} preloader={preloadPageImages} isLoading={data.loading} isEmpty={activeCandidates.length === 0} />
 			</Suspense>
+			<div class="my-2 flex w-full items-center rounded-md border-2 border-gray-500 bg-gray-800 p-2 text-white transition-colors group-focus:border-gray-200">
+				<input class="w-full bg-transparent text-white outline-none" type="text" value={query()} onInput={(e) => setQuery(e.currentTarget.value)} placeholder="Search" />
+				<AiOutlineSearch class="text-xl" />
+			</div>
 			<Suspense
 				fallback={
 					<div class="mx-auto mb-2 flex w-full flex-col overflow-hidden rounded-md border-2 border-gray-500">
