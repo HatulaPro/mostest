@@ -3,7 +3,7 @@ import { useAnimatedNumber } from '~/hooks/useAnimatedNumber';
 import { range, safeArg } from '~/utils/functions';
 import { Loading } from './Loading';
 
-export const Pagination: Component<{ page: number; setPage: (n: number) => void; pageCount: number; preloader: (n: number) => void; isLoading: boolean; isEmpty: boolean }> = (props) => {
+export const Pagination: Component<{ page: number; setPage: (n: number) => void; pageCount: number; preloader?: (n: number) => void; isLoading?: boolean; isEmpty?: boolean }> = (props) => {
 	const animatedPageCount = useAnimatedNumber(() => props.pageCount, { startingValue: props.pageCount, duration: 250 });
 	const animatedPage = useAnimatedNumber(() => props.page, { startingValue: props.page, duration: 250 });
 	return (
@@ -39,11 +39,11 @@ export const Pagination: Component<{ page: number; setPage: (n: number) => void;
 	);
 };
 
-const RangedButtons: Component<{ from: number; to: number; page: number; setPage: (n: number) => void; preloader: (n: number) => void }> = (props) => {
+const RangedButtons: Component<{ from: number; to: number; page: number; setPage: (n: number) => void; preloader?: (n: number) => void }> = (props) => {
 	return (
 		<For each={range(props.from, props.to)}>
 			{(num) => (
-				<button onPointerEnter={safeArg(props.preloader, num)} onClick={() => props.setPage(num)} classList={{ 'rounded-md px-2 sm:px-3 py-1.5 transition-colors': true, 'bg-slate-500 hover:bg-slate-600': props.page !== num, 'bg-red-500 hover:bg-red-600': props.page === num }}>
+				<button type="button" onPointerEnter={props.preloader && safeArg(props.preloader, num)} onClick={() => props.setPage(num)} classList={{ 'rounded-md px-2 sm:px-3 py-1.5 transition-colors': true, 'bg-slate-500 hover:bg-slate-600': props.page !== num, 'bg-red-500 hover:bg-red-600': props.page === num }}>
 					{num}
 				</button>
 			)}

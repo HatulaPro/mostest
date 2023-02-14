@@ -55,7 +55,7 @@ export const ImportCSV: Component<{ onImport: (data: CsvSchemaType) => void }> =
 			  }
 	) => {
 		if (data.success) props.onImport(data.data);
-		else if (inputFile) {
+		if (inputFile) {
 			inputFile.value = inputFile.defaultValue;
 		}
 	};

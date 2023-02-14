@@ -1,5 +1,5 @@
 import { TransitionGroup } from 'solid-transition-group';
-import { type Component, createSignal, For } from 'solid-js';
+import { type Component, createSignal, For, createEffect } from 'solid-js';
 import { AiOutlineClose, AiOutlinePlus } from 'solid-icons/ai';
 import { ImportCSV } from '~/components/ImportCSV';
 import { z } from 'zod';
@@ -8,12 +8,13 @@ import { prisma } from '~/db';
 import { useForm } from '~/hooks/useForm';
 import type { Leaderboard } from '@prisma/client';
 import { Loading } from '~/components/Loading';
-import { useNavigate } from '@solidjs/router';
+import { useNavigate, useSearchParams } from '@solidjs/router';
 import { createStore } from 'solid-js/store';
 import { getSession } from '~/routes/api/auth/[...solidauth]';
 import clickOutside from '~/bindings/click-outside';
 import { slugify } from '~/utils/functions';
 import { useAnimatedNumber } from '~/hooks/useAnimatedNumber';
+import { Pagination } from './Pagination';
 // eslint-disable-next-line
 const clickOutsideDirective = clickOutside;
 
@@ -29,6 +30,7 @@ const CreateLeaderboardSchema = z.object({
 });
 type CreateLeaderboardType = z.infer<typeof CreateLeaderboardSchema>;
 
+const PAGE_SIZE = 17;
 export const CreateLeaderboardForm: Component<{
 	name: string;
 }> = (props) => {
@@ -39,6 +41,18 @@ export const CreateLeaderboardForm: Component<{
 		{ id: 3, name: 'Bulbasaur', image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png' },
 	]);
 	const animatedCandidatesCount = useAnimatedNumber(() => candidates.length, { startingValue: candidates.length, duration: 200, steps: 7 });
+
+	const [searchParams, setSearchParams] = useSearchParams<{ page: string }>();
+	const page = () => parseInt(searchParams.page) || 1;
+	const setPage = (n: number) => setSearchParams({ ...searchParams, page: `${n}` });
+	const pageCount = () => Math.ceil((candidates.length || PAGE_SIZE) / PAGE_SIZE);
+
+	createEffect(() => {
+		if (page() > pageCount()) {
+			setPage(pageCount());
+		}
+	});
+
 	const [currentlyEditing, setCurrentlyEditing] = createSignal<number>(-1);
 
 	const navigate = useNavigate();
@@ -111,7 +125,8 @@ export const CreateLeaderboardForm: Component<{
 					<input required class="w-full rounded-md  border-2 border-gray-500 bg-gray-800 p-2 text-white outline-none transition-colors focus:border-gray-200" type="text" placeholder="Which Pokémon is Rounder?" value={form.getValue('description')} onInput={(e) => form.setValue('description', e.currentTarget.value)} />
 					<span class="text-sm text-red-400">{form.getError('description')}</span>
 				</div>
-				<div class="mt-4 flex flex-wrap items-center gap-2">
+				<div class="mt-6 flex flex-wrap items-center gap-2">
+					<Pagination page={page()} setPage={setPage} pageCount={pageCount()} />
 					<h3 class="shrink-0 basis-full text-lg sm:basis-auto">
 						Candidates <span class="text-sm">({animatedCandidatesCount().toFixed(0)}/500)</span>:
 					</h3>
@@ -146,7 +161,7 @@ export const CreateLeaderboardForm: Component<{
 						)}
 					</button>
 					<TransitionGroup name="animated-x-list-item">
-						<For each={candidates}>
+						<For each={candidates.slice(PAGE_SIZE * (page() - 1), PAGE_SIZE * page())}>
 							{(item) => (
 								<div use:clickOutsideDirective={() => setCurrentlyEditing(-1)} onClick={() => setCurrentlyEditing(item.id)} classList={{ 'sm:gap-2': item.id === currentlyEditing() }} class="animated-x-list-item relative flex w-full flex-col overflow-hidden rounded-md bg-gray-800 py-4 px-2 sm:h-48 sm:w-auto sm:flex-row">
 									<div class="mx-auto flex w-20 flex-col items-center justify-between sm:w-32">
