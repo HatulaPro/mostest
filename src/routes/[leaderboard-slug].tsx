@@ -1,6 +1,8 @@
-import { type RouteDataArgs, Outlet, useRouteData } from 'solid-start';
+import { createEffect } from 'solid-js';
+import { type RouteDataArgs, Outlet, useRouteData, useNavigate } from 'solid-start';
 import { createServerData$ } from 'solid-start/server';
 import { LeaderboardMeta } from '~/components/LeaderboardMeta';
+import { Loading } from '~/components/Loading';
 import { prisma } from '~/db';
 
 export function routeData({ params }: RouteDataArgs) {
@@ -14,6 +16,13 @@ export function routeData({ params }: RouteDataArgs) {
 
 export default function LeaderboardLayout() {
 	const data = useRouteData<typeof routeData>();
+
+	const navigate = useNavigate();
+	createEffect(() => {
+		if (!data.loading && !data()) {
+			navigate('/', { replace: true });
+		}
+	});
 
 	return (
 		<main class="text-center">
@@ -29,7 +38,17 @@ export default function LeaderboardLayout() {
 					</div>
 				</>
 			) : (
-				!data.loading && 'NOT FOUND'
+				!data.loading && (
+					<>
+						<div class="h-screen w-full grid place-items-center text-center">
+							<div class="flex flex-col gap-4">
+								<h1 class="text-2xl">Not Found</h1>
+								<Loading isLoading={true} />
+								<span>Redirecting...</span>
+							</div>
+						</div>
+					</>
+				)
 			)}
 		</main>
 	);
