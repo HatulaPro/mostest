@@ -5,6 +5,7 @@ import { createStore, reconcile, unwrap } from 'solid-js/store';
 import { A, Head, Meta, Title } from 'solid-start';
 import { createServerAction$ } from 'solid-start/server';
 import { InfoSection } from '~/components/InfoSection';
+import { Loading } from '~/components/Loading';
 import { Minigame } from '~/components/MiniGame';
 import { TopLeaderboards } from '~/components/TopLeaderboards';
 import { Tweets } from '~/components/Tweets';
@@ -69,13 +70,16 @@ const SearchLeaderboards: Component = () => {
 				</h1>
 				<p class="hidden text-xl font-bold md:block">Let us turn your leaderboard game idea into reality</p>
 				<form
-					class="text-md mx-auto mt-8 flex w-full justify-between rounded-full bg-gray-200 p-2 md:w-2/3 md:text-xl"
+					class="relative text-md mx-auto mt-8 flex w-full justify-between rounded-full bg-gray-200 p-2 md:w-2/3 md:text-xl"
 					onSubmit={(e) => {
 						e.preventDefault();
 						const params = new URLSearchParams({ name: newLeaderboardName() });
 						navigate(`/create?${params}`);
 					}}
 				>
+					<div class="absolute -left-8 top-1/2 -translate-y-1/2">
+						<Loading isLoading={enrolling.pending} />
+					</div>
 					<input
 						value={newLeaderboardName()}
 						onInput={(e) => {
