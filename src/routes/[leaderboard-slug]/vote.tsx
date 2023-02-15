@@ -104,7 +104,7 @@ export default function ViewLeaderboard() {
 										on(
 											() => prev() ?? data(),
 											() => {
-												el.animate([{ transform: 'scale(0)' }, { transform: 'scale(1)' }], { duration: 200, fill: 'forwards' });
+												el.animate([{ transform: 'scale(0)' }, { transform: 'scale(1)' }], { duration: 300, fill: 'forwards' });
 											}
 										)
 									)
