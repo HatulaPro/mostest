@@ -174,8 +174,8 @@ export const CreateLeaderboardForm: Component<{
 									</div>
 									<div classList={{ 'sm:w-64': item.id === currentlyEditing(), 'sm:w-0': item.id !== currentlyEditing() }} class="z-10 flex h-40 w-full flex-1 flex-col justify-evenly gap-2 overflow-hidden bg-gray-800 transition-all sm:gap-0">
 										<textarea
-											rows={3}
-											class="resize-none rounded-md px-3 py-1.5 text-black outline-none"
+											rows={4}
+											class="scrollbar resize-none rounded-md px-3 py-1.5 text-black bg-slate-300 outline-none"
 											value={item.image}
 											onInput={(e) => {
 												if (e.currentTarget.value.length > 256) e.currentTarget.value = e.currentTarget.value.slice(0, 256);
@@ -183,7 +183,7 @@ export const CreateLeaderboardForm: Component<{
 											}}
 										/>
 										<input
-											class="rounded-md px-3 py-1.5 text-black outline-none"
+											class="rounded-md px-3 py-1.5 text-black bg-slate-300 outline-none"
 											type="text"
 											value={item.name}
 											onInput={(e) => {
@@ -200,7 +200,7 @@ export const CreateLeaderboardForm: Component<{
 											});
 											setCurrentlyEditing(-1);
 										}}
-										class="absolute top-0 right-0 z-10 grid h-6 w-6 place-items-center bg-red-500"
+										class="absolute top-0 left-0 z-10 grid h-6 w-6 place-items-center bg-red-500"
 									>
 										<AiOutlineClose />
 									</button>

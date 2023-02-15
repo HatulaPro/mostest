@@ -108,6 +108,9 @@ a,
 	transition: 0.2s opacity;
 }
 
+.scrollbar {
+	cursor: auto;
+}
 .scrollbar::-webkit-scrollbar {
 	width: 10px;
 	height: 10px;
