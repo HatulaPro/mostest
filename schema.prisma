@@ -65,6 +65,8 @@ model Leaderboard {
     votes    Vote[]
 
     @@index([ownerId])
+    @@index([name])
+    @@index([question])
 }
 
 model Option {
