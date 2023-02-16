@@ -1,5 +1,5 @@
-import { createReaction, on } from 'solid-js';
-import { createEffect, createSignal, For, onMount, Suspense } from 'solid-js';
+import { on } from 'solid-js';
+import { createEffect, createSignal, For, Suspense } from 'solid-js';
 import { type RouteDataArgs, A, useRouteData, refetchRouteData } from 'solid-start';
 import { createServerAction$, createServerData$, ServerError } from 'solid-start/server';
 import { z } from 'zod';
@@ -9,7 +9,7 @@ import { safeArg } from '~/utils/functions';
 import { type routeData as ParentRouteData } from '../[leaderboard-slug]';
 
 export function routeData(input: RouteDataArgs<typeof ParentRouteData>) {
-	return createServerData$(
+	const optionsA = createServerData$(
 		async ([, id]) => {
 			if (!id) return null;
 			const twoOptionsSchema = z.array(z.object({ id: z.string(), leaderboardId: z.string(), content: z.string(), image: z.string().optional() })).length(2);
@@ -19,36 +19,41 @@ export function routeData(input: RouteDataArgs<typeof ParentRouteData>) {
 			return null;
 		},
 		{
-			key: () => ['leaderboard-options', input.data.latest?.id],
-			reconcileOptions: { merge: false },
+			key: () => ['leaderboard-options', input.data.latest?.id, 'optionsA'],
 		}
 	);
+
+	const optionsB = createServerData$(
+		async ([, id]) => {
+			if (!id) return null;
+			const twoOptionsSchema = z.array(z.object({ id: z.string(), leaderboardId: z.string(), content: z.string(), image: z.string().optional() })).length(2);
+			const res = await prisma.$queryRaw`SELECT "public"."Option"."id", "public"."Option"."leaderboardId", "public"."Option"."content", "public"."Option"."image" FROM "public"."Option" WHERE "public"."Option"."leaderboardId" = ${id} ORDER BY RANDOM() ASC LIMIT 2`;
+			const parsed = twoOptionsSchema.safeParse(res);
+			if (parsed.success) return parsed.data;
+			return null;
+		},
+		{
+			key: () => ['leaderboard-options', input.data.latest?.id, 'optionsB'],
+		}
+	);
+
+	return { optionsA, optionsB };
 }
 
 export default function ViewLeaderboard() {
 	const data = useRouteData<typeof routeData>();
-	const [prev, setPrev] = createSignal(data.latest && [...data.latest]);
-
-	const [hasNext, setHasNext] = createSignal(false);
-
-	const fillPrev = () => {
-		setHasNext(true);
-		if (!prev()) {
-			const track = createReaction(() => {
-				setPrev(data.latest && [...data.latest]);
-				refetchRouteData(['leaderboard-options', data.latest && data.latest[0].leaderboardId]);
-			});
-			track(() => data());
-		}
-	};
-	// Filling prev on mount
-	onMount(() => {
-		refetchRouteData(['leaderboard-options', data.latest && data.latest[0].leaderboardId]).then(fillPrev);
-	});
+	const [currentOptions, setCurrentOptions] = createSignal<keyof typeof data>('optionsA');
+	const isLoading = () => data.optionsA.loading && data.optionsB.loading;
 
 	// Prefetching images
 	createEffect(() => {
-		data()?.forEach((value) => {
+		data.optionsA()?.forEach((value) => {
+			if (value.image) {
+				const preloaded = new Image();
+				preloaded.src = value.image;
+			}
+		});
+		data.optionsB()?.forEach((value) => {
 			if (value.image) {
 				const preloaded = new Image();
 				preloaded.src = value.image;
@@ -71,14 +76,12 @@ export default function ViewLeaderboard() {
 	);
 
 	function voteFor(chosenOption: string) {
-		const d = data();
-		const p = prev() ?? d;
+		const p = data[currentOptions()]();
 		if (!p) return;
-		setPrev(d ? [...d] : []);
-		setHasNext(false);
 		const votedFor = p.find((o) => o.id === chosenOption);
 		const votedAgainst = p.find((o) => o.id !== chosenOption);
-		refetchRouteData(['leaderboard-options', p[0].leaderboardId]).then(() => setHasNext(true));
+		refetchRouteData(['leaderboard-options', p[0].leaderboardId, currentOptions()]);
+		setCurrentOptions((c) => (c === 'optionsA' ? 'optionsB' : 'optionsA'));
 		if (votedFor && votedAgainst) {
 			enroll({ votedFor: votedFor.id, votedAgainst: votedAgainst.id });
 		}
@@ -95,21 +98,21 @@ export default function ViewLeaderboard() {
 						</>
 					}
 				>
-					<For each={prev() ?? data()}>
+					<For each={data[currentOptions()]()}>
 						{(option) => (
 							<button
 								ref={(el) =>
 									// Adding animation on new id
 									createEffect(
 										on(
-											() => prev() ?? data(),
+											() => data[currentOptions()](),
 											() => {
 												el.animate([{ transform: 'scale(0)' }, { transform: 'scale(1)' }], { duration: 300, fill: 'forwards' });
 											}
 										)
 									)
 								}
-								disabled={!hasNext()}
+								disabled={isLoading()}
 								onClick={safeArg(voteFor, option.id)}
 								type="button"
 								class="group relative flex h-48 w-48 scale-0 flex-col items-center rounded-md border-2 border-gray-500 bg-transparent pb-6 sm:h-64 sm:w-64"
@@ -122,7 +125,7 @@ export default function ViewLeaderboard() {
 					</For>
 				</Suspense>
 			</div>
-			<Loading isLoading={data.loading && !hasNext()} />
+			<Loading isLoading={isLoading()} />
 			<div class="mt-8">
 				<A href=".." class="rounded-md bg-red-500 py-2 px-4 hover:bg-red-600">
 					View Results
