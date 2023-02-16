@@ -15,6 +15,8 @@ import clickOutside from '~/bindings/click-outside';
 import { slugify } from '~/utils/functions';
 import { useAnimatedNumber } from '~/hooks/useAnimatedNumber';
 import { Pagination } from './Pagination';
+import { Warning } from './Warning';
+import { useSession } from '~/db/useSession';
 // eslint-disable-next-line
 const clickOutsideDirective = clickOutside;
 
@@ -34,6 +36,7 @@ const PAGE_SIZE = 17;
 export const CreateLeaderboardForm: Component<{
 	name: string;
 }> = (props) => {
+	const user = useSession();
 	const form = useForm({ name: { parser: CreateLeaderboardSchema.shape.name, defaultValue: props.name }, slug: { parser: CreateLeaderboardSchema.shape.slug }, description: { parser: CreateLeaderboardSchema.shape.description } });
 	const [candidates, setCandidates] = createStore<{ id: number; name: string; image: string }[]>([
 		{ id: 1, name: 'Zapdos', image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/145.png' },
@@ -101,6 +104,8 @@ export const CreateLeaderboardForm: Component<{
 				<h2 class="my-8 text-center text-3xl sm:text-4xl md:text-5xl">
 					Create <span class="font-bold text-red-500">Leaderboard</span>
 				</h2>
+				{Boolean(!user.latest?.user) && <Warning content="You are not logged in, which means you will not be able to edit this leaderboard." />}
+
 				<div class="flex w-full items-start gap-2">
 					<div class="flex-1">
 						<input required class="w-full rounded-md border-2 border-gray-500 bg-gray-800 p-2 text-white outline-none transition-colors focus:border-gray-200" type="text" value={props.name || form.getValue('name')} onInput={(e) => form.setValue('name', e.currentTarget.value)} placeholder="Roundest" />
