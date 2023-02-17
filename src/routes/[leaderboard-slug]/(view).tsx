@@ -9,16 +9,16 @@ import { EditCandidateForm } from '~/components/EditCandidateForm';
 import { Pagination } from '~/components/Pagination';
 import { ShareButton } from '~/components/ShareButton';
 import { prisma } from '~/db';
-import { getSession } from '../api/auth/[...solidauth]';
+import { useSession } from '~/db/useSession';
 import { type routeData as ParentRouteData } from '../[leaderboard-slug]';
 
 export function routeData(input: RouteDataArgs<typeof ParentRouteData>) {
 	return createServerData$(
-		async ([, id, latest], { request }) => {
+		async ([, id, latest]) => {
 			if (!id) return null;
-			const [session, options] = await Promise.all([getSession(request), prisma.option.findMany({ where: { leaderboardId: id }, include: { _count: { select: { voteAgainst: true, voteFor: true } } } })]);
+			const options = await prisma.option.findMany({ where: { leaderboardId: id }, include: { _count: { select: { voteAgainst: true, voteFor: true } } } });
 
-			return { leaderboard: latest, user: session?.user, options: options.map((o) => [o.id, o.image, o.content, o.leaderboardId, o._count.voteFor, o._count.voteAgainst] as const) };
+			return { leaderboard: latest, options: options.map((o) => [o.id, o.image, o.content, o.leaderboardId, o._count.voteFor, o._count.voteAgainst] as const) };
 		},
 		{ key: () => ['leaderboard-options', input.data.latest?.id, input.data.latest] as const }
 	);
@@ -33,6 +33,7 @@ function calcPercentage(voteFor: number, voteAgainst: number) {
 const PAGE_SIZE = 8;
 export default function ViewLeaderboard() {
 	const data = useRouteData<typeof routeData>();
+	const user = useSession();
 
 	const [searchParams, setSearchParams] = useSearchParams<{ page: string; query: string }>();
 	const page = () => parseInt(searchParams.page) || 1;
@@ -70,7 +71,7 @@ export default function ViewLeaderboard() {
 	});
 
 	const pageCount = () => Math.ceil((activeCandidates.length || PAGE_SIZE) / PAGE_SIZE);
-	const isOwner = () => data.latest?.leaderboard?.ownerId && data.latest.leaderboard.ownerId === data.latest.user?.id;
+	const isOwner = () => data.latest?.leaderboard?.ownerId && data.latest.leaderboard.ownerId === user.latest?.user?.id;
 	const [editedId, setEditedId] = createSignal<number>(-1);
 
 	const preloadPageImages = (p: number) => {
