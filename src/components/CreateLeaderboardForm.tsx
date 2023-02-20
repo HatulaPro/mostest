@@ -192,36 +192,8 @@ const CandidateForm: Component<{
 		image: string;
 	};
 }> = (props) => {
-	const [isDragging, setDragging] = createSignal(false);
-
 	return (
-		<div
-			onDragEnter={(e) => {
-				e.preventDefault();
-				e.stopPropagation();
-				setDragging(true);
-			}}
-			onDragOver={(e) => {
-				e.preventDefault();
-				e.stopPropagation();
-				setDragging(true);
-			}}
-			onDragLeave={(e) => {
-				e.preventDefault();
-				e.stopPropagation();
-				setDragging(false);
-			}}
-			onDrop={(e) => {
-				e.preventDefault();
-				e.stopPropagation();
-				setDragging(false);
-				console.log(e.dataTransfer?.files[0].arrayBuffer());
-			}}
-			use:clickOutsideDirective={() => setCurrentlyEditing(-1)}
-			onClick={() => setCurrentlyEditing(props.candidate.id)}
-			classList={{ 'sm:gap-2': props.candidate.id === currentlyEditing() }}
-			class="animated-x-list-item relative flex w-full flex-col overflow-hidden rounded-md bg-gray-800 py-4 px-2 sm:h-48 sm:w-auto sm:flex-row"
-		>
+		<div use:clickOutsideDirective={() => setCurrentlyEditing(-1)} onClick={() => setCurrentlyEditing(props.candidate.id)} classList={{ 'sm:gap-2': props.candidate.id === currentlyEditing() }} class="animated-x-list-item relative flex w-full flex-col overflow-hidden rounded-md bg-gray-800 py-4 px-2 sm:h-48 sm:w-auto sm:flex-row">
 			<div class="mx-auto flex w-20 flex-col items-center justify-between sm:w-32">
 				<img src={props.candidate.image} class="h-full object-contain" />
 				<span class="text-center">{props.candidate.name}</span>
@@ -258,7 +230,6 @@ const CandidateForm: Component<{
 			>
 				<AiOutlineClose />
 			</button>
-			<div class="absolute transition-colors z-10 w-full h-full inset-0" classList={{ 'border-2 border-white border-dashed bg-white/30': isDragging() }} />
 		</div>
 	);
 };
