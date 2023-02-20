@@ -33,16 +33,19 @@ const CreateLeaderboardSchema = z.object({
 type CreateLeaderboardType = z.infer<typeof CreateLeaderboardSchema>;
 
 const PAGE_SIZE = 17;
+
+const [currentlyEditing, setCurrentlyEditing] = createSignal<number>(-1);
+const [candidates, setCandidates] = createStore<{ id: number; name: string; image: string }[]>([
+	{ id: 1, name: 'Zapdos', image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/145.png' },
+	{ id: 2, name: 'Castform', image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/351.png' },
+	{ id: 3, name: 'Bulbasaur', image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png' },
+]);
+
 export const CreateLeaderboardForm: Component<{
 	name: string;
 }> = (props) => {
 	const user = useSession();
 	const form = useForm({ name: { parser: CreateLeaderboardSchema.shape.name, defaultValue: props.name }, slug: { parser: CreateLeaderboardSchema.shape.slug }, description: { parser: CreateLeaderboardSchema.shape.description } });
-	const [candidates, setCandidates] = createStore<{ id: number; name: string; image: string }[]>([
-		{ id: 1, name: 'Zapdos', image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/145.png' },
-		{ id: 2, name: 'Castform', image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/351.png' },
-		{ id: 3, name: 'Bulbasaur', image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png' },
-	]);
 	const animatedCandidatesCount = useAnimatedNumber(() => candidates.length, { startingValue: candidates.length, duration: 200, steps: 7 });
 
 	const [searchParams, setSearchParams] = useSearchParams<{ page: string }>();
@@ -55,8 +58,6 @@ export const CreateLeaderboardForm: Component<{
 			setPage(pageCount());
 		}
 	});
-
-	const [currentlyEditing, setCurrentlyEditing] = createSignal<number>(-1);
 
 	const navigate = useNavigate();
 	function addCandidate() {
@@ -170,48 +171,7 @@ export const CreateLeaderboardForm: Component<{
 						)}
 					</button>
 					<TransitionGroup name="animated-x-list-item">
-						<For each={candidates.slice(PAGE_SIZE * (page() - 1), PAGE_SIZE * page())}>
-							{(item) => (
-								<div use:clickOutsideDirective={() => setCurrentlyEditing(-1)} onClick={() => setCurrentlyEditing(item.id)} classList={{ 'sm:gap-2': item.id === currentlyEditing() }} class="animated-x-list-item relative flex w-full flex-col overflow-hidden rounded-md bg-gray-800 py-4 px-2 sm:h-48 sm:w-auto sm:flex-row">
-									<div class="mx-auto flex w-20 flex-col items-center justify-between sm:w-32">
-										<img src={item.image} class="h-full object-contain" />
-										<span class="text-center">{item.name}</span>
-									</div>
-									<div classList={{ 'sm:w-64': item.id === currentlyEditing(), 'sm:w-0': item.id !== currentlyEditing() }} class="z-10 flex h-40 w-full flex-1 flex-col justify-evenly gap-2 overflow-hidden bg-gray-800 transition-all sm:gap-0">
-										<textarea
-											rows={4}
-											class="scrollbar resize-none rounded-md px-3 py-1.5 text-black bg-slate-300 outline-none"
-											value={item.image}
-											onInput={(e) => {
-												if (e.currentTarget.value.length > 256) e.currentTarget.value = e.currentTarget.value.slice(0, 256);
-												setCandidates((c) => c.id === currentlyEditing(), 'image', e.currentTarget.value);
-											}}
-										/>
-										<input
-											class="rounded-md px-3 py-1.5 text-black bg-slate-300 outline-none"
-											type="text"
-											value={item.name}
-											onInput={(e) => {
-												if (e.currentTarget.value.length > 64) e.currentTarget.value = e.currentTarget.value.slice(0, 64);
-												setCandidates((c) => c.id === currentlyEditing(), 'name', e.currentTarget.value);
-											}}
-										/>
-									</div>
-									<button
-										onClick={(e) => {
-											e.preventDefault();
-											setCandidates((p) => {
-												return p.filter((c) => c.id !== item.id);
-											});
-											setCurrentlyEditing(-1);
-										}}
-										class="absolute top-0 left-0 z-10 grid h-6 w-6 place-items-center bg-red-500"
-									>
-										<AiOutlineClose />
-									</button>
-								</div>
-							)}
-						</For>
+						<For each={candidates.slice(PAGE_SIZE * (page() - 1), PAGE_SIZE * page())}>{(item) => <CandidateForm candidate={item} />}</For>
 					</TransitionGroup>
 				</div>
 				<Loading isLoading={enrolling.pending} />
@@ -222,5 +182,54 @@ export const CreateLeaderboardForm: Component<{
 				</div>
 			</div>
 		</form>
+	);
+};
+
+const CandidateForm: Component<{
+	candidate: {
+		id: number;
+		name: string;
+		image: string;
+	};
+}> = (props) => {
+	return (
+		<div use:clickOutsideDirective={() => setCurrentlyEditing(-1)} onClick={() => setCurrentlyEditing(props.candidate.id)} classList={{ 'sm:gap-2': props.candidate.id === currentlyEditing() }} class="animated-x-list-item relative flex w-full flex-col overflow-hidden rounded-md bg-gray-800 py-4 px-2 sm:h-48 sm:w-auto sm:flex-row">
+			<div class="mx-auto flex w-20 flex-col items-center justify-between sm:w-32">
+				<img src={props.candidate.image} class="h-full object-contain" />
+				<span class="text-center">{props.candidate.name}</span>
+			</div>
+			<div classList={{ 'sm:w-64': props.candidate.id === currentlyEditing(), 'sm:w-0': props.candidate.id !== currentlyEditing() }} class="z-10 flex h-40 w-full flex-1 flex-col justify-evenly gap-2 overflow-hidden bg-gray-800 transition-all sm:gap-0">
+				<textarea
+					rows={4}
+					class="scrollbar resize-none rounded-md px-3 py-1.5 text-black bg-slate-300 outline-none"
+					value={props.candidate.image}
+					onInput={(e) => {
+						if (e.currentTarget.value.length > 256) e.currentTarget.value = e.currentTarget.value.slice(0, 256);
+						setCandidates((c) => c.id === currentlyEditing(), 'image', e.currentTarget.value);
+					}}
+				/>
+				<input
+					class="rounded-md px-3 py-1.5 text-black bg-slate-300 outline-none"
+					type="text"
+					value={props.candidate.name}
+					onInput={(e) => {
+						if (e.currentTarget.value.length > 64) e.currentTarget.value = e.currentTarget.value.slice(0, 64);
+						setCandidates((c) => c.id === currentlyEditing(), 'name', e.currentTarget.value);
+					}}
+				/>
+			</div>
+			<button
+				onClick={(e) => {
+					e.preventDefault();
+					setCandidates((p) => {
+						return p.filter((c) => c.id !== props.candidate.id);
+					});
+					setCurrentlyEditing(-1);
+				}}
+				class="absolute top-0 left-0 z-10 grid h-6 w-6 place-items-center bg-red-500"
+			>
+				<AiOutlineClose />
+			</button>
+		</div>
 	);
 };
