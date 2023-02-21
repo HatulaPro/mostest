@@ -140,7 +140,7 @@ export const EditCandidateForm: Component<{ leaderboardId: string; isOpen: boole
 					}}
 					placeholder="Candidate name"
 				/>
-				<div class="grid aspect-square place-items-center rounded-md border-2 border-gray-500">{form.getValue('image') ? <img src={form.getValue('image')} alt="Image for candidate" class="h-32 w-32 object-contain" /> : <div class="grid h-32 w-32 place-items-center">No image.</div>}</div>
+				<div class="grid aspect-square place-items-center rounded-md border-2 border-gray-500">{form.getValue('image') ? <img src={form.getValue('image')} draggable={false} alt="Image for candidate" class="h-32 w-32 object-contain" /> : <div class="grid h-32 w-32 place-items-center">No image.</div>}</div>
 
 				<UploadFileButton isLoading={isLoading()} onInput={(e) => upload(e.currentTarget.files)} />
 				{errorMessage() && <span class="block mx-auto text-xs text-red-400">{errorMessage()}</span>}
