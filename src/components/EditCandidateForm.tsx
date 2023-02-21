@@ -1,13 +1,15 @@
 import type { Option } from '@prisma/client';
 import { AiFillDelete } from 'solid-icons/ai';
-import { type Component, createEffect, on } from 'solid-js';
+import { type Component, createEffect, on, createSignal } from 'solid-js';
 import { createServerAction$ } from 'solid-start/server';
 import { z } from 'zod';
 import { prisma } from '~/db';
+import { useFileUploader } from '~/hooks/useFileUploader';
 import { useForm } from '~/hooks/useForm';
 import { getSession } from '~/routes/api/auth/[...solidauth]';
 import { Loading } from './Loading';
 import { Modal } from './Modal';
+import { UploadFileButton } from './UploadFileButton';
 
 type Candidate = {
 	id: string;
@@ -81,10 +83,18 @@ export const EditCandidateForm: Component<{ leaderboardId: string; isOpen: boole
 		{ invalidate: ['leaderboard-options'] }
 	);
 
+	const [isDragging, setDragging] = createSignal(false);
+
+	const { upload, isLoading, errorMessage } = useFileUploader((data) => {
+		if (data.success) {
+			form.setValue('image', data.location);
+		}
+	});
+
 	return (
 		<Modal isOpen={props.isOpen} close={props.close}>
 			<form
-				class="flex h-screen flex-col items-center justify-evenly gap-2 p-3 sm:h-auto"
+				class="relative flex h-screen flex-col items-center justify-evenly gap-2 p-3 sm:h-auto"
 				onSubmit={(e) => {
 					e.preventDefault();
 					enroll({
@@ -93,6 +103,16 @@ export const EditCandidateForm: Component<{ leaderboardId: string; isOpen: boole
 						leaderboardId: props.leaderboardId,
 						candidateId: props.candidate?.id ?? '',
 					}).then(props.close());
+				}}
+				onDragEnter={(e) => {
+					e.preventDefault();
+					e.stopPropagation();
+					setDragging(true);
+				}}
+				onDragOver={(e) => {
+					e.preventDefault();
+					e.stopPropagation();
+					setDragging(true);
 				}}
 			>
 				<h2 class="mb-4 text-2xl font-bold">
@@ -121,17 +141,10 @@ export const EditCandidateForm: Component<{ leaderboardId: string; isOpen: boole
 					placeholder="Candidate name"
 				/>
 				<div class="grid aspect-square place-items-center rounded-md border-2 border-gray-500">{form.getValue('image') ? <img src={form.getValue('image')} alt="Image for candidate" class="h-32 w-32 object-contain" /> : <div class="grid h-32 w-32 place-items-center">No image.</div>}</div>
-				<textarea
-					class="h-auto w-full rounded-md border-2 border-gray-500 bg-gray-800 p-2 text-white outline-none transition-colors focus:border-gray-200"
-					rows={4}
-					value={form.getValue('image')}
-					onInput={(e) => {
-						if (e.currentTarget.value.length > 256) e.currentTarget.value = e.currentTarget.value.slice(0, 256);
-						form.setValue('image', e.currentTarget.value);
-					}}
-					placeholder="Url to image"
-				/>
-				<Loading isLoading={enrolling.pending} />
+
+				<UploadFileButton isLoading={isLoading()} onInput={(e) => upload(e.currentTarget.files)} />
+				{errorMessage() && <span class="block mx-auto text-xs text-red-400">{errorMessage()}</span>}
+				<Loading isLoading={enrolling.pending || isLoading()} />
 				{props.isOpen && (
 					<div class="flex justify-center gap-2 sm:mt-4">
 						<button disabled={!form.isValid() || enrolling.pending} type="submit" class="items-center rounded-md bg-red-500 py-1.5 px-3 text-base text-white hover:enabled:bg-red-600 disabled:contrast-75">
@@ -160,6 +173,23 @@ export const EditCandidateForm: Component<{ leaderboardId: string; isOpen: boole
 							</button>
 						)}
 					</div>
+				)}
+				{isDragging() && (
+					<div
+						class="border-2 border-dashed z-10 border-white absolute inset-0 w-full h-full"
+						onDragLeave={(e) => {
+							e.preventDefault();
+							e.stopPropagation();
+
+							setDragging(false);
+						}}
+						onDrop={async (e) => {
+							e.preventDefault();
+							e.stopPropagation();
+							setDragging(false);
+							upload(e.dataTransfer?.files);
+						}}
+					/>
 				)}
 			</form>
 		</Modal>
