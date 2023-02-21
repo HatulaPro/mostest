@@ -8,6 +8,8 @@ export const serverScheme = z.object({
 	AUTH_SECRET: z.string(),
 	AUTH_TRUST_HOST: z.string(),
 	DATABASE_URL: z.string(),
+	AWS_BUCKET_ACCESS_KEY: z.string(),
+	AWS_BUCKET_SECRET_ACCESS_KEY: z.string(),
 });
 
 export const clientScheme = z.object({

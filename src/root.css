@@ -130,3 +130,10 @@ a,
 .scrollbar::-webkit-scrollbar-thumb:hover {
 	background: #6b6b6b;
 }
+
+.fileInput::-webkit-file-upload-button {
+	visibility: hidden;
+}
+.fileInput {
+	color: transparent;
+}

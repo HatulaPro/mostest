@@ -17,6 +17,8 @@ import { useAnimatedNumber } from '~/hooks/useAnimatedNumber';
 import { Pagination } from './Pagination';
 import { Warning } from './Warning';
 import { useSession } from '~/db/useSession';
+import { UploadFileButton } from './UploadFileButton';
+import { useFileUploader } from '~/hooks/useFileUploader';
 // eslint-disable-next-line
 const clickOutsideDirective = clickOutside;
 
@@ -192,22 +194,38 @@ const CandidateForm: Component<{
 		image: string;
 	};
 }> = (props) => {
+	const [isDragging, setDragging] = createSignal(false);
+
+	const { upload, isLoading, errorMessage } = useFileUploader((data) => {
+		if (data.success) {
+			setCandidates((c) => c.id === currentlyEditing(), 'image', data.location);
+		}
+	});
+
 	return (
-		<div use:clickOutsideDirective={() => setCurrentlyEditing(-1)} onClick={() => setCurrentlyEditing(props.candidate.id)} classList={{ 'sm:gap-2': props.candidate.id === currentlyEditing() }} class="animated-x-list-item relative flex w-full flex-col overflow-hidden rounded-md bg-gray-800 py-4 px-2 sm:h-48 sm:w-auto sm:flex-row">
+		<div
+			onDragEnter={(e) => {
+				e.preventDefault();
+				e.stopPropagation();
+				setDragging(true);
+				setCurrentlyEditing(props.candidate.id);
+			}}
+			onDragOver={(e) => {
+				e.preventDefault();
+				e.stopPropagation();
+				setDragging(true);
+				setCurrentlyEditing(props.candidate.id);
+			}}
+			use:clickOutsideDirective={() => setCurrentlyEditing(-1)}
+			onClick={() => setCurrentlyEditing(props.candidate.id)}
+			classList={{ 'sm:gap-2': props.candidate.id === currentlyEditing() }}
+			class="animated-x-list-item relative flex w-full flex-col overflow-hidden rounded-md bg-gray-800 py-4 px-2 sm:h-48 sm:w-auto sm:flex-row"
+		>
 			<div class="mx-auto flex w-20 flex-col items-center justify-between sm:w-32">
-				<img src={props.candidate.image} class="h-full object-contain" />
+				{isLoading() ? <Loading isLoading /> : <img src={props.candidate.image} draggable={false} class="h-full p-2 object-contain" />}
 				<span class="text-center">{props.candidate.name}</span>
 			</div>
-			<div classList={{ 'sm:w-64': props.candidate.id === currentlyEditing(), 'sm:w-0': props.candidate.id !== currentlyEditing() }} class="z-10 flex h-40 w-full flex-1 flex-col justify-evenly gap-2 overflow-hidden bg-gray-800 transition-all sm:gap-0">
-				<textarea
-					rows={4}
-					class="scrollbar resize-none rounded-md px-3 py-1.5 text-black bg-slate-300 outline-none"
-					value={props.candidate.image}
-					onInput={(e) => {
-						if (e.currentTarget.value.length > 256) e.currentTarget.value = e.currentTarget.value.slice(0, 256);
-						setCandidates((c) => c.id === currentlyEditing(), 'image', e.currentTarget.value);
-					}}
-				/>
+			<div classList={{ 'sm:w-64': props.candidate.id === currentlyEditing(), 'sm:w-0': props.candidate.id !== currentlyEditing() }} class="z-10 flex h-40 w-full flex-1 flex-col justify-evenly gap-2 overflow-hidden bg-gray-800 transition-all sm:gap-0 relative">
 				<input
 					class="rounded-md px-3 py-1.5 text-black bg-slate-300 outline-none"
 					type="text"
@@ -217,6 +235,14 @@ const CandidateForm: Component<{
 						setCandidates((c) => c.id === currentlyEditing(), 'name', e.currentTarget.value);
 					}}
 				/>
+
+				<UploadFileButton
+					isLoading={isLoading()}
+					onInput={(e) => {
+						upload(e.currentTarget.files);
+					}}
+				/>
+				{errorMessage() && <span class="bottom-0 absolute block mx-auto text-xs text-red-400">{errorMessage()}</span>}
 			</div>
 			<button
 				onClick={(e) => {
@@ -230,6 +256,23 @@ const CandidateForm: Component<{
 			>
 				<AiOutlineClose />
 			</button>
+			{isDragging() && (
+				<div
+					class="border-2 border-dashed z-10 border-white absolute inset-0 w-full h-full"
+					onDragLeave={(e) => {
+						e.preventDefault();
+						e.stopPropagation();
+
+						setDragging(false);
+					}}
+					onDrop={async (e) => {
+						e.preventDefault();
+						e.stopPropagation();
+						setDragging(false);
+						upload(e.dataTransfer?.files);
+					}}
+				/>
+			)}
 		</div>
 	);
 };
