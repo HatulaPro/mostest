@@ -16,7 +16,7 @@ export async function POST(e: APIEvent) {
 		const randomName = (Math.random() + 1).toString(16).substring(7) + (blob.type === 'image/png' ? '.png' : '.jpeg');
 
 		const s3 = new S3({ region: 'eu-central-1', credentials: { accessKeyId: serverEnv.AWS_BUCKET_ACCESS_KEY, secretAccessKey: serverEnv.AWS_BUCKET_SECRET_ACCESS_KEY } });
-		const res = await s3.upload({ ACL: 'public-read', Bucket: 'hatula-mostest', Key: randomName, Body: new Uint8Array(await blob.arrayBuffer()) }).promise();
+		const res = await s3.upload({ ContentType: type, ACL: 'public-read', Bucket: 'hatula-mostest', Key: randomName, Body: new Uint8Array(await blob.arrayBuffer()) }).promise();
 
 		return json<UploadFileResponse>({ success: true, location: res.Location });
 	} catch (e) {
