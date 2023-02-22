@@ -196,7 +196,7 @@ const CandidateForm: Component<{
 }> = (props) => {
 	const [isDragging, setDragging] = createSignal(false);
 
-	const { upload, isLoading, errorMessage } = useFileUploader((data) => {
+	const { upload, isLoading, errorMessage, abort } = useFileUploader((data) => {
 		if (data.success) {
 			setCandidates((c) => c.id === currentlyEditing(), 'image', data.location);
 		}
@@ -241,6 +241,7 @@ const CandidateForm: Component<{
 					onInput={(e) => {
 						upload(e.currentTarget.files);
 					}}
+					onCancel={abort}
 				/>
 				{errorMessage() && <span class="bottom-0 absolute block mx-auto text-xs text-red-400">{errorMessage()}</span>}
 			</div>

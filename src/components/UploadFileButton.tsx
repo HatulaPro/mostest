@@ -1,4 +1,4 @@
-import { AiOutlineUpload } from 'solid-icons/ai';
+import { AiOutlineClose, AiOutlineUpload } from 'solid-icons/ai';
 import { type Component } from 'solid-js';
 import { z } from 'zod';
 
@@ -22,13 +22,24 @@ export const UploadFileButton: Component<{
 			target: Element;
 		}
 	) => void;
+	onCancel?: () => void;
 }> = (props) => {
 	return (
 		<label class="relative">
 			<input class="hidden" onInput={(e) => props.onInput(e)} disabled={props.isLoading} type="file" aria-label="Browse file" />
-			<span class="cursor-pointer mx-auto rounded-md px-3 py-1.5 text-black transition-colors flex gap-2 items-center justify-center w-fit" classList={{ 'bg-slate-300 hover:bg-slate-400 cursor-pointer': !props.isLoading, 'bg-slate-400 cursor-wait': props.isLoading }}>
-				<AiOutlineUpload />
-				Upload
+			<span
+				onClick={(e) => {
+					if (props.isLoading) {
+						e.preventDefault();
+						props.onCancel?.();
+					}
+				}}
+				class="cursor-pointer mx-auto rounded-md px-3 py-1.5 text-black transition-colors flex gap-2 items-center justify-center w-fit"
+				classList={{ 'bg-slate-300 hover:bg-slate-400': !props.isLoading, 'bg-slate-400': props.isLoading }}
+			>
+				{!props.isLoading && <AiOutlineUpload />}
+				{props.isLoading && <AiOutlineClose />}
+				{props.isLoading ? 'Cancel' : 'Upload'}
 			</span>
 		</label>
 	);
