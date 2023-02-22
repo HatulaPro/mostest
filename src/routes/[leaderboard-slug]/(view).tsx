@@ -110,7 +110,7 @@ export default function ViewLeaderboard() {
 										<ImageOfIndex index={PAGE_SIZE * (page() - 1) + i - 1} />
 									</div>
 									<div class="flex h-[inherit] items-center gap-2">
-										<div class="h-full animate-pulse bg-slate-700 object-contain py-1" />
+										<div class="h-16 w-16 animate-pulse bg-slate-700 object-contain py-1" />
 										<p class="animate-pulse bg-slate-700 text-center text-xs text-transparent sm:text-lg">SOME TEXT HERE</p>
 									</div>
 									<p class="ml-auto animate-pulse bg-slate-700 text-xs text-transparent sm:text-lg">99.99%</p>
@@ -152,7 +152,7 @@ export default function ViewLeaderboard() {
 												<ImageOfIndex index={option.index} />
 											</div>
 											<div class="flex h-[inherit] items-center gap-2">
-												<img class="h-full object-contain py-1" alt={option.value.content} src={option.value.image ?? ''} />
+												<img class="h-full w-16 object-contain py-1" alt={option.value.content} src={option.value.image ?? ''} />
 												<p class="text-center text-xs sm:text-lg">{option.value.content}</p>
 												{isOwner() && (
 													<button onClick={() => setEditedId(option.index)} class="flex items-center rounded-md py-1.5 px-2 text-lg text-white transition-colors hover:bg-slate-800">
